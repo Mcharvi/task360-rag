@@ -78,18 +78,14 @@ def ask_question(data: Question):
     print("REWRITTEN:", rewritten_query)
     print("="*50)
 
-    # -------------------------
     # RETRIEVAL
-    # -------------------------
 
     retrieved_docs = vectorstore.max_marginal_relevance_search(
         rewritten_query,
         k=5,
         fetch_k=20
 )
-    # -------------------------
     # SIMILARITY SCORES
-    # -------------------------
 
     results = vectorstore.similarity_search_with_score(
     rewritten_query,
@@ -111,17 +107,14 @@ def ask_question(data: Question):
         print(score, flush=True)
    
 
-    # -------------------------
     # CONTEXT
-    # -------------------------
+    
 
     context = "\n\n".join(
         [doc.page_content for doc in retrieved_docs]
     )
 
-    # -------------------------
     # PROMPT
-    # -------------------------
 
     prompt = f"""
 You are a retrieval-based assistant.
@@ -135,6 +128,8 @@ Rules:
 
 I could not find the answer in the provided documents.
 
+
+
 Previous Conversation:
 {history_text}
 
@@ -147,9 +142,7 @@ Question:
 Answer:
 """
 
-    # -------------------------
     # GPT RESPONSE
-    # -------------------------
 
     response = client.responses.create(
         model="gpt-4o-mini",
@@ -158,9 +151,7 @@ Answer:
 
     answer = response.output_text
 
-    # -------------------------
     # SOURCES
-    # -------------------------
 
     sources = []
 
@@ -172,24 +163,40 @@ Answer:
         filename = source.split("\\")[-1]
         filename = filename.split("/")[-1]
 
-        sources.append(
-            f"{filename} (Page {page + 1})"
-        )
+        print("\nTOP RETRIEVED DOCUMENTS:")
 
-    unique_sources = []
+        for doc in retrieved_docs[:2]:
+            print(doc.metadata)
+
+        sources.append({
+            "file": filename,
+            "page": page + 1
+})
+
+        unique_sources = []
 
     for source in sources:
         if source not in unique_sources:
             unique_sources.append(source)
 
-    citation_text = "\n".join(unique_sources)
+    citation_lines = []
+
+    for i, source in enumerate(unique_sources, start=1):
+        citation_lines.append(
+            f"[{i}] {source['file']} - Page {source['page']}"
+    )
+
+    citation_text = "\n".join(citation_lines)
 
     final_answer = f"""
-{answer}
+    {answer}
 
-Sources:
-{citation_text}
-"""
+    --------------------------------
+
+    References
+
+    {citation_text}
+    """
 
     
     chat_history.append(

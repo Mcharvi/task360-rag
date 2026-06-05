@@ -1,183 +1,212 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from openai import OpenAI
 
-# -------------------------
-# OPENAI CLIENT
-# -------------------------
+# STARTUP VALIDATION
+
+if not os.getenv("OPENAI_API_KEY"):
+    raise RuntimeError("OPENAI_API_KEY is not set in environment.")
+
+print("API.PY LOADED")
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Lock this down to your domain in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 client = OpenAI()
 
-# -------------------------
-# EMBEDDINGS
-# -------------------------
-
-embedding_model = OpenAIEmbeddings(
-    model="text-embedding-3-small"
-)
-
-# -------------------------
-# LOAD CHROMA DATABASE
-# -------------------------
+embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
 vectorstore = Chroma(
     persist_directory="chroma_db",
     embedding_function=embedding_model
 )
 
-print("RAG Chatbot Ready!")
-print("Type 'exit' to quit.")
+# SESSION MEMORY STORE
+# Per-session history keyed by session_id.
+ 
 
-# -------------------------
-# MEMORY
-# -------------------------
+session_histories: dict[str, list[str]] = {}
 
-chat_history = []
+MAX_HISTORY = 20
+SIMILARITY_THRESHOLD = 1.10
 
-# -------------------------
-# CHAT LOOP
-# -------------------------
 
-while True:
+# QUERY REWRITING
 
-    query = input("\nYou: ")
+def rewrite_query(question: str, history: str) -> str:
+    if not history:
+        return question
 
-    if query.lower() == "exit":
-        print("\nGoodbye!")
-        break
+    prompt = f"""Given the conversation history and a new question, \
+rewrite the question into a fully self-contained standalone question \
+that can be understood without any prior context.
 
-    # -------------------------
-    # RETRIEVAL
-    # -------------------------
+Conversation:
+{history}
 
-    retrieved_docs = vectorstore.max_marginal_relevance_search(
-        query,
-        k=5,
-        fetch_k=20
-    )
+Latest Question:
+{question}
 
-    print("\nRETRIEVED CHUNKS:\n")
+Standalone Question:"""
 
-    results = vectorstore.similarity_search_with_score(
-        query,
-        k=5
-)
-    for doc, score in results:
-        print(score)
-    for i, doc in enumerate(retrieved_docs):
-        print(f"\nChunk {i+1}")
-        print(doc.page_content[:700])
-        print("-" * 80)
-
-    # -------------------------
-    # CHECK METADATA
-    # -------------------------
-
-    print("\nFIRST DOCUMENT METADATA:")
-    print(retrieved_docs[0].metadata)
-
-    # -------------------------
-    # BUILD CONTEXT
-    # -------------------------
-
-    context = "\n\n".join(
-        [doc.page_content for doc in retrieved_docs]
-    )
-
-    # -------------------------
-    # BUILD SOURCES
-    # -------------------------
-
-    sources = []
-
-    for doc in retrieved_docs:
-
-        source = doc.metadata.get("source", "Unknown")
-        page = doc.metadata.get("page", 0)
-
-        filename = source.split("\\")[-1]
-        filename = filename.split("/")[-1]
-
-        sources.append(
-            f"{filename} (Page {page + 1})"
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=150,
+            temperature=0
         )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Query rewrite failed, using original: {e}")
+        return question
 
-    history_text = "\n".join(chat_history)
 
-    # -------------------------
-    # PROMPT
-    # -------------------------
+# REQUEST MODEL
 
-    prompt = f"""
-You are a document question-answering assistant.
+class Question(BaseModel):
+    question: str
+    session_id: str = "default"  # Client sends a unique session ID
 
-You MUST answer ONLY from the provided context.
+
+# ASK ENDPOINT
+
+@app.post("/ask")
+def ask_question(data: Question):
+
+    # Validate input
+    if not data.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    #  Load session history 
+    history = session_histories.get(data.session_id, [])
+    history_text = "\n".join(history)
+
+    # Rewrite query 
+    try:
+        rewritten_query = rewrite_query(data.question, history_text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Query rewriting failed: {e}")
+
+    print(f"\n{'='*50}")
+    print(f"SESSION:   {data.session_id}")
+    print(f"QUESTION:  {data.question}")
+    print(f"REWRITTEN: {rewritten_query}")
+    print('='*50)
+
+    # Retrieval 
+    try:
+        retrieved_docs = vectorstore.max_marginal_relevance_search(
+            rewritten_query, k=5, fetch_k=20
+        )
+        results = vectorstore.similarity_search_with_score(rewritten_query, k=5)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Retrieval failed: {e}")
+
+    #  Relevance check
+    if not results:
+        return {"answer": "No relevant documents found."}
+
+    # Sort by score ascending (lower = more similar)
+    results.sort(key=lambda x: x[1])
+    best_score = results[0][1]
+
+    print(f"\nSIMILARITY SCORES: {[round(s, 4) for _, s in results]}")
+
+    if best_score > SIMILARITY_THRESHOLD:
+        return {
+            "answer": "This question appears unrelated to the uploaded policy documents."
+        }
+
+    # Build context 
+    context = "\n\n".join([doc.page_content for doc in retrieved_docs])
+
+    #  Build prompt
+    prompt = f"""You are a retrieval-based assistant for CA (Chartered Accountant) \
+services and policy documents.
 
 Rules:
-1. Use only the context.
-2. Use previous conversation if needed.
-3. Do not use outside knowledge.
-4. Do not guess.
-5. If the answer is not present in the context, reply exactly:
-
-I could not find the answer in the provided documents.
+1. Answer ONLY using the provided context below.
+2. Never use outside knowledge or make assumptions.
+3. Never guess or infer facts not explicitly stated.
+4. If the answer is not in the context, reply exactly:
+   I could not find the answer in the provided documents.
+5. Be concise and professional.
 
 Previous Conversation:
-{history_text}
+{history_text if history_text else "None"}
 
 Context:
 {context}
 
 Question:
-{query}
+{data.question}
 
-Answer:
-"""
+Answer:"""
 
-    # -------------------------
-    # GPT RESPONSE
-    # -------------------------
+    #  LLM response
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=800,
+            temperature=0
+        )
+        answer = response.choices[0].message.content.strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM call failed: {e}")
 
-    response = client.responses.create(
-        model="gpt-4o-mini",
-        input=prompt
-    )
+    #  Build citations 
+    seen = set()
+    unique_sources = []
 
-    answer = response.output_text
+    for doc in retrieved_docs[:3]:
+        source = doc.metadata.get("source", "Unknown")
+        page = doc.metadata.get("page", 0)
+        filename = source.replace("\\", "/").split("/")[-1]
+        key = (filename, page)
+        if key not in seen:
+            seen.add(key)
+            unique_sources.append({"file": filename, "page": page + 1})
 
-    # -------------------------
-    # CITATIONS
-    # -------------------------
+    print("\nTOP RETRIEVED DOCUMENTS:")
+    for doc in retrieved_docs[:3]:
+        print(doc.metadata)
 
-    unique_sources = list(set(sources))
+    citation_lines = [
+        f"[{i}] {s['file']} — Page {s['page']}"
+        for i, s in enumerate(unique_sources, start=1)
+    ]
+    citation_text = "\n".join(citation_lines)
 
-    citation_text = "\n".join(unique_sources)
+    final_answer = f"{answer}\n\n---\n\n**References**\n{citation_text}"
 
-    final_answer = f"""
-{answer}
+    # Update session history 
+    history.append(f"User: {data.question}")
+    history.append(f"Assistant: {answer}")
+    if len(history) > MAX_HISTORY:
+        history = history[-MAX_HISTORY:]
+    session_histories[data.session_id] = history
 
-Sources:
-{citation_text}
-"""
+    return {"answer": final_answer}
 
-    # -------------------------
-    # DISPLAY ANSWER
-    # -------------------------
 
-    print("\nBOT:")
-    print(final_answer)
+# HEALTH CHECK
 
-    # -------------------------
-    # SAVE MEMORY
-    # -------------------------
-
-    chat_history.append(f"User: {query}")
-    chat_history.append(f"Assistant: {answer}")
-
-    # Keep only last 10 exchanges
-
-    if len(chat_history) > 20:
-        chat_history = chat_history[-20:]
+@app.get("/health")
+def health():
+    return {"status": "ok", "docs_in_store": vectorstore._collection.count()}
