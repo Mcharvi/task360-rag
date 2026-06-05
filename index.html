@@ -1,117 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
+  <meta charset="UTF-8" />
+  <title>Policy Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 700px; }
 
-body{
-    font-family: Arial;
-    margin:20px;
-}
+    #chat {
+      height: 500px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: #fafafa;
+    }
 
-#chat{
-    height:500px;
-    overflow-y:auto;
-    border:1px solid #ccc;
-    padding:10px;
-    margin-bottom:10px;
-}
+    .user { text-align: right; margin: 10px 0; }
+    .bot  { text-align: left;  margin: 10px 0; }
 
-.user{
-    text-align:right;
-    margin:10px;
-}
+    .bubble {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 75%;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      text-align: left;
+    }
 
-.bot{
-    text-align:left;
-    margin:10px;
-}
+    .user .bubble { background: #dcf8c6; }
+    .bot  .bubble { background: #f1f0f0; }
+    .bot.error .bubble { background: #fde8e8; color: #c0392b; }
 
-.bubble{
-    display:inline-block;
-    padding:10px;
-    border-radius:12px;
-    max-width:70%;
-}
+    .typing .bubble { color: #999; font-style: italic; }
 
-.user .bubble{
-    background:#dcf8c6;
-}
+    #input-row { display: flex; gap: 8px; }
 
-.bot .bubble{
-    background:#f1f0f0;
-}
+    #question {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
 
-</style>
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled { background: #aaa; cursor: not-allowed; }
+  </style>
 </head>
 <body>
 
 <h1>Policy Chatbot</h1>
-
 <div id="chat"></div>
 
-<input
+<div id="input-row">
+  <input
     type="text"
     id="question"
-    placeholder="Ask a question..."
-    style="width:400px"
-/>
-
-<button onclick="askQuestion()">
-    Send
-</button>
-
-<p id="answer"></p>
+    placeholder="Ask a question about your policy documents..."
+    autocomplete="off"
+  />
+  <button id="send-btn" onclick="askQuestion()">Send</button>
+</div>
 
 <script>
+  // Generate a unique session ID per browser tab
+  const SESSION_ID = Math.random().toString(36).slice(2);
+  const API_URL = "http://127.0.0.1:8000/ask";
 
+  const chat    = document.getElementById("chat");
+  const input   = document.getElementById("question");
+  const sendBtn = document.getElementById("send-btn");
 
-async function askQuestion() {
+  // Send on Enter key
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") askQuestion();
+  });
 
-    const question =
-        document.getElementById("question").value;
+  // Safe text insertion — prevents XSS
+  function addMessage(text, role, isError = false) {
+    const wrapper = document.createElement("div");
+    wrapper.className = role + (isError ? " error" : "");
 
-    if(!question) return;
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;  // textContent, not innerHTML
 
-    const chat =
-        document.getElementById("chat");
-
-    chat.innerHTML += `
-        <div class="user">
-            <div class="bubble">
-                ${question}
-            </div>
-        </div>
-    `;
-
-    document.getElementById("question").value = "";
-
-    const response = await fetch(
-        "http://127.0.0.1:8000/ask",
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                question:question
-            })
-        }
-    );
-
-    const data = await response.json();
-
-    chat.innerHTML += `
-        <div class="bot">
-            <div class="bubble">
-                ${data.answer}
-            </div>
-        </div>
-    `;
-
+    wrapper.appendChild(bubble);
+    chat.appendChild(wrapper);
     chat.scrollTop = chat.scrollHeight;
-}
+    return wrapper;
+  }
 
+  async function askQuestion() {
+    const question = input.value.trim();
+    if (!question) return;
 
+    addMessage(question, "user");
+    input.value = "";
+    input.disabled = true;
+    sendBtn.disabled = true;
+
+    // Show typing indicator
+    const typing = addMessage("Thinking...", "bot typing");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, session_id: SESSION_ID })
+      });
+
+      chat.removeChild(typing);
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        addMessage(`Error ${response.status}: ${err.detail || "Server error"}`, "bot", true);
+        return;
+      }
+
+      const data = await response.json();
+      addMessage(data.answer, "bot");
+
+    } catch (err) {
+      chat.removeChild(typing);
+      addMessage("Could not reach the server. Is the API running?", "bot", true);
+    } finally {
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
 </script>
 
 </body>
