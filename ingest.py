@@ -3,7 +3,11 @@ load_dotenv()
 
 import os
 import hashlib
-from langchain_community.document_loaders import PyPDFLoader
+import pytesseract
+from PIL import Image
+from pdf2image import convert_from_path
+from langchain_core.documents import Document
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
@@ -11,39 +15,137 @@ from langchain_chroma import Chroma
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError("OPENAI_API_KEY is not set.")
 
+# -------------------------
+# PATHS
+# -------------------------
+
 DOCS_DIR = "docs"
 CHROMA_DIR = "chroma_db"
+TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+POPPLER_PATH = r"C:\poppler\poppler-26.02.0\Library\bin"
 
+pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
+# -------------------------
+# HELPERS
+# -------------------------
+
+def is_garbled(text: str) -> bool:
+    """Check if extracted text has too many garbled/unreadable characters."""
+    if not text or len(text.strip()) < 50:
+        return True
+
+    # Check for high ratio of non-ASCII/garbled characters
+    garbled_chars = sum(1 for c in text if ord(c) > 1000)
+    garbled_ratio = garbled_chars / max(len(text), 1)
+    if garbled_ratio > 0.02:
+        return True
+
+    # Check for suspiciously low real word ratio
+    words = text.split()
+    real_words = [w for w in words if w.isascii() and len(w) > 2]
+    if len(words) > 10 and len(real_words) / len(words) < 0.7:
+        return True
+
+    # Check for common garbled patterns from Illustrator PDFs
+    garbled_patterns = ["ܜ", "LQYHVW", "FDSV", "0DFKLQHU"]
+    if any(pattern in text for pattern in garbled_patterns):
+        return True
+
+    return False
+
+
+def load_with_ocr(pdf_path: str) -> list[Document]:
+    """Convert PDF pages to images and extract text with OCR."""
+    print(f"  → Using OCR for: {os.path.basename(pdf_path)}")
+    docs = []
+    images = convert_from_path(pdf_path, poppler_path=POPPLER_PATH, dpi=300)
+    for page_num, image in enumerate(images):
+        text = pytesseract.image_to_string(image, lang="eng")
+        if text.strip():
+            docs.append(Document(
+                page_content=text,
+                metadata={
+                    "source": pdf_path,
+                    "page": page_num,
+                    "loader": "ocr"
+                }
+            ))
+        print(f"    Page {page_num + 1}/{len(images)} OCR done")
+    return docs
+
+
+def load_pdf(pdf_path: str) -> list[Document]:
+    """Try PyMuPDF first, fall back to OCR if text is garbled."""
+    try:
+        loader = PyMuPDFLoader(pdf_path)
+        docs = loader.load()
+
+        sample_text = " ".join([d.page_content for d in docs[:3]])
+        if is_garbled(sample_text):
+            print(f"  → Garbled text detected, switching to OCR")
+            return load_with_ocr(pdf_path)
+
+        return docs
+
+    except Exception as e:
+        print(f"  → PyMuPDF failed ({e}), switching to OCR")
+        return load_with_ocr(pdf_path)
+
+
+# -------------------------
 # LOAD PDFs
+# -------------------------
 
 documents = []
 
-for file in os.listdir(DOCS_DIR):
+for file in sorted(os.listdir(DOCS_DIR)):
     if file.endswith(".pdf"):
         path = os.path.join(DOCS_DIR, file)
-        loader = PyPDFLoader(path)
-        docs = loader.load()
-        documents.extend(docs)
-        print(f"Loaded: {file} ({len(docs)} pages)")
+        print(f"\nLoading: {file}")
+        try:
+            docs = load_pdf(path)
+            documents.extend(docs)
+            print(f"  → {len(docs)} pages loaded")
+        except Exception as e:
+            print(f"  → FAILED: {e}")
+
+    elif file.endswith(".txt"):
+        path = os.path.join(DOCS_DIR, file)
+        print(f"\nLoading text file: {file}")
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+            docs = [Document(
+                page_content=content,
+                metadata={"source": path, "page": 0}
+            )]
+            documents.extend(docs)
+            print(f"  → Loaded successfully")
+        except Exception as e:
+            print(f"  → FAILED: {e}")
 
 print(f"\nTotal pages loaded: {len(documents)}")
 
 if not documents:
-    print("No PDFs found in /docs. Exiting.")
+    print("No PDFs found or all failed. Exiting.")
     exit(1)
 
+# -------------------------
 # CHUNKING
+# -------------------------
 
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=700,
-    chunk_overlap=120
+    chunk_size=1500,
+    chunk_overlap=400
 )
 
 chunks = splitter.split_documents(documents)
 print(f"Total chunks: {len(chunks)}")
 
-# DEDUPLICATE CHUNKS
-# Hash each chunk's text so re-running ingest doesn't add duplicates.
+# -------------------------
+# DEDUPLICATE
+# -------------------------
 
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
@@ -72,8 +174,11 @@ if not new_chunks:
     print("Nothing new to ingest. Database is up to date.")
     exit(0)
 
+# -------------------------
 # EMBED AND STORE
+# -------------------------
 
+print("\nEmbedding and storing chunks...")
 vectorstore.add_documents(new_chunks)
 print(f"\nDone. Total documents in store: "
       f"{vectorstore._collection.count()}")
