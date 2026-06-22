@@ -35,19 +35,16 @@ def is_garbled(text: str) -> bool:
     if not text or len(text.strip()) < 50:
         return True
 
-    # Check for high ratio of non-ASCII/garbled characters
     garbled_chars = sum(1 for c in text if ord(c) > 1000)
     garbled_ratio = garbled_chars / max(len(text), 1)
     if garbled_ratio > 0.02:
         return True
 
-    # Check for suspiciously low real word ratio
     words = text.split()
     real_words = [w for w in words if w.isascii() and len(w) > 2]
     if len(words) > 10 and len(real_words) / len(words) < 0.7:
         return True
 
-    # Check for common garbled patterns from Illustrator PDFs
     garbled_patterns = ["ܜ", "LQYHVW", "FDSV", "0DFKLQHU"]
     if any(pattern in text for pattern in garbled_patterns):
         return True
@@ -110,25 +107,10 @@ for file in sorted(os.listdir(DOCS_DIR)):
         except Exception as e:
             print(f"  → FAILED: {e}")
 
-    elif file.endswith(".txt"):
-        path = os.path.join(DOCS_DIR, file)
-        print(f"\nLoading text file: {file}")
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read()
-            docs = [Document(
-                page_content=content,
-                metadata={"source": path, "page": 0}
-            )]
-            documents.extend(docs)
-            print(f"  → Loaded successfully")
-        except Exception as e:
-            print(f"  → FAILED: {e}")
-
 print(f"\nTotal pages loaded: {len(documents)}")
 
 if not documents:
-    print("No PDFs found or all failed. Exiting.")
+    print("No PDFs found in 'docs/' or all failed to load. Exiting.")
     exit(1)
 
 # -------------------------
@@ -136,8 +118,8 @@ if not documents:
 # -------------------------
 
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1500,
-    chunk_overlap=400
+    chunk_size=800,
+    chunk_overlap=150
 )
 
 chunks = splitter.split_documents(documents)

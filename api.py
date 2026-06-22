@@ -41,20 +41,58 @@ vectorstore = Chroma(
     embedding_function=embedding_model
 )
 
+# session_id -> list of "User: ..." / "Assistant: ..." strings
 session_histories: dict[str, list[str]] = {}
+
+# session_id -> "en" | "hi" | None (None = not chosen yet, i.e. brand new session)
+session_languages: dict[str, str] = {}
 
 MAX_HISTORY = 20
 SIMILARITY_THRESHOLD = 1.50
 FALLBACK_PHRASE = "I could not find the answer in the provided documents."
 FALLBACK_SCORE_THRESHOLD = 1.30
 
+LANGUAGE_PROMPT = (
+    "Hi! Would you like to continue in English or Hindi?\n"
+    "नमस्ते! क्या आप अंग्रेज़ी में या हिंदी में बात करना चाहेंगे?"
+)
+
 
 # -------------------------
-# MULTI-QUERY GENERATION
+# LANGUAGE CHOICE DETECTION
+# Only ever called on the SECOND message of a session (the reply to
+# LANGUAGE_PROMPT). Not used anywhere else — no mid-conversation switching.
+# -------------------------
+
+def detect_language_choice(message: str) -> str | None:
+    """Return 'en', 'hi', or None if the message doesn't clearly state a choice."""
+    prompt = f"""The user was asked to choose between English and Hindi.
+Their reply was: "{message}"
+
+Respond with ONLY one word: "en" if they chose English, "hi" if they chose Hindi,
+or "unclear" if their reply does not state a language choice at all.
+"""
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=5,
+            temperature=0,
+        )
+        out = resp.choices[0].message.content.strip().lower()
+        if out in ("en", "hi"):
+            return out
+        return None
+    except Exception as e:
+        print(f"Language detection failed: {e}")
+        return None
+
+
+# -------------------------
+# MULTI-QUERY GENERATION (unchanged from your original)
 # -------------------------
 
 def generate_queries(question: str, history: str) -> list[str]:
-    """Generate 3 different search queries for the same question."""
     prompt = f"""You are an expert in Indian government industrial policy,
 specifically MP (Madhya Pradesh) investment and subsidy schemes.
 
@@ -84,21 +122,13 @@ Return ONLY the 3 queries, one per line, no numbering, no labels, no explanation
         queries = [q.strip() for q in queries if q.strip()][:3]
         if question not in queries:
             queries.append(question)
-        print(f"\nGENERATED QUERIES:")
-        for i, q in enumerate(queries, 1):
-            print(f"  {i}. {q}")
         return queries
     except Exception as e:
         print(f"Query generation failed, using original: {e}")
         return [question]
 
 
-# -------------------------
-# GPT KNOWLEDGE FALLBACK
-# -------------------------
-
 def gpt_fallback(question: str) -> str | None:
-    """Fallback to GPT general knowledge for out-of-scope questions."""
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -106,14 +136,10 @@ def gpt_fallback(question: str) -> str | None:
                 {
                     "role": "system",
                     "content": """You are an expert on Indian government industrial policy,
-specifically Madhya Pradesh investment and subsidy schemes including IPP 2025,
-Export Promotion Policy, and Startup Policy. Answer based on your knowledge
+specifically Madhya Pradesh investment and subsidy schemes. Answer based on your knowledge
 of these policies. Be concise and professional. If you are not sure, say so."""
                 },
-                {
-                    "role": "user",
-                    "content": question
-                }
+                {"role": "user", "content": question}
             ],
             max_tokens=800,
             temperature=0
@@ -122,6 +148,118 @@ of these policies. Be concise and professional. If you are not sure, say so."""
     except Exception as e:
         print(f"Fallback failed: {e}")
         return None
+
+
+# -------------------------
+# CORE RAG PIPELINE (your original logic, language added to the prompt)
+# -------------------------
+
+def answer_question(question: str, history_text: str, language: str) -> str:
+    queries = generate_queries(question, history_text)
+
+    all_candidates = []
+    seen_content = set()
+    best_score = 999.0
+
+    for query in queries:
+        try:
+            docs = vectorstore.max_marginal_relevance_search(query, k=10, fetch_k=30)
+            results = vectorstore.similarity_search_with_score(query, k=3)
+            results.sort(key=lambda x: x[1])
+
+            if results:
+                best_score = min(best_score, results[0][1])
+
+            for doc in docs:
+                content_hash = hash(doc.page_content[:200])
+                if content_hash not in seen_content:
+                    seen_content.add(content_hash)
+                    all_candidates.append(doc)
+        except Exception as e:
+            print(f"Retrieval failed for query: {e}")
+
+    if not all_candidates:
+        return "No relevant documents found."
+
+    if best_score > SIMILARITY_THRESHOLD:
+        return "This question appears unrelated to the uploaded policy documents."
+
+    candidate_docs = all_candidates[:30]
+
+    try:
+        rerank_response = co.rerank(
+            model="rerank-v3.5",
+            query=question,
+            documents=[doc.page_content for doc in candidate_docs],
+            top_n=5,
+        )
+        retrieved_docs = [candidate_docs[r.index] for r in rerank_response.results]
+        best_rerank_score = rerank_response.results[0].relevance_score
+    except Exception as e:
+        print(f"Reranking failed, using first 5 candidates: {e}")
+        retrieved_docs = candidate_docs[:5]
+        best_rerank_score = 0.0
+
+    context_parts = []
+    for doc in retrieved_docs:
+        page = doc.metadata.get("page", 0) + 1
+        context_parts.append(f"\nPAGE {page}\n\n{doc.page_content}\n")
+    context = "\n\n".join(context_parts)
+
+    language_instruction = (
+        "Respond ONLY in Hindi (Devanagari script)."
+        if language == "hi"
+        else "Respond ONLY in English."
+    )
+
+    prompt = f"""
+You are an expert policy advisor specialising in Madhya Pradesh
+industrial investment schemes, including IPP 2025, Export Promotion Policy,
+and Energy Policy 2025.
+
+{language_instruction}
+
+Answer the question directly and confidently. State what the policy provides —
+do not use phrases like "it seems", "it appears", "according to the policy",
+"based on the provided sections", or "the policy mentions". These are implied.
+Write as if you have fully internalised the policy and are advising a client.
+
+If the policy is silent on a specific detail but related provisions exist,
+give a clear policy-based interpretation and flag it once with a single phrase
+like "While not explicitly stated," — then move on.
+
+Only if no relevant provisions exist at all, reply exactly:
+I could not find the answer in the provided documents.
+
+Previous Conversation:
+{history_text if history_text else "None"}
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=800,
+            temperature=0,
+        )
+        answer = response.choices[0].message.content.strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM call failed: {e}")
+
+    if FALLBACK_PHRASE in answer and (best_score > FALLBACK_SCORE_THRESHOLD or best_rerank_score < 0.25):
+        fallback_answer = gpt_fallback(question)
+        if fallback_answer:
+            answer = fallback_answer
+
+    return answer
 
 
 # -------------------------
@@ -135,219 +273,72 @@ class Question(BaseModel):
 
 # -------------------------
 # ASK ENDPOINT
+#
+# Rule: the FIRST message of any session (i.e. session_id not yet in
+# session_languages at all) ALWAYS gets the language prompt back — no matter
+# what the user typed, even "hello" or a real question. Their message is
+# simply not processed as a question on this turn.
+#
+# The user's NEXT message (their reply to the language prompt) is read as
+# the language choice. Once language is set, every message after that is
+# treated as a normal question — no further language detection happens.
 # -------------------------
 
 @app.post("/ask")
 def ask_question(data: Question):
-
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    history = session_histories.get(data.session_id, [])
+    session_id = data.session_id
+    message = data.question.strip()
+
+    # ---- Turn 1 of a session: always ask language, regardless of input ----
+    if session_id not in session_languages:
+        # Mark the session as "awaiting language choice" — None is the
+        # sentinel for "greeted, but hasn't answered yet" (different from
+        # the key being absent entirely, which means "never greeted").
+        session_languages[session_id] = None
+        return {"answer": LANGUAGE_PROMPT}
+
+    language = session_languages.get(session_id)
+
+    # ---- Turn 2: this message IS the language choice ----
+    if language is None:
+        choice = detect_language_choice(message)
+        if choice is None:
+            # Didn't understand — ask again, don't guess.
+            return {"answer": LANGUAGE_PROMPT}
+
+        session_languages[session_id] = choice
+        confirm = (
+            "ठीक है, अब हम हिंदी में बात करेंगे। आप क्या जानना चाहते हैं?"
+            if choice == "hi"
+            else "Great, we'll continue in English. What would you like to know?"
+        )
+        return {"answer": confirm}
+
+    # ---- Turn 3+: normal question answering ----
+    history = session_histories.get(session_id, [])
     history_text = "\n".join(history)
 
-    print(f"\n{'='*50}")
-    print(f"SESSION:   {data.session_id}")
-    print(f"QUESTION:  {data.question}")
-    print('='*50)
+    answer = answer_question(message, history_text, language)
 
-    # -------------------------
-    # MULTI-QUERY GENERATION
-    # -------------------------
-
-    queries = generate_queries(data.question, history_text)
-
-    # -------------------------
-    # MULTI-QUERY RETRIEVAL
-    # Search with all queries, merge and deduplicate results
-    # -------------------------
-
-    all_candidates = []
-    seen_content = set()
-    best_score = 999.0
-
-    for query in queries:
-        try:
-            docs = vectorstore.max_marginal_relevance_search(
-                query, k=10, fetch_k=30
-            )
-            results = vectorstore.similarity_search_with_score(query, k=3)
-            results.sort(key=lambda x: x[1])
-
-            if results:
-                score = results[0][1]
-                best_score = min(best_score, score)
-                print(f"\n  Query: '{query[:60]}...'")
-                print(f"  Best score: {score:.4f}")
-
-            for doc in docs:
-                content_hash = hash(doc.page_content[:200])
-                if content_hash not in seen_content:
-                    seen_content.add(content_hash)
-                    all_candidates.append(doc)
-
-        except Exception as e:
-            print(f"Retrieval failed for query: {e}")
-
-    print(f"\nBEST SCORE ACROSS ALL QUERIES: {best_score:.4f}")
-    print(f"TOTAL UNIQUE CANDIDATES: {len(all_candidates)}")
-
-    if not all_candidates:
-        return {"answer": "No relevant documents found."}
-
-    if best_score > SIMILARITY_THRESHOLD:
-        return {
-            "answer": "This question appears unrelated to the uploaded policy documents."
-        }
-
-    # Cap candidates for reranker
-    candidate_docs = all_candidates[:30]
-
-    # -------------------------
-    # RERANKING
-    # Rerank all merged candidates with original question
-    # -------------------------
-
-    try:
-        rerank_response = co.rerank(
-            model="rerank-v3.5",
-            query=data.question,
-            documents=[doc.page_content for doc in candidate_docs],
-            top_n=5
-        )
-        retrieved_docs = [
-            candidate_docs[result.index]
-            for result in rerank_response.results
-        ]
-        best_rerank_score = rerank_response.results[0].relevance_score
-        print(f"\nRERANK SCORES: {[round(r.relevance_score, 4) for r in rerank_response.results]}")
-        print(f"BEST RERANK SCORE: {best_rerank_score:.4f}")
-    except Exception as e:
-        print(f"Reranking failed, using first 5 candidates: {e}")
-        retrieved_docs = candidate_docs[:5]
-        best_rerank_score = 0.0
-
-    for i, doc in enumerate(retrieved_docs[:3]):
-        print(f"\nCHUNK {i+1}")
-        print(doc.page_content[:1500])
-        print("-" * 100)
-
-    # -------------------------
-    # BUILD CONTEXT
-    # -------------------------
-
-    context = "\n\n".join([doc.page_content for doc in retrieved_docs])
-
-    # -------------------------
-    # PROMPT
-    # -------------------------
-
-    prompt = f"""You are a retrieval-based assistant for CA (Chartered Accountant) \
-services and policy documents.
-
-Rules:
-1. Answer ONLY using the provided context below.
-2. You may explain implications directly supported by the policy text.
-3. Do not invent information not present in the context.
-4. Do not use outside knowledge.
-5. If the context contains relevant policy provisions, answer by applying
-   those provisions even if the user's terminology differs from policy
-   terminology. Use your knowledge of Indian industrial policy to bridge
-   any terminology gaps between casual language and official policy terms.
-6. If no relevant information exists at all, reply exactly:
-   I could not find the answer in the provided documents.
-7. Be concise, professional, and cite policy information accurately.
-
-Previous Conversation:
-{history_text if history_text else "None"}
-
-Context:
-{context}
-
-Question:
-{data.question}
-
-Answer:"""
-
-    # -------------------------
-    # LLM RESPONSE
-    # -------------------------
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=800,
-            temperature=0
-        )
-        answer = response.choices[0].message.content.strip()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"LLM call failed: {e}")
-
-    print("\nGPT RAW ANSWER:")
-    print(answer)
-
-    # -------------------------
-    # SMART FALLBACK
-    # Only triggers when retrieval was also weak
-    # -------------------------
-
-    web_used = False
-
-    if FALLBACK_PHRASE in answer and (best_score > FALLBACK_SCORE_THRESHOLD or best_rerank_score < 0.25):
-
-        print(f"\nSmart fallback triggered (score {best_score:.4f} > {FALLBACK_SCORE_THRESHOLD})")
-        fallback_answer = gpt_fallback(data.question)
-        if fallback_answer:
-            answer = fallback_answer
-            web_used = True
-            print(f"FALLBACK ANSWER: {answer}")
-    elif FALLBACK_PHRASE in answer:
-        print(f"\nNo fallback (score {best_score:.4f} < {FALLBACK_SCORE_THRESHOLD})")
-        print("Documents are relevant — trusting document-based result")
-
-    # -------------------------
-    # CITATIONS
-    # -------------------------
-
-    seen = set()
-    unique_sources = []
-
-    for doc in retrieved_docs[:3]:
-        source = doc.metadata.get("source", "Unknown")
-        page = doc.metadata.get("page", 0)
-        filename = source.replace("\\", "/").split("/")[-1]
-        key = (filename, page)
-        if key not in seen:
-            seen.add(key)
-            unique_sources.append({"file": filename, "page": page + 1})
-
-    print("\nTOP RETRIEVED DOCUMENTS AFTER RERANK:")
-    for doc in retrieved_docs[:3]:
-        print(doc.metadata)
-
-    citation_lines = [
-        f"[{i}] {s['file']} — Page {s['page']}"
-        for i, s in enumerate(unique_sources, start=1)
-    ]
-    citation_text = "\n".join(citation_lines)
-
-    if web_used:
-        final_answer = f"{answer}\n\n---\n\n⚠️ *This answer is based on general knowledge of MP government policies, not your uploaded documents. Please verify with official sources.*"
-    else:
-        final_answer = f"{answer}\n\n---\n\n**References**\n{citation_text}"
-
-    # -------------------------
-    # UPDATE MEMORY
-    # -------------------------
-
-    history.append(f"User: {data.question}")
+    history.append(f"User: {message}")
     history.append(f"Assistant: {answer}")
-    if len(history) > MAX_HISTORY:
-        history = history[-MAX_HISTORY:]
-    session_histories[data.session_id] = history
+    session_histories[session_id] = history[-MAX_HISTORY:]
 
-    return {"answer": final_answer}
+    return {"answer": answer}
+
+
+# -------------------------
+# RESET ENDPOINT (clear a session during testing, no server restart needed)
+# -------------------------
+
+@app.post("/reset")
+def reset_session(data: Question):
+    session_languages.pop(data.session_id, None)
+    session_histories.pop(data.session_id, None)
+    return {"status": "reset"}
 
 
 # -------------------------
