@@ -47,6 +47,11 @@ session_histories: dict[str, list[str]] = {}
 # session_id -> "en" | "hi" | None (None = not chosen yet, i.e. brand new session)
 session_languages: dict[str, str] = {}
 
+# session_id -> the user's very first message (sent before language was
+# chosen), so we can answer it automatically once they pick a language,
+# instead of making them type it again.
+session_pending_question: dict[str, str] = {}
+
 MAX_HISTORY = 20
 SIMILARITY_THRESHOLD = 1.50
 FALLBACK_PHRASE = "I could not find the answer in the provided documents."
@@ -63,6 +68,20 @@ LANGUAGE_PROMPT = (
 # Only ever called on the SECOND message of a session (the reply to
 # LANGUAGE_PROMPT). Not used anywhere else — no mid-conversation switching.
 # -------------------------
+
+_GREETING_WORDS = {
+    "hi", "hello", "hey", "namaste", "namaskar", "hii", "helo", "hola",
+    "good morning", "good afternoon", "good evening", "greetings",
+}
+
+
+def _is_just_a_greeting(message: str) -> bool:
+    """True only if the message is PURELY a greeting with no other content
+    (e.g. 'hi', 'hello there') — so we don't run a real RAG answer on it.
+    Anything with extra words/numbers/questions is treated as real content."""
+    cleaned = message.strip().lower().strip("!.,? ")
+    return cleaned in _GREETING_WORDS
+
 
 def detect_language_choice(message: str) -> str | None:
     """Return 'en', 'hi', or None if the message doesn't clearly state a choice."""
@@ -224,6 +243,14 @@ do not use phrases like "it seems", "it appears", "according to the policy",
 "based on the provided sections", or "the policy mentions". These are implied.
 Write as if you have fully internalised the policy and are advising a client.
 
+FORMATTING:
+- Use clear structure. If the answer has multiple points, steps, conditions,
+  timelines, or categories, present them as a bulleted or numbered list using
+  "-" or "1.", "2." etc. — not as one dense paragraph.
+- Bold key figures, deadlines, and amounts using **double asterisks**.
+- Keep paragraphs short. Use a list whenever there are 3 or more distinct
+  points to make.
+
 If the policy is silent on a specific detail but related provisions exist,
 give a clear policy-based interpretation and flag it once with a single phrase
 like "While not explicitly stated," — then move on.
@@ -298,6 +325,9 @@ def ask_question(data: Question):
         # sentinel for "greeted, but hasn't answered yet" (different from
         # the key being absent entirely, which means "never greeted").
         session_languages[session_id] = None
+        # Remember what they typed on turn 1 so we can answer it once
+        # they've picked a language, instead of discarding it.
+        session_pending_question[session_id] = message
         return {"answer": LANGUAGE_PROMPT}
 
     language = session_languages.get(session_id)
@@ -310,6 +340,19 @@ def ask_question(data: Question):
             return {"answer": LANGUAGE_PROMPT}
 
         session_languages[session_id] = choice
+
+        # Answer the turn-1 message now, in the chosen language —
+        # unless it was just a greeting/empty filler with nothing to answer.
+        pending = session_pending_question.pop(session_id, None)
+        if pending and not _is_just_a_greeting(pending):
+            history = session_histories.get(session_id, [])
+            history_text = "\n".join(history)
+            answer = answer_question(pending, history_text, choice)
+            history.append(f"User: {pending}")
+            history.append(f"Assistant: {answer}")
+            session_histories[session_id] = history[-MAX_HISTORY:]
+            return {"answer": answer}
+
         confirm = (
             "ठीक है, अब हम हिंदी में बात करेंगे। आप क्या जानना चाहते हैं?"
             if choice == "hi"
@@ -338,6 +381,7 @@ def ask_question(data: Question):
 def reset_session(data: Question):
     session_languages.pop(data.session_id, None)
     session_histories.pop(data.session_id, None)
+    session_pending_question.pop(data.session_id, None)
     return {"status": "reset"}
 
 
