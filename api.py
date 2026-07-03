@@ -143,23 +143,28 @@ def expand_with_pairs(filenames: list[str]) -> list[str]:
 # -------------------------
 
 def select_relevant_files(question: str, sector: str | None, history: str) -> list[str]:
-    """
-    Ask the LLM which policy/scheme files are relevant to the question,
-    using only the metadata summaries (cheap, no vector search yet).
-    Candidate universe is narrowed to the chosen sector + common policies
-    when a sector is known, otherwise all files are considered.
-    """
-    candidate_files = files_for_sector(sector) if sector else ALL_FILENAMES
-    candidate_files = expand_with_pairs(candidate_files)
+    # Always let GPT see everything — sector becomes a prior, not a hard filter.
+    candidate_files = expand_with_pairs(ALL_FILENAMES)
 
     catalogue = "\n".join(
         f'- "{fn}" | type={META_BY_FILE[fn].get("type")} | sector={META_BY_FILE[fn].get("sector")} | {META_BY_FILE[fn].get("summary", "")}'
         for fn in candidate_files if fn in META_BY_FILE
     )
 
-    prompt = f"""You are routing a question to the correct Madhya Pradesh government
-policy documents. Below is a catalogue of candidate documents (filename | type | sector | summary).
+    sector_note = ""
+    if sector:
+        sector_note = f"""
+The user has already selected the "{sector}" sector as onboarding context.
+Treat this as a strong prior: prefer documents belonging to this sector.
+However, if the question clearly needs provisions from another sector
+(e.g. export incentives, EV-specific rules, logistics rules) to be answered
+completely, include those documents too. Do not omit a genuinely relevant
+policy just because it's outside the selected sector.
+"""
 
+    prompt = f"""You are routing a question to the correct Madhya Pradesh government
+policy documents. Below is a catalogue of ALL candidate documents (filename | type | sector | summary).
+{sector_note}
 Catalogue:
 {catalogue}
 
@@ -177,7 +182,7 @@ Return valid JSON only, e.g. ["Industrial Promotion Policy 2025.pdf"]"""
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=300,
+            max_tokens=400,   # slightly higher — cross-policy answers select more files
             temperature=0,
         )
         raw = response.choices[0].message.content.strip()
@@ -185,13 +190,12 @@ Return valid JSON only, e.g. ["Industrial Promotion Policy 2025.pdf"]"""
         selected = json.loads(raw)
         selected = [fn for fn in selected if fn in META_BY_FILE]
         if not selected:
-            selected = candidate_files
+            selected = files_for_sector(sector) if sector else candidate_files
         print(f"\nLAYER 1 SELECTED FILES: {selected}")
         return selected
     except Exception as e:
         print(f"Layer 1 selection failed, falling back to sector candidates: {e}")
-        return candidate_files
-
+        return files_for_sector(sector) if sector else candidate_files
 
 # -------------------------
 # LAYER 2 — DEEP SEARCH ON SELECTED FILES
@@ -218,7 +222,7 @@ def deep_search(question: str, filenames: list[str]):
 
 def light_search_remaining(question: str, already_searched: list[str]):
     try:
-        results = vectorstore.similarity_search(question, k=3)
+        results = vectorstore.similarity_search(question, k=5)
     except Exception as e:
         print(f"Layer 3 light search failed: {e}")
         return []
@@ -315,39 +319,64 @@ def chat(data: ChatRequest):
         context_parts.append(f"SOURCE: {source} | PAGE {page}\n\n{doc.page_content}")
     context = "\n\n".join(context_parts)
 
-    language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government policy context.\n" if respond_in_hindi else ""
-    sector_hint = f"\nThis question was asked in the context of: {context_summary}\n" if context_summary else ""
+    language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government context.\n" if respond_in_hindi else ""
 
-    # --- HALLUCINATION FIX ---
-    # Answer ONLY from explicitly stated provisions; any inference must be flagged.
-    prompt = f"""You are an expert policy advisor specialising in Madhya Pradesh
-government industrial investment policies and schemes.
-{sector_hint}{language_instruction}
-Answer ONLY from the explicitly stated provisions in the context below.
-Do not use phrases like "it seems", "it appears", "according to the policy",
-"based on the provided sections" — these are implied.
+    sector_note = ""
+    if sector:
+        sector_note = f"""
+The user has already selected the "{sector}" sector during onboarding.
+Assume they expect answers primarily related to this sector unless the
+retrieved context clearly supports information from another sector that is
+directly relevant to their question (e.g. export incentives for a
+manufacturing question, EV-specific rules, logistics rules for a factory
+question). Do not pull in unrelated incentives just because they technically
+appear in the context.
+"""
 
-If the policy is silent on a specific detail, you may offer a reasoned
-interpretation based on closely related provisions, but you MUST prefix
-that sentence with "While not explicitly stated,". Never present an
-inference as if it were an explicitly stated provision.
+    prompt = f"""You are an investment advisor helping someone evaluate setting up
+or expanding a business in Madhya Pradesh, using only the government policy
+excerpts provided below as your source of truth.
+{sector_note}{language_instruction}
+Grounding rules (non-negotiable):
+- Answer ONLY using information explicitly stated in the context below.
+- Do not infer, guess, or fill in eligibility, incentives, deadlines, or
+  conditions that are not explicitly stated.
+- If the context does not explicitly answer part of the question, say plainly
+  that the policy does not specify this — do not speculate or hedge with
+  phrases like "it seems" or "it appears."
+- Only if no relevant provisions exist at all for the question, reply with
+  exactly this sentence and nothing else: {FALLBACK_PHRASE}
 
-Use markdown formatting:
-- Use **bold** for key terms, amounts, percentages, deadlines, and important conditions
-- Use ## headings if the answer has clearly distinct sections
-- Use bullet points for lists of conditions or requirements
+Style guidelines:
+- Write like an investment advisor talking to a business owner, not like you
+  are summarizing a policy PDF. Use plain business language, not legal or
+  policy wording, and don't copy provisions verbatim unless a precise figure,
+  percentage, or deadline needs to stay exact.
+- Answer the user's actual question directly in the first sentence or two,
+  before giving supporting details.
+- Only mention incentives, conditions, or schemes directly relevant to what
+  the user is asking. If something is technically in the context but
+  unrelated (e.g. an apparel training subsidy when the user asked about
+  manufacturing), leave it out.
+- If there are additional benefits that only apply in specific situations
+  (a certain sector, district category, or investment size), put those
+  separately under an "Additional benefits (if applicable)" heading rather
+  than mixing them into the main answer.
+- Use bold for specific amounts, percentages, and deadlines. Use bullet
+  points for lists. Only add ## headings when the answer genuinely covers
+  multiple distinct topics — don't force structure onto a short answer.
+- When it fits naturally, structure the answer as: (1) a direct answer,
+  (2) key incentives/conditions, (3) important limitations or eligibility
+  conditions, (4) next steps, if the user is asking how to proceed.
 
-Only if no relevant provisions exist at all, reply exactly:
-{FALLBACK_PHRASE}
+Question:
+{actual_question}
 
 Previous Conversation:
 {history_text if history_text else "None"}
 
 Context:
 {context}
-
-Question:
-{actual_question}
 
 Answer:"""
 
