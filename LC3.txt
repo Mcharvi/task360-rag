@@ -1,25 +1,17 @@
-class Solution {
-    public int lengthOfLongestSubstring(String s) {
+what i want is for the agent to ASK the user which particular sector they want to know about -industrial promotion policy/investment promotion scheme/ export promotion policy/ logistics policy/ MSME development policy, renewable enrgy policy/ health sector investment promotion policy/ integration township policy/Electric vehicle policy/ tourism policy/ film tourism policy/ city gas Distribution netweok development and expansion policy/ civil aviation policy/ Madhya Pradesh Housing Redevelopment Policy, 2022
 
-        HashMap<Character,Integer> map = new HashMap<>();
-        int left = 0;
-        int maxLen =0;
+Real Estate Policy for Madhya Pradesh-2019
 
+Industrial Promotion Policy 2014 (As Amended)
 
-        for(int right =0; right<s.length(); right++){
-            char c = s.charAt(right);
+Madhya Pradesh Startup Policy and Implementation Scheme 2025
 
-            if(map.containsKey(c)){
+Scheme for implementation of Biofuel Projects in Madhya Pradesh
 
+Madhya Pradesh Pump Hydro storage Scheme 2025
 
-                left = Math.max(left, map.get(c)+1);
-                
-            }
-          
-            maxLen = Math.max(maxLen, right-left +1);
-            map.put(c,right);
-        }
-        return maxLen;
-        
-    }
-}
+MPIDC Land Pooling Scheme, 2019
+
+MP Space Tech Policy 2026
+
+123 and alot of other policies. so what i want it, BEFORE the user even sends a question, like as soon as the user clicks on the search bar the agent should ask user to input language- hindi/english, then user will say example english, then next question for user should be to select in these departments(or wtv is the correct term) like a drop down menu for what sector they want. got it? clarify if needed! then we will dig in more liek the third question also needs to be there department specific- so that the agent can have correct database and give more personalised answers. example someone chooses health policy so next question should be type of project- multi speciality hospital or super speciality. and distrcit categpry - A,B,C so the agent can give correct answers wrt to what the user is exactly doing

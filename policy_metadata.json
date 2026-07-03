@@ -1,0 +1,709 @@
+[
+  {
+    "policy_name": "Madhya Pradesh Animation, Visual Effects, Gaming, Comics and Extended Reality (AVGC-XR) Policy",
+    "filename": "AVGC-XR Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Animation",
+      "Visual Effects",
+      "Gaming",
+      "Comics",
+      "Extended Reality"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "AVGC",
+      "XR",
+      "Animation",
+      "Gaming",
+      "Visual Effects",
+      "Comics",
+      "Extended Reality"
+    ],
+    "summary": "This policy aims to promote and support the growth of the Animation, Visual Effects, Gaming, Comics, and Extended Reality sectors in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Animation, Gaming & XR"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Scheme for implementation of Biofuel Projects in Madhya Pradesh",
+    "filename": "BioFuel Project Scheme for Implementation.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Energy",
+      "Waste Management"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Biofuel",
+      "Incentives",
+      "Biomass",
+      "Waste Management",
+      "Bio CNG",
+      "CBG"
+    ],
+    "summary": "This policy outlines the implementation of biofuel projects in Madhya Pradesh, focusing on incentives and waste management.",
+    "type": "scheme",
+    "is_common": false,
+    "sector": [
+      "Energy & Renewables"
+    ],
+    "parent_policy": "Energy-Policy-2025.pdf"
+  },
+  {
+    "policy_name": "Madhya Pradesh City Gas Distribution Network and Expansion Policy 2025",
+    "filename": "City Gas Distribution Network and Expansion Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Energy",
+      "Infrastructure"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "gas distribution",
+      "network expansion",
+      "Madhya Pradesh",
+      "energy policy",
+      "infrastructure development"
+    ],
+    "summary": "This policy outlines the framework for the development and expansion of the city gas distribution network in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "City Gas & Infrastructure"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Civil Aviation Policy 2025",
+    "filename": "Civil Aviation Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Aviation"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "aviation",
+      "infrastructure",
+      "investment",
+      "development",
+      "connectivity"
+    ],
+    "summary": "This policy outlines the development and investment strategies for enhancing the aviation infrastructure and connectivity in Madhya Pradesh by 2025.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Civil Aviation"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Drone Promotion and Usage Policy",
+    "filename": "Drone Promotion and Usage Policy.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "Agriculture",
+      "Infrastructure",
+      "Healthcare"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "drones",
+      "technology",
+      "innovation",
+      "regulation",
+      "promotion"
+    ],
+    "summary": "This policy outlines the framework for promoting and regulating the use of drones across various sectors in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "IT, Tech & Digital"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Electric Vehicle Policy 2025",
+    "filename": "Electric Vehicle Policy 2025.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "Public",
+      "Private"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Electric Vehicles",
+      "Sustainable Mobility",
+      "Charging Infrastructure",
+      "Incentives",
+      "Local Manufacturing"
+    ],
+    "summary": "The policy focuses on building charging infrastructure, incentivizing EV adoption, and promoting local manufacturing to create a sustainable EV ecosystem in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Electric Vehicles"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Energy Policy 2025",
+    "filename": "Energy-Policy-2025.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "Energy",
+      "Infrastructure"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "renewable",
+      "sustainability",
+      "investment",
+      "infrastructure",
+      "development"
+    ],
+    "summary": "This policy outlines the framework for sustainable energy development and investment in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Energy & Renewables"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Export Promotion Scheme 2025",
+    "filename": "Export Promotion Scheme 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Export"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Export",
+      "Incentives",
+      "Assistance",
+      "Infrastructure",
+      "Marketing"
+    ],
+    "summary": "This policy provides financial incentives and assistance to promote exports from Madhya Pradesh.",
+    "type": "scheme",
+    "is_common": false,
+    "sector": [
+      "Export & Trade"
+    ],
+    "parent_policy": "Export-Promotion-Policy.pdf"
+  },
+  {
+    "policy_name": "Madhya Pradesh Export Promotion Policy 2025",
+    "filename": "Export-Promotion-Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Logistics",
+      "Manufacturing"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "exports",
+      "global trade",
+      "logistics",
+      "infrastructure",
+      "incentives"
+    ],
+    "summary": "The policy aims to enhance global trade and exports from Madhya Pradesh by improving logistics infrastructure, offering targeted incentives, and fostering sector-specific industrial growth.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Export & Trade"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Film Tourism Policy 2025",
+    "filename": "Film Tourism Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Film",
+      "Tourism"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "film",
+      "tourism",
+      "Madhya Pradesh",
+      "policy",
+      "2025"
+    ],
+    "summary": "This policy aims to promote film tourism in Madhya Pradesh by providing incentives and support to filmmakers.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Tourism & Film"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Global Capability Centers Policy",
+    "filename": "Global Capability Centers Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Information Technology",
+      "Business Process Management"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "investment",
+      "incentives",
+      "IT",
+      "BPM",
+      "employment"
+    ],
+    "summary": "This policy aims to promote the establishment and growth of Global Capability Centers in Madhya Pradesh by providing various incentives and support.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "IT, Tech & Digital"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Healthcare Investment Policy 2025",
+    "filename": "Health Sector Investment Promotion policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Healthcare"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "investment",
+      "healthcare",
+      "infrastructure",
+      "private sector",
+      "incentives"
+    ],
+    "summary": "This policy aims to incentivize private investment in healthcare to establish Madhya Pradesh as a leading healthcare hub in India.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Healthcare"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Housing Redevelopment Policy 2022",
+    "filename": "Housing Redevelopment Policy 2022.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Housing",
+      "Urban Development"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "redevelopment",
+      "housing",
+      "urban",
+      "infrastructure",
+      "policy"
+    ],
+    "summary": "This policy outlines the framework for the redevelopment of housing and urban infrastructure in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Urban Development & Real Estate"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh IT, ITeS and ESDM Promotion Policy",
+    "filename": "IT,ITes and ESDM Promotion Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Information Technology",
+      "IT Enabled Services",
+      "Electronics System Design and Manufacturing"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "IT",
+      "ITeS",
+      "ESDM",
+      "promotion",
+      "Madhya Pradesh"
+    ],
+    "summary": "This policy aims to promote the growth and development of the IT, ITeS, and ESDM sectors in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "IT, Tech & Digital"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Investment Promotion Scheme 2025",
+    "filename": "Industrial Policy and Investment Promotion Scheme.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "All"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Investment Promotion",
+      "Financial Incentives",
+      "Technological Upgradation",
+      "Green Industrialization",
+      "Infrastructure Development",
+      "Employment"
+    ],
+    "summary": "This policy covers investment promotion and financial incentives across all sectors and enterprise sizes in Madhya Pradesh.",
+    "type": "scheme",
+    "is_common": true,
+    "sector": [
+      "Common"
+    ],
+    "parent_policy": "Industrial Promotion Policy 2025.pdf"
+  },
+  {
+    "policy_name": "Madhya Pradesh Industrial Promotion Policy 2025",
+    "filename": "Industrial Promotion Policy 2025.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "Traditional",
+      "Emerging",
+      "High-value add"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "industrial growth",
+      "global investments",
+      "employment",
+      "sustainable growth",
+      "entrepreneurship",
+      "foreign direct investment",
+      "Make in India",
+      "investment destination",
+      "economic growth",
+      "Ease of Doing Business",
+      "R&D",
+      "green manufacturing"
+    ],
+    "summary": "The Madhya Pradesh Industrial Promotion Policy 2025 aims to drive industrial growth, attract global investments, and ensure sustainable development across all sectors and regions.",
+    "type": "policy",
+    "is_common": true,
+    "sector": [
+      "Common"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Land Pooling Policy",
+    "filename": "Land Pooling Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Urban Development",
+      "Infrastructure"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "land pooling",
+      "urban development",
+      "infrastructure",
+      "Madhya Pradesh"
+    ],
+    "summary": "This policy outlines the framework for land pooling to facilitate urban development and infrastructure projects in Madhya Pradesh.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Urban Development & Real Estate"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "MSME Development Policy 2025",
+    "filename": "MSME Development Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Manufacturing",
+      "Services"
+    ],
+    "enterprise_sizes": [
+      "Micro",
+      "Small",
+      "Medium"
+    ],
+    "keywords": [
+      "development",
+      "incentives",
+      "investment",
+      "employment"
+    ],
+    "summary": "This policy aims to promote the growth and development of micro, small, and medium enterprises in Madhya Pradesh through various incentives and support mechanisms.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "MSME"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Integrated Township Policy, 2025",
+    "filename": "Madhya Pradesh Integrated Township Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Urban Development",
+      "Housing"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "urbanization",
+      "sustainability",
+      "private sector participation",
+      "affordable housing",
+      "land pooling"
+    ],
+    "summary": "The policy aims to create modern, self-sufficient townships with private sector participation, focusing on sustainability, inclusivity, and economic viability.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Urban Development & Real Estate"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Logistics and Warehousing Policy",
+    "filename": "Madhya Pradesh Logistics Policy.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "Logistics",
+      "Warehousing"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "logistics",
+      "warehousing",
+      "infrastructure",
+      "transportation",
+      "supply chain"
+    ],
+    "summary": "This policy aims to enhance the logistics and warehousing infrastructure in Madhya Pradesh to boost economic growth and efficiency.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Logistics & Warehousing"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Logistics Policy 2025",
+    "filename": "Madhya Pradesh Logistics Scheme 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Logistics",
+      "Warehousing"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "logistics",
+      "warehousing",
+      "financial assistance",
+      "infrastructure",
+      "investment"
+    ],
+    "summary": "The policy aims to develop a robust logistics and warehousing ecosystem in Madhya Pradesh to enhance economic growth and competitiveness.",
+    "type": "scheme",
+    "is_common": false,
+    "sector": [
+      "Logistics & Warehousing"
+    ],
+    "parent_policy": "Madhya Pradesh Logistics Policy.pdf"
+  },
+  {
+    "policy_name": "Scheme for Implementation of Pumped Hydro Storage (PHS) Project in Madhya Pradesh",
+    "filename": "Pumped Hydro Storage (PHS) scheme.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Energy"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Pumped Hydro Storage",
+      "Energy",
+      "Madhya Pradesh",
+      "Project Development",
+      "Power Procurement"
+    ],
+    "summary": "This policy outlines the implementation framework for Pumped Hydro Storage projects in Madhya Pradesh, detailing modes of development, site allocation, and incentives.",
+    "type": "scheme",
+    "is_common": false,
+    "sector": [
+      "Energy & Renewables"
+    ],
+    "parent_policy": "Energy-Policy-2025.pdf"
+  },
+  {
+    "policy_name": "Madhya Pradesh Real Estate Policy, 2019",
+    "filename": "Real Estate Policy 2019.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Real Estate"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Real Estate",
+      "Urban Development",
+      "Infrastructure",
+      "Affordable Housing",
+      "Digital Infrastructure"
+    ],
+    "summary": "This policy aims to regulate and enhance the real estate sector in Madhya Pradesh to support urban economic growth and development.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Urban Development & Real Estate"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Semiconductor Policy",
+    "filename": "Semiconductor Policy.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Semiconductor"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "semiconductor",
+      "technology",
+      "investment",
+      "infrastructure"
+    ],
+    "summary": "This policy aims to promote the semiconductor industry in Madhya Pradesh by providing incentives and infrastructure support.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Space & Advanced Tech"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh SpaceTech Policy 2026",
+    "filename": "SpaceTech Policy 2026.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Space Technology"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "SpaceTech",
+      "Indian Space Policy",
+      "collaboration",
+      "global partnerships"
+    ],
+    "summary": "The Madhya Pradesh SpaceTech Policy 2026 is a strategic initiative aligning with the Indian Space Policy to position the state as a competitive destination for SpaceTech enterprises.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Space & Advanced Tech"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Start-up Policy & Implementation Scheme 2025",
+    "filename": "Start-up-Policy-Inner-page-1.pdf",
+    "common_policy": true,
+    "primary_sectors": [
+      "All"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "Start-up",
+      "Innovation",
+      "Entrepreneurship",
+      "Incubation",
+      "Venture Capital"
+    ],
+    "summary": "The policy aims to elevate Madhya Pradesh's economic growth by fostering a robust start-up ecosystem through innovation and entrepreneurship.",
+    "type": "policy",
+    "is_common": true,
+    "sector": [
+      "Common"
+    ],
+    "parent_policy": null
+  },
+  {
+    "policy_name": "Madhya Pradesh Tourism Policy 2025",
+    "filename": "Tourism Policy 2025.pdf",
+    "common_policy": false,
+    "primary_sectors": [
+      "Tourism"
+    ],
+    "enterprise_sizes": [
+      "All"
+    ],
+    "keywords": [
+      "tourism",
+      "development",
+      "investment",
+      "sustainability",
+      "heritage"
+    ],
+    "summary": "This policy outlines the strategic framework for enhancing tourism infrastructure and promoting sustainable tourism in Madhya Pradesh by 2025.",
+    "type": "policy",
+    "is_common": false,
+    "sector": [
+      "Tourism & Film"
+    ],
+    "parent_policy": null
+  }
+]

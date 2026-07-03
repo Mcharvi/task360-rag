@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import re
+import json
 import cohere
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +23,7 @@ if not os.getenv("COHERE_API_KEY"):
 
 print("API.PY LOADED")
 
-app = FastAPI()
+app = FastAPI(title="Task360 Policy Assistant")
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,222 +43,302 @@ vectorstore = Chroma(
     embedding_function=embedding_model
 )
 
-# session_id -> list of "User: ..." / "Assistant: ..." strings
 session_histories: dict[str, list[str]] = {}
-
-# session_id -> "en" | "hi" | None (None = not chosen yet, i.e. brand new session)
-session_languages: dict[str, str] = {}
-
-# session_id -> the user's very first message (sent before language was
-# chosen), so we can answer it automatically once they pick a language,
-# instead of making them type it again.
-session_pending_question: dict[str, str] = {}
-
 MAX_HISTORY = 20
-SIMILARITY_THRESHOLD = 1.50
-FALLBACK_PHRASE = "I could not find the answer in the provided documents."
-FALLBACK_SCORE_THRESHOLD = 1.30
-
-LANGUAGE_PROMPT = (
-    "Hi! Would you like to continue in English or Hindi?\n"
-    "नमस्ते! क्या आप अंग्रेज़ी में या हिंदी में बात करना चाहेंगे?"
-)
-
 
 # -------------------------
-# LANGUAGE CHOICE DETECTION
-# Only ever called on the SECOND message of a session (the reply to
-# LANGUAGE_PROMPT). Not used anywhere else — no mid-conversation switching.
+# LOAD POLICY METADATA
 # -------------------------
 
-_GREETING_WORDS = {
-    "hi", "hello", "hey", "namaste", "namaskar", "hii", "helo", "hola",
-    "good morning", "good afternoon", "good evening", "greetings",
+with open("policy_metadata.json", encoding="utf-8") as f:
+    POLICY_METADATA = json.load(f)
+
+META_BY_FILE = {entry["filename"]: entry for entry in POLICY_METADATA}
+ALL_FILENAMES = list(META_BY_FILE.keys())
+COMMON_FILES = [e["filename"] for e in POLICY_METADATA if e.get("is_common")]
+
+# -------------------------
+# SECTOR -> FILENAME MAP
+# (mirrors the dropdown shown on the frontend)
+# -------------------------
+
+SECTOR_MAP = {
+    "Manufacturing & Industry": ["Industrial Promotion Policy 2025.pdf", "Industrial Policy and Investment Promotion Scheme.pdf"],
+    "Export & Trade": ["Export-Promotion-Policy.pdf", "Export Promotion Scheme 2025.pdf"],
+    "Healthcare": ["Health Sector Investment Promotion policy.pdf"],
+    "Energy & Renewables": ["Energy-Policy-2025.pdf", "Pumped Hydro Storage (PHS) scheme.pdf", "BioFuel Project Scheme for Implementation.pdf"],
+    "Electric Vehicles": ["Electric Vehicle Policy 2025.pdf"],
+    "IT, Tech & Digital": ["IT,ITes and ESDM Promotion Policy.pdf", "Global Capability Centers Policy.pdf", "Drone Promotion and Usage Policy.pdf"],
+    "Tourism & Film": ["Tourism Policy 2025.pdf", "Film Tourism Policy 2025.pdf"],
+    "Urban Development & Real Estate": ["Housing Redevelopment Policy 2022.pdf", "Real Estate Policy 2019.pdf", "Madhya Pradesh Integrated Township Policy 2025.pdf", "Land Pooling Policy.pdf"],
+    "Logistics & Warehousing": ["Madhya Pradesh Logistics Policy.pdf", "Madhya Pradesh Logistics Scheme 2025.pdf"],
+    "Startup & Innovation": ["Start-up-Policy-Inner-page-1.pdf"],
+    "Space & Advanced Tech": ["SpaceTech Policy 2026.pdf", "Semiconductor Policy.pdf"],
+    "Animation, Gaming & XR": ["AVGC-XR Policy.pdf"],
+    "City Gas & Infrastructure": ["City Gas Distribution Network and Expansion Policy 2025.pdf"],
+    "Civil Aviation": ["Civil Aviation Policy 2025.pdf"],
+    "MSME": ["MSME Development Policy 2025.pdf"],
 }
 
+# health sub-questions shown by the frontend onboarding
+HEALTH_SUBQUESTIONS = {
+    "facility_type": [
+        "Multi-Speciality Hospital", "Super-Speciality Hospital", "Medical College",
+        "Ayurveda / AYUSH Facility", "Diagnostic Centre", "Medical Device Manufacturing"
+    ],
+    "district_category": ["A", "B", "C"]
+}
 
-def _is_just_a_greeting(message: str) -> bool:
-    """True only if the message is PURELY a greeting with no other content
-    (e.g. 'hi', 'hello there') — so we don't run a real RAG answer on it.
-    Anything with extra words/numbers/questions is treated as real content."""
-    cleaned = message.strip().lower().strip("!.,? ")
-    return cleaned in _GREETING_WORDS
-
-
-def detect_language_choice(message: str) -> str | None:
-    """Return 'en', 'hi', or None if the message doesn't clearly state a choice."""
-    prompt = f"""The user was asked to choose between English and Hindi.
-Their reply was: "{message}"
-
-Respond with ONLY one word: "en" if they chose English, "hi" if they chose Hindi,
-or "unclear" if their reply does not state a language choice at all.
-"""
-    try:
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=5,
-            temperature=0,
-        )
-        out = resp.choices[0].message.content.strip().lower()
-        if out in ("en", "hi"):
-            return out
-        return None
-    except Exception as e:
-        print(f"Language detection failed: {e}")
-        return None
+FALLBACK_PHRASE = "I could not find the answer in the provided documents."
 
 
 # -------------------------
-# MULTI-QUERY GENERATION (unchanged from your original)
+# PARSE CONTEXT PREFIX
+# Frontend sends:
+# [Context: Sector = X, Facility Type = Y, District Category = Z, Language = hindi]\n\n<question>
 # -------------------------
 
-def generate_queries(question: str, history: str) -> list[str]:
-    prompt = f"""You are an expert in Indian government industrial policy,
-specifically MP (Madhya Pradesh) investment and subsidy schemes.
+def parse_context(raw_question: str):
+    ctx_match = re.match(r"\[Context:(.*?)\]\n\n", raw_question, re.DOTALL)
 
-Generate exactly 3 different search queries for retrieving relevant policy
-document chunks for the question below.
+    if not ctx_match:
+        return raw_question.strip(), None, False, ""
 
-Query 1: Use the original casual language of the question
-Query 2: Use formal policy terminology (expansion, diversification, 
-         technological upgradation, EFCI, IPA, transfer of industrial unit etc.)
-Query 3: Use a completely different angle or phrasing of the same question
+    ctx = ctx_match.group(1)
+    actual_question = raw_question[ctx_match.end():].strip()
 
-Previous Conversation:
+    respond_in_hindi = "Language = hindi" in ctx
+
+    sector_match = re.search(r"Sector\s*=\s*([^,\]]+)", ctx)
+    sector = sector_match.group(1).strip() if sector_match else None
+
+    context_summary = ctx.strip()
+
+    return actual_question, sector, respond_in_hindi, context_summary
+
+
+def files_for_sector(sector: str | None) -> list[str]:
+    """Files that should always be deep-searched for a given sector context."""
+    files = set(COMMON_FILES)
+    if sector and sector in SECTOR_MAP:
+        files.update(SECTOR_MAP[sector])
+    return list(files)
+
+
+def expand_with_pairs(filenames: list[str]) -> list[str]:
+    """Make sure a policy and its paired scheme are always searched together."""
+    expanded = set(filenames)
+    for fn in list(expanded):
+        parent = META_BY_FILE.get(fn, {}).get("parent_policy")
+        if parent:
+            expanded.add(parent)
+        for other_fn, meta in META_BY_FILE.items():
+            if meta.get("parent_policy") == fn:
+                expanded.add(other_fn)
+    return list(expanded)
+
+
+# -------------------------
+# LAYER 1 — LLM FILE SELECTION
+# -------------------------
+
+def select_relevant_files(question: str, sector: str | None, history: str) -> list[str]:
+    """
+    Ask the LLM which policy/scheme files are relevant to the question,
+    using only the metadata summaries (cheap, no vector search yet).
+    Candidate universe is narrowed to the chosen sector + common policies
+    when a sector is known, otherwise all files are considered.
+    """
+    candidate_files = files_for_sector(sector) if sector else ALL_FILENAMES
+    candidate_files = expand_with_pairs(candidate_files)
+
+    catalogue = "\n".join(
+        f'- "{fn}" | type={META_BY_FILE[fn].get("type")} | sector={META_BY_FILE[fn].get("sector")} | {META_BY_FILE[fn].get("summary", "")}'
+        for fn in candidate_files if fn in META_BY_FILE
+    )
+
+    prompt = f"""You are routing a question to the correct Madhya Pradesh government
+policy documents. Below is a catalogue of candidate documents (filename | type | sector | summary).
+
+Catalogue:
+{catalogue}
+
+Previous conversation:
 {history if history else "None"}
 
 Question: {question}
 
-Return ONLY the 3 queries, one per line, no numbering, no labels, no explanation:"""
+Return ONLY a JSON array of the exact filenames (from the catalogue above) that are
+relevant to answering this question. Include a policy AND its paired scheme when both
+could contain relevant provisions. If genuinely unsure, include more rather than fewer.
+Return valid JSON only, e.g. ["Industrial Promotion Policy 2025.pdf"]"""
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=200,
-            temperature=0
+            max_tokens=300,
+            temperature=0,
         )
-        queries = response.choices[0].message.content.strip().split("\n")
-        queries = [q.strip() for q in queries if q.strip()][:3]
-        if question not in queries:
-            queries.append(question)
-        return queries
+        raw = response.choices[0].message.content.strip()
+        raw = re.sub(r"^```json|```$", "", raw, flags=re.MULTILINE).strip()
+        selected = json.loads(raw)
+        selected = [fn for fn in selected if fn in META_BY_FILE]
+        if not selected:
+            selected = candidate_files
+        print(f"\nLAYER 1 SELECTED FILES: {selected}")
+        return selected
     except Exception as e:
-        print(f"Query generation failed, using original: {e}")
-        return [question]
-
-
-def gpt_fallback(question: str) -> str | None:
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": """You are an expert on Indian government industrial policy,
-specifically Madhya Pradesh investment and subsidy schemes. Answer based on your knowledge
-of these policies. Be concise and professional. If you are not sure, say so."""
-                },
-                {"role": "user", "content": question}
-            ],
-            max_tokens=800,
-            temperature=0
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"Fallback failed: {e}")
-        return None
+        print(f"Layer 1 selection failed, falling back to sector candidates: {e}")
+        return candidate_files
 
 
 # -------------------------
-# CORE RAG PIPELINE (your original logic, language added to the prompt)
+# LAYER 2 — DEEP SEARCH ON SELECTED FILES
 # -------------------------
 
-def answer_question(question: str, history_text: str, language: str) -> str:
-    queries = generate_queries(question, history_text)
-
-    all_candidates = []
-    seen_content = set()
-    best_score = 999.0
-
-    for query in queries:
+def deep_search(question: str, filenames: list[str]):
+    filenames = expand_with_pairs(filenames)
+    docs = []
+    for fn in filenames:
         try:
-            docs = vectorstore.max_marginal_relevance_search(query, k=10, fetch_k=30)
-            results = vectorstore.similarity_search_with_score(query, k=3)
-            results.sort(key=lambda x: x[1])
-
-            if results:
-                best_score = min(best_score, results[0][1])
-
-            for doc in docs:
-                content_hash = hash(doc.page_content[:200])
-                if content_hash not in seen_content:
-                    seen_content.add(content_hash)
-                    all_candidates.append(doc)
+            results = vectorstore.max_marginal_relevance_search(
+                question, k=12, fetch_k=40,
+                filter={"source": {"$contains": fn}}
+            )
+            docs.extend(results)
         except Exception as e:
-            print(f"Retrieval failed for query: {e}")
+            print(f"Deep search failed for {fn}: {e}")
+    return docs, filenames
 
-    if not all_candidates:
-        return "No relevant documents found."
 
-    if best_score > SIMILARITY_THRESHOLD:
-        return "This question appears unrelated to the uploaded policy documents."
+# -------------------------
+# LAYER 3 — LIGHT SEARCH ACROSS REMAINING DOCS
+# -------------------------
 
-    candidate_docs = all_candidates[:30]
+def light_search_remaining(question: str, already_searched: list[str]):
+    try:
+        results = vectorstore.similarity_search(question, k=3)
+    except Exception as e:
+        print(f"Layer 3 light search failed: {e}")
+        return []
+    remaining = []
+    for doc in results:
+        source = doc.metadata.get("source", "")
+        if not any(fn in source for fn in already_searched):
+            remaining.append(doc)
+    return remaining
 
+
+# -------------------------
+# REQUEST MODEL
+# -------------------------
+
+class ChatRequest(BaseModel):
+    question: str
+    session_id: str = "default"
+
+
+# -------------------------
+# POST /api/v1/chat
+# -------------------------
+
+@app.post("/api/v1/chat")
+def chat(data: ChatRequest):
+    if not data.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    actual_question, sector, respond_in_hindi, context_summary = parse_context(data.question)
+
+    history = session_histories.get(data.session_id, [])
+    history_text = "\n".join(history)
+
+    print(f"\n{'='*50}")
+    print(f"SESSION:  {data.session_id}")
+    print(f"QUESTION: {actual_question}")
+    print(f"SECTOR:   {sector}")
+    print(f"HINDI:    {respond_in_hindi}")
+    print('='*50)
+
+    # LAYER 1
+    selected_files = select_relevant_files(actual_question, sector, history_text)
+
+    # LAYER 2
+    layer2_docs, searched_files = deep_search(actual_question, selected_files)
+
+    # FALLBACK — if the filtered deep search returned nothing, search everything
+    if not layer2_docs:
+        print("\nLayer 2 returned no results — falling back to unfiltered search of all docs")
+        try:
+            layer2_docs = vectorstore.max_marginal_relevance_search(actual_question, k=12, fetch_k=40)
+        except Exception as e:
+            print(f"Fallback full search failed: {e}")
+            layer2_docs = []
+        searched_files = ALL_FILENAMES
+
+    # LAYER 3
+    layer3_docs = light_search_remaining(actual_question, searched_files)
+
+    # MERGE + DEDUPE
+    all_docs = []
+    seen = set()
+    for doc in layer2_docs + layer3_docs:
+        h = hash(doc.page_content[:200])
+        if h not in seen:
+            seen.add(h)
+            all_docs.append(doc)
+
+    print(f"\nTOTAL MERGED CANDIDATES: {len(all_docs)}")
+
+    if not all_docs:
+        msg = "कोई प्रासंगिक दस्तावेज़ नहीं मिला।" if respond_in_hindi else "No relevant documents found."
+        return {"answer": msg}
+
+    # RERANK
     try:
         rerank_response = co.rerank(
             model="rerank-v3.5",
-            query=question,
-            documents=[doc.page_content for doc in candidate_docs],
-            top_n=5,
+            query=actual_question,
+            documents=[doc.page_content for doc in all_docs][:100],
+            top_n=6
         )
-        retrieved_docs = [candidate_docs[r.index] for r in rerank_response.results]
-        best_rerank_score = rerank_response.results[0].relevance_score
+        retrieved_docs = [all_docs[r.index] for r in rerank_response.results]
+        print(f"\nRERANK SCORES: {[round(r.relevance_score, 4) for r in rerank_response.results]}")
     except Exception as e:
-        print(f"Reranking failed, using first 5 candidates: {e}")
-        retrieved_docs = candidate_docs[:5]
-        best_rerank_score = 0.0
+        print(f"Reranking failed: {e}")
+        retrieved_docs = all_docs[:6]
 
     context_parts = []
     for doc in retrieved_docs:
         page = doc.metadata.get("page", 0) + 1
-        context_parts.append(f"\nPAGE {page}\n\n{doc.page_content}\n")
+        source = doc.metadata.get("source", "").replace("\\", "/").split("/")[-1]
+        context_parts.append(f"SOURCE: {source} | PAGE {page}\n\n{doc.page_content}")
     context = "\n\n".join(context_parts)
 
-    language_instruction = (
-        "Respond ONLY in Hindi (Devanagari script)."
-        if language == "hi"
-        else "Respond ONLY in English."
-    )
+    language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government policy context.\n" if respond_in_hindi else ""
+    sector_hint = f"\nThis question was asked in the context of: {context_summary}\n" if context_summary else ""
 
-    prompt = f"""
-You are an expert policy advisor specialising in Madhya Pradesh
-industrial investment schemes, including IPP 2025, Export Promotion Policy,
-and Energy Policy 2025.
+    # --- HALLUCINATION FIX ---
+    # Answer ONLY from explicitly stated provisions; any inference must be flagged.
+    prompt = f"""You are an expert policy advisor specialising in Madhya Pradesh
+government industrial investment policies and schemes.
+{sector_hint}{language_instruction}
+Answer ONLY from the explicitly stated provisions in the context below.
+Do not use phrases like "it seems", "it appears", "according to the policy",
+"based on the provided sections" — these are implied.
 
-{language_instruction}
+If the policy is silent on a specific detail, you may offer a reasoned
+interpretation based on closely related provisions, but you MUST prefix
+that sentence with "While not explicitly stated,". Never present an
+inference as if it were an explicitly stated provision.
 
-Answer the question directly and confidently. State what the policy provides —
-do not use phrases like "it seems", "it appears", "according to the policy",
-"based on the provided sections", or "the policy mentions". These are implied.
-Write as if you have fully internalised the policy and are advising a client.
-
-FORMATTING:
-- Use clear structure. If the answer has multiple points, steps, conditions,
-  timelines, or categories, present them as a bulleted or numbered list using
-  "-" or "1.", "2." etc. — not as one dense paragraph.
-- Bold key figures, deadlines, and amounts using **double asterisks**.
-- Keep paragraphs short. Use a list whenever there are 3 or more distinct
-  points to make.
-
-If the policy is silent on a specific detail but related provisions exist,
-give a clear policy-based interpretation and flag it once with a single phrase
-like "While not explicitly stated," — then move on.
+Use markdown formatting:
+- Use **bold** for key terms, amounts, percentages, deadlines, and important conditions
+- Use ## headings if the answer has clearly distinct sections
+- Use bullet points for lists of conditions or requirements
 
 Only if no relevant provisions exist at all, reply exactly:
-I could not find the answer in the provided documents.
+{FALLBACK_PHRASE}
 
 Previous Conversation:
 {history_text if history_text else "None"}
@@ -265,130 +347,67 @@ Context:
 {context}
 
 Question:
-{question}
+{actual_question}
 
-Answer:
-"""
+Answer:"""
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=800,
-            temperature=0,
+            max_tokens=1000,
+            temperature=0
         )
         answer = response.choices[0].message.content.strip()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM call failed: {e}")
 
-    if FALLBACK_PHRASE in answer and (best_score > FALLBACK_SCORE_THRESHOLD or best_rerank_score < 0.25):
-        fallback_answer = gpt_fallback(question)
-        if fallback_answer:
-            answer = fallback_answer
+    print("\nGPT RAW ANSWER:")
+    print(answer)
 
-    return answer
+    seen_src = set()
+    unique_sources = []
+    for doc in retrieved_docs[:4]:
+        source = doc.metadata.get("source", "Unknown").replace("\\", "/").split("/")[-1]
+        page = doc.metadata.get("page", 0)
+        key = (source, page)
+        if key not in seen_src:
+            seen_src.add(key)
+            unique_sources.append({"file": source, "page": page + 1})
 
+    citation_lines = [f"[{i}] {s['file']} — Page {s['page']}" for i, s in enumerate(unique_sources, start=1)]
+    citation_text = "\n".join(citation_lines)
 
-# -------------------------
-# REQUEST MODEL
-# -------------------------
+    if FALLBACK_PHRASE in answer:
+        final_answer = answer
+    else:
+        final_answer = f"{answer}\n\n---\n\n**References**\n{citation_text}"
 
-class Question(BaseModel):
-    question: str
-    session_id: str = "default"
-
-
-# -------------------------
-# ASK ENDPOINT
-#
-# Rule: the FIRST message of any session (i.e. session_id not yet in
-# session_languages at all) ALWAYS gets the language prompt back — no matter
-# what the user typed, even "hello" or a real question. Their message is
-# simply not processed as a question on this turn.
-#
-# The user's NEXT message (their reply to the language prompt) is read as
-# the language choice. Once language is set, every message after that is
-# treated as a normal question — no further language detection happens.
-# -------------------------
-
-@app.post("/ask")
-def ask_question(data: Question):
-    if not data.question.strip():
-        raise HTTPException(status_code=400, detail="Question cannot be empty.")
-
-    session_id = data.session_id
-    message = data.question.strip()
-
-    # ---- Turn 1 of a session: always ask language, regardless of input ----
-    if session_id not in session_languages:
-        # Mark the session as "awaiting language choice" — None is the
-        # sentinel for "greeted, but hasn't answered yet" (different from
-        # the key being absent entirely, which means "never greeted").
-        session_languages[session_id] = None
-        # Remember what they typed on turn 1 so we can answer it once
-        # they've picked a language, instead of discarding it.
-        session_pending_question[session_id] = message
-        return {"answer": LANGUAGE_PROMPT}
-
-    language = session_languages.get(session_id)
-
-    # ---- Turn 2: this message IS the language choice ----
-    if language is None:
-        choice = detect_language_choice(message)
-        if choice is None:
-            # Didn't understand — ask again, don't guess.
-            return {"answer": LANGUAGE_PROMPT}
-
-        session_languages[session_id] = choice
-
-        # Answer the turn-1 message now, in the chosen language —
-        # unless it was just a greeting/empty filler with nothing to answer.
-        pending = session_pending_question.pop(session_id, None)
-        if pending and not _is_just_a_greeting(pending):
-            history = session_histories.get(session_id, [])
-            history_text = "\n".join(history)
-            answer = answer_question(pending, history_text, choice)
-            history.append(f"User: {pending}")
-            history.append(f"Assistant: {answer}")
-            session_histories[session_id] = history[-MAX_HISTORY:]
-            return {"answer": answer}
-
-        confirm = (
-            "ठीक है, अब हम हिंदी में बात करेंगे। आप क्या जानना चाहते हैं?"
-            if choice == "hi"
-            else "Great, we'll continue in English. What would you like to know?"
-        )
-        return {"answer": confirm}
-
-    # ---- Turn 3+: normal question answering ----
-    history = session_histories.get(session_id, [])
-    history_text = "\n".join(history)
-
-    answer = answer_question(message, history_text, language)
-
-    history.append(f"User: {message}")
+    history.append(f"User: {actual_question}")
     history.append(f"Assistant: {answer}")
-    session_histories[session_id] = history[-MAX_HISTORY:]
+    if len(history) > MAX_HISTORY:
+        history = history[-MAX_HISTORY:]
+    session_histories[data.session_id] = history
 
-    return {"answer": answer}
-
-
-# -------------------------
-# RESET ENDPOINT (clear a session during testing, no server restart needed)
-# -------------------------
-
-@app.post("/reset")
-def reset_session(data: Question):
-    session_languages.pop(data.session_id, None)
-    session_histories.pop(data.session_id, None)
-    session_pending_question.pop(data.session_id, None)
-    return {"status": "reset"}
+    return {"answer": final_answer}
 
 
 # -------------------------
-# HEALTH CHECK
+# GET /api/v1/sectors
 # -------------------------
 
-@app.get("/health")
+@app.get("/api/v1/sectors")
+def get_sectors():
+    return {
+        "sectors": list(SECTOR_MAP.keys()),
+        "health_subquestions": HEALTH_SUBQUESTIONS
+    }
+
+
+# -------------------------
+# GET /api/v1/health
+# -------------------------
+
+@app.get("/api/v1/health")
 def health():
     return {"status": "ok", "docs_in_store": vectorstore._collection.count()}
