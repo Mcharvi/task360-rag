@@ -133,6 +133,7 @@
   }
 </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <body>
 <div class="page">
 
@@ -389,12 +390,27 @@ function addTyping(){
 function removeTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
 
 function addBotAnswer(text){
-  let main=text, refs='';
-  const r=text.match(/\*\*References\*\*\n([\s\S]*)$/);
-  if(r){ main=text.replace(/---[\s\S]*$/,'').trim(); refs=`<div class="refs"><b>References</b>${r[1].trim().split('\n').filter(Boolean).map(l=>esc(l)).join('<br>')}</div>`; }
-  addBotRaw(esc(main)+refs);
-}
+    let main = text;
+    let refs = "";
 
+    const r = text.match(/\*\*References\*\*\n([\s\S]*)$/);
+
+    if (r) {
+        main = text.replace(/---[\s\S]*$/, "").trim();
+
+        refs =
+            `<div class="refs">
+                <b>References</b><br>` +
+            r[1]
+                .trim()
+                .split("\n")
+                .map(line => esc(line))
+                .join("<br>") +
+            `</div>`;
+    }
+
+    addBotRaw(marked.parse(main) + refs);
+}
 // ── ONBOARDING FLOW ───────────────────────────────────────
 function startOnboarding(){
   onboardingStep = 1;
