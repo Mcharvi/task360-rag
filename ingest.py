@@ -73,21 +73,28 @@ def load_with_ocr(pdf_path: str) -> list[Document]:
 
 
 def load_pdf(pdf_path: str) -> list[Document]:
-    """Try PyMuPDF first, fall back to OCR if text is garbled."""
+    """Try PyMuPDF per page, falling back to OCR only for pages that need it."""
     try:
         loader = PyMuPDFLoader(pdf_path)
         docs = loader.load()
+    except Exception as e:
+        print(f"  → PyMuPDF failed ({e}), switching to OCR for entire file")
+        return load_with_ocr(pdf_path)
 
-        sample_text = " ".join([d.page_content for d in docs[:3]])
-        if is_garbled(sample_text):
-            print(f"  → Garbled text detected, switching to OCR")
-            return load_with_ocr(pdf_path)
+    bad_page_indices = [i for i, d in enumerate(docs) if is_garbled(d.page_content)]
 
+    if not bad_page_indices:
         return docs
 
-    except Exception as e:
-        print(f"  → PyMuPDF failed ({e}), switching to OCR")
-        return load_with_ocr(pdf_path)
+    print(f"  → {len(bad_page_indices)} page(s) need OCR: {[i+1 for i in bad_page_indices]}")
+    ocr_docs = load_with_ocr(pdf_path)
+
+    # Replace only the bad pages with their OCR'd version, keep good pages as-is
+    for i in bad_page_indices:
+        if i < len(ocr_docs):
+            docs[i] = ocr_docs[i]
+
+    return docs
 
 
 # -------------------------

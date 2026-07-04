@@ -11,6 +11,12 @@ from pydantic import BaseModel
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from openai import OpenAI
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi import Request
+
+
 
 # -------------------------
 # STARTUP VALIDATION
@@ -24,12 +30,20 @@ if not os.getenv("COHERE_API_KEY"):
 print("API.PY LOADED")
 
 app = FastAPI(title="Task360 Policy Assistant")
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5500,http://127.0.0.1:5500"  # dev defaults
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -142,8 +156,7 @@ def expand_with_pairs(filenames: list[str]) -> list[str]:
 # LAYER 1 — LLM FILE SELECTION
 # -------------------------
 
-def select_relevant_files(question: str, sector: str | None, history: str) -> list[str]:
-    # Always let GPT see everything — sector becomes a prior, not a hard filter.
+def select_relevant_files(question: str, sector: str | None, history: str) -> tuple[list[str], str]:
     candidate_files = expand_with_pairs(ALL_FILENAMES)
 
     catalogue = "\n".join(
@@ -156,46 +169,55 @@ def select_relevant_files(question: str, sector: str | None, history: str) -> li
         sector_note = f"""
 The user has already selected the "{sector}" sector as onboarding context.
 Treat this as a strong prior: prefer documents belonging to this sector.
-However, if the question clearly needs provisions from another sector
-(e.g. export incentives, EV-specific rules, logistics rules) to be answered
-completely, include those documents too. Do not omit a genuinely relevant
-policy just because it's outside the selected sector.
+However, if the question clearly needs provisions from another sector to be
+answered completely, include those documents too.
 """
 
     prompt = f"""You are routing a question to the correct Madhya Pradesh government
-policy documents. Below is a catalogue of ALL candidate documents (filename | type | sector | summary).
-{sector_note}
-Catalogue:
-{catalogue}
+policy documents, and preparing a search query for vector retrieval.
 
+Catalogue (ALL candidate documents):
+{catalogue}
+{sector_note}
 Previous conversation:
 {history if history else "None"}
 
 Question: {question}
 
-Return ONLY a JSON array of the exact filenames (from the catalogue above) that are
-relevant to answering this question. Include a policy AND its paired scheme when both
-could contain relevant provisions. If genuinely unsure, include more rather than fewer.
-Return valid JSON only, e.g. ["Industrial Promotion Policy 2025.pdf"]"""
+Return ONLY a JSON object with two fields:
+- "files": array of exact filenames from the catalogue relevant to answering
+  this question. Include a policy AND its paired scheme when both could
+  contain relevant provisions. If genuinely unsure, include more rather than
+  fewer.
+- "search_query": a rewritten, self-contained, keyword-rich version of the
+  question suitable for semantic vector search. Resolve vague references
+  ("this", "that", "expansion") using the conversation history. Use policy
+  terminology. Do not answer the question — only rewrite it.
 
+Example:
+{{"files": ["Industrial Promotion Policy 2025.pdf"], "search_query": "interest subsidy eligibility for new manufacturing unit"}}"""
+
+    fallback_files = files_for_sector(sector) if sector else candidate_files
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=400,   # slightly higher — cross-policy answers select more files
+            max_tokens=500,
             temperature=0,
         )
         raw = response.choices[0].message.content.strip()
         raw = re.sub(r"^```json|```$", "", raw, flags=re.MULTILINE).strip()
-        selected = json.loads(raw)
-        selected = [fn for fn in selected if fn in META_BY_FILE]
+        parsed = json.loads(raw)
+        selected = [fn for fn in parsed.get("files", []) if fn in META_BY_FILE]
+        search_query = parsed.get("search_query", "").strip() or question
         if not selected:
-            selected = files_for_sector(sector) if sector else candidate_files
+            selected = fallback_files
         print(f"\nLAYER 1 SELECTED FILES: {selected}")
-        return selected
+        print(f"LAYER 1 SEARCH QUERY: {search_query}")
+        return selected, search_query
     except Exception as e:
         print(f"Layer 1 selection failed, falling back to sector candidates: {e}")
-        return files_for_sector(sector) if sector else candidate_files
+        return fallback_files, question
 
 # -------------------------
 # LAYER 2 — DEEP SEARCH ON SELECTED FILES
@@ -207,8 +229,8 @@ def deep_search(question: str, filenames: list[str]):
     for fn in filenames:
         try:
             results = vectorstore.max_marginal_relevance_search(
-                question, k=12, fetch_k=40,
-                filter={"source": {"$contains": fn}}
+                question, k=18, fetch_k=40,
+                filter={"source": f"docs\\{fn}"}
             )
             docs.extend(results)
         except Exception as e:
@@ -248,7 +270,8 @@ class ChatRequest(BaseModel):
 # -------------------------
 
 @app.post("/api/v1/chat")
-def chat(data: ChatRequest):
+@limiter.limit("10/minute")
+def chat(request: Request, data: ChatRequest):
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
@@ -265,23 +288,23 @@ def chat(data: ChatRequest):
     print('='*50)
 
     # LAYER 1
-    selected_files = select_relevant_files(actual_question, sector, history_text)
+    selected_files, search_query = select_relevant_files(actual_question, sector, history_text)
 
-    # LAYER 2
-    layer2_docs, searched_files = deep_search(actual_question, selected_files)
+# LAYER 2
+    layer2_docs, searched_files = deep_search(search_query, selected_files)
 
-    # FALLBACK — if the filtered deep search returned nothing, search everything
+# FALLBACK
     if not layer2_docs:
         print("\nLayer 2 returned no results — falling back to unfiltered search of all docs")
         try:
-            layer2_docs = vectorstore.max_marginal_relevance_search(actual_question, k=12, fetch_k=40)
+            layer2_docs = vectorstore.max_marginal_relevance_search(search_query, k=12, fetch_k=40)
         except Exception as e:
             print(f"Fallback full search failed: {e}")
             layer2_docs = []
         searched_files = ALL_FILENAMES
 
-    # LAYER 3
-    layer3_docs = light_search_remaining(actual_question, searched_files)
+# LAYER 3
+    layer3_docs = light_search_remaining(search_query, searched_files)
 
     # MERGE + DEDUPE
     all_docs = []

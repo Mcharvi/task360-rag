@@ -71,7 +71,7 @@
   .msg.bot { align-self: flex-start; width: 100%; max-width: 100%; }
   .msg-bubble { padding: 13px 16px; border-radius: 14px; font-size: 14px; line-height: 1.65; }
   .msg.user .msg-bubble { background: #2563EB; color: #fff; font-weight: 500; border-bottom-right-radius: 4px; }
-  .msg.bot .msg-bubble { background: #fff; border: 1.5px solid #E2E8F0; color: #1E293B; border-bottom-left-radius: 4px; white-space: pre-wrap; }
+  .msg.bot .msg-bubble { background: #fff; border: 1.5px solid #E2E8F0; color: #1E293B; border-bottom-left-radius: 4px; }
   .refs { margin-top: 10px; padding-top: 10px; border-top: 1px solid #E2E8F0; font-size: 12px; color: #94A3B8; line-height: 1.8; }
   .refs b { color: #334155; font-weight: 700; display: block; margin-bottom: 4px; }
   .fallback-warn { margin-top: 10px; padding-top: 10px; border-top: 1px solid #FEF3C7; font-size: 12px; color: #D97706; display: flex; align-items: center; gap: 6px; }
@@ -131,6 +131,29 @@
     .trust-items { flex-wrap: wrap; gap: 16px; }
     .q-grid { grid-template-columns: 1fr; }
   }
+
+.msg-bubble h2,
+.msg-bubble h3 {
+    margin: 12px 0 8px;
+    font-size: 18px;
+}
+
+.msg-bubble p {
+    margin: 8px 0;
+}
+
+.msg-bubble ul {
+    margin: 8px 0;
+    padding-left: 20px;
+    
+}
+.msg-bubble li p { margin: 0; display: inline; }
+.msg-bubble li { margin-bottom: 8px; line-height: 1.6; }
+
+.msg-bubble strong {
+    font-weight: 600;
+}
+
 </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -246,8 +269,16 @@
 
 <script>
 // ── API CONFIG (matches api.py) ────────────────────────────
-const API_BASE     = "http://localhost:8000";
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal
+  ? "http://localhost:8000"
+  : PRODUCTION_API_BASE;
 const CHAT_URL      = API_BASE + "/api/v1/chat";
+
 const SECTORS_URL   = API_BASE + "/api/v1/sectors";
 const SESSION_ID    = "web-" + Math.random().toString(36).slice(2,10);
 
@@ -390,22 +421,18 @@ function addTyping(){
 function removeTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
 
 function addBotAnswer(text){
+    const marker = "\n\n---\n\n**References**\n";
+    const idx = text.indexOf(marker);
     let main = text;
     let refs = "";
 
-    const r = text.match(/\*\*References\*\*\n([\s\S]*)$/);
-
-    if (r) {
-        main = text.replace(/---[\s\S]*$/, "").trim();
-
+    if (idx !== -1) {
+        main = text.slice(0, idx).trim();
+        const refsText = text.slice(idx + marker.length).trim();
         refs =
             `<div class="refs">
                 <b>References</b><br>` +
-            r[1]
-                .trim()
-                .split("\n")
-                .map(line => esc(line))
-                .join("<br>") +
+            refsText.split("\n").map(line => esc(line)).join("<br>") +
             `</div>`;
     }
 
@@ -580,9 +607,10 @@ async function ask(text){
     const d = await r.json();
     addBotAnswer(d.answer || 'No answer received.');
   } catch(e){
+    console.error('Chat request failed:', e);
     removeTyping();
     addBotAnswer('Could not reach the assistant. Make sure the backend (api.py) is running at '+API_BASE+'.');
-  } finally { sendBtn.disabled=false; }
+} finally { sendBtn.disabled=false; }
 }
 
 // ── INPUT EVENTS ──────────────────────────────────────────
