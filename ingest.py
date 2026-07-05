@@ -4,170 +4,127 @@ load_dotenv()
 import os
 import hashlib
 import pytesseract
-from PIL import Image
 from pdf2image import convert_from_path
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError("OPENAI_API_KEY is not set.")
-
-# -------------------------
-# PATHS
-# -------------------------
 
 DOCS_DIR = "docs"
 CHROMA_DIR = "chroma_db"
 TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 POPPLER_PATH = r"C:\poppler\poppler-26.02.0\Library\bin"
+OCR_DPI = 150
+OCR_WORKERS = 6
 
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
-# -------------------------
-# HELPERS
-# -------------------------
 
 def is_garbled(text: str) -> bool:
-    """Check if extracted text has too many garbled/unreadable characters."""
     if not text or len(text.strip()) < 50:
         return True
-
     garbled_chars = sum(1 for c in text if ord(c) > 1000)
-    garbled_ratio = garbled_chars / max(len(text), 1)
-    if garbled_ratio > 0.02:
+    if garbled_chars / max(len(text), 1) > 0.02:
         return True
-
     words = text.split()
     real_words = [w for w in words if w.isascii() and len(w) > 2]
     if len(words) > 10 and len(real_words) / len(words) < 0.7:
         return True
-
-    garbled_patterns = ["ܜ", "LQYHVW", "FDSV", "0DFKLQHU"]
-    if any(pattern in text for pattern in garbled_patterns):
+    if any(p in text for p in ["ܜ", "LQYHVW", "FDSV", "0DFKLQHU"]):
         return True
-
     return False
 
 
-def load_with_ocr(pdf_path: str) -> list[Document]:
-    """Convert PDF pages to images and extract text with OCR."""
-    print(f"  → Using OCR for: {os.path.basename(pdf_path)}")
-    docs = []
-    images = convert_from_path(pdf_path, poppler_path=POPPLER_PATH, dpi=300)
-    for page_num, image in enumerate(images):
-        text = pytesseract.image_to_string(image, lang="eng")
-        if text.strip():
-            docs.append(Document(
+def _ocr_one_page(args):
+    page_num, image = args
+    return page_num, pytesseract.image_to_string(image, lang="eng")
+
+
+def load_with_ocr(pdf_path, page_indices=None):
+    images = convert_from_path(pdf_path, poppler_path=POPPLER_PATH, dpi=OCR_DPI)
+    wanted = list(range(len(images))) if page_indices is None else page_indices
+    total = len(wanted)
+    results = {}
+    with ThreadPoolExecutor(max_workers=OCR_WORKERS) as executor:
+        futures = {executor.submit(_ocr_one_page, (i, images[i])): i for i in wanted}
+        done = 0
+        for future in as_completed(futures):
+            page_num, text = future.result()
+            done += 1
+            results[page_num] = Document(
                 page_content=text,
-                metadata={
-                    "source": pdf_path,
-                    "page": page_num,
-                    "loader": "ocr"
-                }
-            ))
-        print(f"    Page {page_num + 1}/{len(images)} OCR done")
-    return docs
+                metadata={"source": pdf_path, "page": page_num, "loader": "ocr"}
+            )
+            print(f"    Page {page_num + 1} OCR done ({done}/{total})")
+    return results
 
 
-def load_pdf(pdf_path: str) -> list[Document]:
-    """Try PyMuPDF per page, falling back to OCR only for pages that need it."""
+def load_pdf(pdf_path):
     try:
         loader = PyMuPDFLoader(pdf_path)
         docs = loader.load()
     except Exception as e:
         print(f"  → PyMuPDF failed ({e}), switching to OCR for entire file")
-        return load_with_ocr(pdf_path)
+        ocr_map = load_with_ocr(pdf_path)
+        return [ocr_map[i] for i in sorted(ocr_map)]
 
     bad_page_indices = [i for i, d in enumerate(docs) if is_garbled(d.page_content)]
-
     if not bad_page_indices:
         return docs
 
     print(f"  → {len(bad_page_indices)} page(s) need OCR: {[i+1 for i in bad_page_indices]}")
-    ocr_docs = load_with_ocr(pdf_path)
-
-    # Replace only the bad pages with their OCR'd version, keep good pages as-is
-    for i in bad_page_indices:
-        if i < len(ocr_docs):
-            docs[i] = ocr_docs[i]
-
+    ocr_map = load_with_ocr(pdf_path, page_indices=bad_page_indices)
+    for i, doc in ocr_map.items():
+        docs[i] = doc
     return docs
 
 
-# -------------------------
-# LOAD PDFs
-# -------------------------
+def main():
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+    vectorstore = Chroma(persist_directory=CHROMA_DIR, embedding_function=embedding_model)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
 
-documents = []
+    pdf_files = sorted(f for f in os.listdir(DOCS_DIR) if f.endswith(".pdf"))
+    print(f"Found {len(pdf_files)} PDFs to process.\n")
 
-for file in sorted(os.listdir(DOCS_DIR)):
-    if file.endswith(".pdf"):
+    for idx, file in enumerate(pdf_files, start=1):
         path = os.path.join(DOCS_DIR, file)
-        print(f"\nLoading: {file}")
+        print(f"[{idx}/{len(pdf_files)}] Loading: {file}")
+
         try:
             docs = load_pdf(path)
-            documents.extend(docs)
-            print(f"  → {len(docs)} pages loaded")
         except Exception as e:
-            print(f"  → FAILED: {e}")
+            print(f"  → FAILED to load {file}: {e}\n")
+            continue
 
-print(f"\nTotal pages loaded: {len(documents)}")
+        chunks = splitter.split_documents(docs)
 
-if not documents:
-    print("No PDFs found in 'docs/' or all failed to load. Exiting.")
-    exit(1)
+        # Check against what's already stored, so re-running after an
+        # interruption skips work already saved to disk.
+        existing = vectorstore.get(where={"source": path})
+        existing_hashes = {
+            hashlib.md5(t.encode()).hexdigest() for t in existing.get("documents", [])
+        }
 
-# -------------------------
-# CHUNKING
-# -------------------------
+        new_chunks = [
+            c for c in chunks
+            if hashlib.md5(c.page_content.encode()).hexdigest() not in existing_hashes
+        ]
 
-splitter = RecursiveCharacterTextSplitter(
-    chunk_size=800,
-    chunk_overlap=150
-)
+        if new_chunks:
+            vectorstore.add_documents(new_chunks)
+            print(f"  → Added {len(new_chunks)} new chunk(s) "
+                  f"(skipped {len(chunks) - len(new_chunks)} already stored)\n")
+        else:
+            print(f"  → Already up to date, nothing new to add.\n")
 
-chunks = splitter.split_documents(documents)
-print(f"Total chunks: {len(chunks)}")
+    print(f"All done. Total documents in store: {vectorstore._collection.count()}")
 
-# -------------------------
-# DEDUPLICATE
-# -------------------------
 
-embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
-
-vectorstore = Chroma(
-    persist_directory=CHROMA_DIR,
-    embedding_function=embedding_model
-)
-
-existing = vectorstore.get()
-existing_hashes = set()
-
-for doc_text in existing.get("documents", []):
-    h = hashlib.md5(doc_text.encode()).hexdigest()
-    existing_hashes.add(h)
-
-new_chunks = []
-for chunk in chunks:
-    h = hashlib.md5(chunk.page_content.encode()).hexdigest()
-    if h not in existing_hashes:
-        new_chunks.append(chunk)
-
-print(f"New chunks to add: {len(new_chunks)} "
-      f"(skipped {len(chunks) - len(new_chunks)} duplicates)")
-
-if not new_chunks:
-    print("Nothing new to ingest. Database is up to date.")
-    exit(0)
-
-# -------------------------
-# EMBED AND STORE
-# -------------------------
-
-print("\nEmbedding and storing chunks...")
-vectorstore.add_documents(new_chunks)
-print(f"\nDone. Total documents in store: "
-      f"{vectorstore._collection.count()}")
+if __name__ == "__main__":
+    main()
