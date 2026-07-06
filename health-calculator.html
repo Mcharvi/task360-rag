@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Sector Incentive Calculator — Task360</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #EEF2FF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding: 28px 32px 60px; }
+  .page { width: 100%; max-width: 900px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 36px 44px; box-shadow: 0 4px 40px rgba(37,99,235,0.07); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748B; text-decoration: none; margin-bottom: 18px; }
+  .back-link:hover { color: #2563EB; }
+
+  h1 { font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+  .subhead { font-size: 13.5px; color: #64748B; margin-bottom: 28px; }
+  .subhead b { color: #2563EB; }
+
+  .section-label { font-size: 13px; font-weight: 700; color: #2563EB; letter-spacing: 0.04em; text-transform: uppercase; margin: 26px 0 14px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .field label .req { color: #DC2626; margin-left: 2px; }
+  .field select, .field input[type="number"] {
+    padding: 10px 14px; border: 1.5px solid #CBD5E1; border-radius: 10px;
+    background: #fff; color: #1E293B; font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+  }
+  .field select:focus, .field input[type="number"]:focus { border-color: #2563EB; }
+  .field select.invalid, .field input.invalid { border-color: #FCA5A5; background: #FEF2F2; }
+  .field input[disabled] { background: #F1F5F9; color: #64748B; }
+  .field .hint { font-size: 11.5px; color: #94A3B8; }
+
+  .btn-row { margin: 0px 0; display: flex; gap: 10px; align-items: center; margin-top: 26px; }
+  .calc-btn { padding: 12px 28px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font: inherit; transition: background 0.15s; }
+  .calc-btn:hover { background: #1D4ED8; }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .missing-note { font-size: 12.5px; color: #DC2626; }
+
+  .result-card { display: none; margin-top: 28px; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 22px 24px; }
+  .result-card.visible { display: block; }
+  .result-card.error { background: #FEF2F2; border-color: #FECACA; }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .label { font-size: 13px; color: #334155; font-weight: 600; }
+  .result-row .value { font-size: 18px; color: #15803D; font-weight: 800; }
+  .status-note { margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.55; background: #fff; border-radius: 10px; padding: 12px 14px; }
+  .error-text { font-size: 13.5px; color: #B91C1C; }
+
+  .loading-row { display: none; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #64748B; }
+  .loading-row.visible { display: flex; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #CBD5E1; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 28px; font-size: 12px; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" href="index.html">← Back to Subsidy Assistant</a>
+
+  <h1>Health Sector Incentive Calculator</h1>
+  <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here.</p>
+
+  <div class="section-label">Project Details</div>
+  <div class="grid">
+    <div class="field">
+      <label>Type of Project<span class="req">*</span></label>
+      <select id="project_type">
+        <option value="">-- Select --</option>
+        <option value="Multi-Specialty Hospital">Multi-Specialty Hospital</option>
+        <option value="Super-Specialty Hospital">Super-Specialty Hospital</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>District Category<span class="req">*</span></label>
+      <select id="district_category">
+        <option value="">-- Select --</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-label">Other Details</div>
+  <div class="grid">
+    <div class="field">
+      <label>Total Beds<span class="req">*</span></label>
+      <input type="number" id="total_no_of_beds" min="0" placeholder="Enter total beds">
+    </div>
+    <div class="field">
+      <label>Total Project Cost — TPC (₹ Crore)<span class="req">*</span></label>
+      <input type="number" id="investment_amount_cr" min="0" step="0.01" placeholder="Enter TPC in crore">
+      <span class="hint">Enter TPC already as the lowest of DPR / Bank / Audited value.</span>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="calc-btn" id="calcBtn" disabled>Calculate Incentive</button>
+    <span class="missing-note" id="missingNote"></span>
+  </div>
+
+  <div class="loading-row" id="loadingRow"><span class="spinner"></span> Calculating…</div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-row">
+      <span class="label">Eligible Subsidy (₹ Lakh)</span>
+      <span class="value" id="outLakh">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible Subsidy (₹ Crore)</span>
+      <span class="value" id="outCrore">—</span>
+    </div>
+    <div class="status-note" id="outStatus"></div>
+  </div>
+
+  <div class="footer-note">Your inputs are sent securely and are not stored.</div>
+</div>
+
+<script>
+// ── API CONFIG (matches api.py / index.html) ───────────────
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
+const CALCULATE_URL = API_BASE + "/api/v1/calculate/health";
+
+// ── FIELD REFS ──────────────────────────────────────────────
+const fields = {
+  facility_type: document.getElementById('project_type'),
+  district_category: document.getElementById('district_category'),
+  total_no_of_beds: document.getElementById('total_no_of_beds'),
+  investment_amount_cr: document.getElementById('investment_amount_cr'),
+};
+const calcBtn = document.getElementById('calcBtn');
+const missingNote = document.getElementById('missingNote');
+const loadingRow = document.getElementById('loadingRow');
+const resultCard = document.getElementById('resultCard');
+const outLakh = document.getElementById('outLakh');
+const outCrore = document.getElementById('outCrore');
+const outStatus = document.getElementById('outStatus');
+
+// ── PRE-FILL FROM URL (subquestion answers passed from index.html) ──
+// Skipped subquestions simply have no param, so those fields stay blank
+// and remain required here, per spec.
+const params = new URLSearchParams(window.location.search);
+if(params.get('facility_type')) fields.facility_type.value = params.get('facility_type');
+if(params.get('district_category')) fields.district_category.value = params.get('district_category');
+
+// ── VALIDATION ──────────────────────────────────────────────
+function currentValues(){
+  return {
+    facility_type: fields.facility_type.value.trim(),
+    district_category: fields.district_category.value.trim(),
+    total_no_of_beds: fields.total_no_of_beds.value.trim(),
+    investment_amount_cr: fields.investment_amount_cr.value.trim(),
+  };
+}
+
+function validate(){
+  const values = currentValues();
+  const missing = Object.entries(values).filter(([,v]) => !v).map(([k]) => k);
+
+  Object.entries(fields).forEach(([id, el]) => {
+    el.classList.toggle('invalid', missing.includes(id) && el.dataset.touched === '1');
+  });
+
+  calcBtn.disabled = missing.length > 0;
+  missingNote.textContent = missing.length ? `${missing.length} required field${missing.length>1?'s':''} remaining` : '';
+  return missing.length === 0;
+}
+
+Object.values(fields).forEach(el => {
+  el.addEventListener('input', () => { el.dataset.touched = '1'; validate(); });
+  el.addEventListener('change', () => { el.dataset.touched = '1'; validate(); });
+});
+validate();
+
+// ── CALCULATE ────────────────────────────────────────────────
+calcBtn.addEventListener('click', async () => {
+  if(!validate()) return;
+  const values = currentValues();
+
+  resultCard.classList.remove('visible', 'error');
+  loadingRow.classList.add('visible');
+  calcBtn.disabled = true;
+
+  try{
+    const r = await fetch(CALCULATE_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ values })
+    });
+    const d = await r.json();
+    loadingRow.classList.remove('visible');
+
+    if(!r.ok){
+      resultCard.classList.add('visible', 'error');
+      outStatus.innerHTML = `<span class="error-text">${(d && d.detail) ? d.detail : 'Something went wrong while calculating. Please try again.'}</span>`;
+      outLakh.textContent = '—';
+      outCrore.textContent = '—';
+      return;
+    }
+
+    // Response shape from the official MP Invest API:
+    // { status, message, data: { eligible_subsidy, status_note } }
+    const eligible = d?.data?.eligible_subsidy;
+    const statusNote = d?.data?.status_note || '';
+
+    if(typeof eligible === 'number'){
+      outLakh.textContent = `₹ ${(eligible / 100000).toLocaleString('en-IN', {maximumFractionDigits: 2})} Lakh`;
+      outCrore.textContent = `₹ ${(eligible / 10000000).toLocaleString('en-IN', {maximumFractionDigits: 2})} Crore`;
+    } else {
+      outLakh.textContent = '—';
+      outCrore.textContent = '—';
+    }
+    outStatus.textContent = statusNote;
+    resultCard.classList.add('visible');
+  } catch(e){
+    console.error('Calculate request failed:', e);
+    loadingRow.classList.remove('visible');
+    resultCard.classList.add('visible', 'error');
+    outStatus.innerHTML = `<span class="error-text">Could not reach the calculator service. Make sure the backend (api.py) is running at ${API_BASE}.</span>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

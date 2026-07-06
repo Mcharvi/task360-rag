@@ -92,15 +92,27 @@
 
   .ob-select { width: 100%; padding: 10px 14px; border: 1.5px solid #BFDBFE; border-radius: 10px; background: #EFF6FF; color: #1E293B; font-size: 13.5px; font-family: inherit; font-weight: 500; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563EB' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
   .ob-select:focus { border-color: #2563EB; }
-  .ob-confirm { margin-top: 10px; padding: 9px 24px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font: inherit; transition: background 0.15s; }
+  .ob-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .ob-confirm { padding: 9px 24px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font: inherit; transition: background 0.15s; }
   .ob-confirm:hover { background: #1D4ED8; }
   .ob-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ob-skip { padding: 9px 20px; border-radius: 100px; background: #fff; color: #64748B; border: 1.5px solid #E2E8F0; font-size: 13px; font-weight: 600; cursor: pointer; font: inherit; transition: background 0.15s, border-color 0.15s; }
+  .ob-skip:hover { background: #F1F5F9; border-color: #CBD5E1; }
+
+  /* CLARIFYING QUESTIONS + FOLLOW-UP SUGGESTIONS */
+  .clarify-tag { display: inline-block; font-size: 11px; font-weight: 700; color: #B45309; background: #FFFBEB; border: 1px solid #FDE68A; padding: 3px 10px; border-radius: 100px; margin-bottom: 8px; }
+  .suggestion-row { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 4px 2px; }
+  .suggestion-chip { padding: 8px 16px; border-radius: 100px; border: 1.5px solid #BFDBFE; background: #EFF6FF; color: #2563EB; font-size: 13px; font-weight: 600; cursor: pointer; font: inherit; transition: background 0.15s, border-color 0.15s; }
+  .suggestion-chip:hover { background: #DBEAFE; border-color: #93C5FD; }
+  .suggestion-chip:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* CONTEXT BADGE */
   .ctx-badge { display: none; align-items: center; gap: 8px; flex-wrap: wrap; background: #F0F7FF; border: 1.5px solid #DBEAFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; color: #1E40AF; }
   .ctx-badge.visible { display: flex; }
   .ctx-tag { background: #2563EB; color: #fff; border-radius: 100px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
   .ctx-reset { margin-left: auto; font-size: 12px; color: #64748B; cursor: pointer; border: 1px solid #CBD5E1; background: #fff; border-radius: 8px; padding: 4px 10px; }
+  .calc-link { display: inline-flex; align-items: center; gap: 5px; color: #2563EB; font-weight: 700; text-decoration: none; font-size: 12.5px; border: 1.5px solid #BFDBFE; background: #fff; padding: 4px 12px; border-radius: 100px; }
+  .calc-link:hover { background: #EFF6FF; }
 
   /* HINT BAR */
   .hint-bar { display: flex; align-items: center; gap: 10px; background: #F8FAFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px 18px; font-size: 13.5px; color: #64748B; margin-bottom: 16px; }
@@ -238,6 +250,7 @@
   <div class="ctx-badge" id="ctxBadge">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
     <span id="ctxText"></span>
+    <span id="ctxCalcSlot"></span>
     <button class="ctx-reset" id="ctxReset">Change</button>
   </div>
 
@@ -290,14 +303,35 @@ const FALLBACK_SECTORS = [
   "Logistics & Warehousing","Startup & Innovation","Space & Advanced Tech",
   "Animation, Gaming & XR","City Gas & Infrastructure","Civil Aviation","MSME"
 ];
-const FALLBACK_HEALTH_SUB = {
-  facility_type: ["Multi-Speciality Hospital","Super-Speciality Hospital","Medical College",
-                   "Ayurveda / AYUSH Facility","Diagnostic Centre","Medical Device Manufacturing"],
-  district_category: ["A","B","C"]
+
+// Mirrors POLICY_SUBQUESTIONS in api.py — kept as fallback only.
+// Facility types are limited to the two the official calculator supports.
+const FALLBACK_POLICY_SUBQUESTIONS = {
+  "Healthcare": {
+    calculator_slug: "health",
+    questions: [
+      {
+        id: "facility_type",
+        context_label: "Facility Type",
+        type: "select",
+        label: "What type of healthcare facility are you setting up?",
+        label_hi: "आप किस प्रकार की स्वास्थ्य सुविधा स्थापित कर रहे हैं?",
+        options: ["Multi-Specialty Hospital", "Super-Specialty Hospital"]
+      },
+      {
+        id: "district_category",
+        context_label: "District Category",
+        type: "buttons",
+        label: "Which district category is your project in?",
+        label_hi: "आपकी परियोजना किस जिला श्रेणी में है?",
+        options: ["A", "B", "C"]
+      }
+    ]
+  }
 };
 
 let sectorsList = FALLBACK_SECTORS;
-let healthSub   = FALLBACK_HEALTH_SUB;
+let policySubquestions = FALLBACK_POLICY_SUBQUESTIONS;
 
 async function loadSectors(){
   try{
@@ -305,7 +339,7 @@ async function loadSectors(){
     if(r.ok){
       const d = await r.json();
       if(Array.isArray(d.sectors) && d.sectors.length) sectorsList = d.sectors;
-      if(d.health_subquestions) healthSub = d.health_subquestions;
+      if(d.policy_subquestions) policySubquestions = d.policy_subquestions;
     }
   }catch(e){ /* keep fallback */ }
 }
@@ -314,30 +348,33 @@ loadSectors();
 // ── USER CONTEXT ──────────────────────────────────────────
 let userLang = null;        // 'english' | 'hindi'
 let userSector = null;      // sector string, must match SECTOR_MAP key
-let userFacility = null;    // facility type (Healthcare only)
-let selectedDistrict = null;// district category (Healthcare only)
-let onboardingStep = 0;     // 0=not started 1=lang 2=sector 3=facility 4=done
+let subQuestions = [];      // active sector's subquestion list (may be empty)
+let subAnswers = {};        // { questionId: value | null }  null = skipped
+let subIndex = 0;           // which subquestion we're currently on
+let onboardingStep = 0;     // 0=not started 1=lang 2=sector 3=subquestions 4=done
 let contextPrefix = '';     // prepended to every question sent to API
 
 // ── TRANSLATIONS ──────────────────────────────────────────
 const T = {
   en: {
     sectorQ:  'Which sector would you like to ask about?',
-    facilityQ:'What type of healthcare facility are you setting up?',
-    districtQ:'Which district category is your project in?',
-    done:     (s, f, d) => `Great! I'll answer your questions about ${s}${f?', '+f:''}${d?', District Category '+d:''}. You can now ask your question below.`,
+    done:     (s, extras) => `Great! I'll answer your questions about ${s}${extras.length ? ', ' + extras.join(', ') : ''}. You can now ask your question below.`,
     selectOpt:'-- Select --',
     confirm:  'Confirm',
-    ctxLabel: (s,f,d) => `${s}${f?' › '+f:''}${d?' › Category '+d:''}`,
+    skip:     'Skip',
+    skipped:  'Skipped',
+    openCalc: '🧮 Open Calculator',
+    ctxLabel: (s, extras) => [s, ...extras].join(' › '),
   },
   hi: {
     sectorQ:  'आप किस क्षेत्र के बारे में जानना चाहते हैं?',
-    facilityQ:'आप किस प्रकार की स्वास्थ्य सुविधा स्थापित कर रहे हैं?',
-    districtQ:'आपकी परियोजना किस जिला श्रेणी में है?',
-    done:     (s, f, d) => `बहुत अच्छा! मैं ${s}${f?', '+f:''}${d?', जिला श्रेणी '+d:''} के बारे में आपके प्रश्नों का उत्तर दूंगा। नीचे अपना प्रश्न पूछें।`,
+    done:     (s, extras) => `बहुत अच्छा! मैं ${s}${extras.length ? ', ' + extras.join(', ') : ''} के बारे में आपके प्रश्नों का उत्तर दूंगा। नीचे अपना प्रश्न पूछें।`,
     selectOpt:'-- चुनें --',
     confirm:  'पुष्टि करें',
-    ctxLabel: (s,f,d) => `${s}${f?' › '+f:''}${d?' › श्रेणी '+d:''}`,
+    skip:     'छोड़ें',
+    skipped:  'छोड़ा गया',
+    openCalc: '🧮 कैलकुलेटर खोलें',
+    ctxLabel: (s, extras) => [s, ...extras].join(' › '),
   }
 };
 function t(){ return userLang === 'hindi' ? T.hi : T.en; }
@@ -380,6 +417,7 @@ const input      = document.getElementById('questionInput');
 const sendBtn    = document.getElementById('sendBtn');
 const ctxBadge   = document.getElementById('ctxBadge');
 const ctxText    = document.getElementById('ctxText');
+const ctxCalcSlot= document.getElementById('ctxCalcSlot');
 const ctxReset   = document.getElementById('ctxReset');
 
 document.getElementById('clearBtn').addEventListener('click', resetAll);
@@ -388,9 +426,12 @@ ctxReset.addEventListener('click', resetAll);
 function resetAll(){
   convoBody.innerHTML = '';
   convo.classList.remove('active');
-  userLang = null; userSector = null; userFacility = null; selectedDistrict = null;
+  userLang = null; userSector = null;
+  subQuestions = []; subAnswers = {}; subIndex = 0;
   onboardingStep = 0; contextPrefix = '';
   ctxBadge.classList.remove('visible');
+  ctxText.innerHTML = '';
+  ctxCalcSlot.innerHTML = '';
   input.placeholder = 'Write your question here...';
 }
 
@@ -420,7 +461,7 @@ function addTyping(){
 }
 function removeTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
 
-function addBotAnswer(text){
+function addBotAnswer(text, opts = {}){
     const marker = "\n\n---\n\n**References**\n";
     const idx = text.indexOf(marker);
     let main = text;
@@ -436,7 +477,35 @@ function addBotAnswer(text){
             `</div>`;
     }
 
-    addBotRaw(marked.parse(main) + refs);
+    const tag = opts.isClarify
+      ? `<div class="clarify-tag">${userLang==='hindi' ? '❓ एक स्पष्टीकरण प्रश्न' : '❓ Quick question'}</div>`
+      : '';
+
+    return addBotRaw(tag + marked.parse(main) + refs);
+}
+
+// Tappable follow-up options: quick-reply answers to a clarifying question,
+// or "what next" suggestions after a normal answer. Common to every sector —
+// driven entirely by whatever the backend returns for this turn.
+function addSuggestionChips(suggestions){
+  if(!Array.isArray(suggestions) || !suggestions.length) return;
+  convo.classList.add('active');
+  const wrap = document.createElement('div');
+  wrap.className = 'suggestion-row';
+  suggestions.forEach(s => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'suggestion-chip';
+    chip.textContent = s;
+    chip.addEventListener('click', () => {
+      if(sendBtn.disabled) return; // a request is already in flight
+      wrap.remove();
+      handleUserInput(s);
+    });
+    wrap.appendChild(chip);
+  });
+  convoBody.appendChild(wrap);
+  convoBody.scrollTop = convoBody.scrollHeight;
 }
 // ── ONBOARDING FLOW ───────────────────────────────────────
 function startOnboarding(){
@@ -496,76 +565,144 @@ function confirmSector(){
   addUser(userSector);
   onboardingStep = 3;
 
-  if(userSector === 'Healthcare'){
-    showFacilityStep();
+  subAnswers = {};
+  subIndex = 0;
+  subQuestions = (policySubquestions[userSector] && policySubquestions[userSector].questions) || [];
+
+  if(subQuestions.length){
+    showSubQuestion();
   } else {
     finishOnboarding();
   }
 }
 
-function showFacilityStep(){
-  const facOpts = (healthSub.facility_type || []).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
-  const distOpts = healthSub.district_category || [];
-  addBotRaw(`
-    <div class="ob-card">
-      <div class="ob-label">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
-        ${t().facilityQ}
+// ── PER-POLICY SUBQUESTIONS (generic, driven by policySubquestions config) ──
+// NOTE: each subquestion card stays in the chat history after it's answered
+// (it's a transcript), so elements can NOT be looked up by id — duplicate
+// ids would collide across cards and getElementById would always grab the
+// first (stale) one. Everything below is scoped to the specific bubble
+// element addBotRaw() just created instead.
+function showSubQuestion(){
+  const q = subQuestions[subIndex];
+  const label = (userLang === 'hindi' && q.label_hi) ? q.label_hi : q.label;
+
+  let html;
+  if(q.type === 'select'){
+    const opts = q.options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
+    html = `
+      <div class="ob-card">
+        <div class="ob-label">${esc(label)}</div>
+        <select class="ob-select sub-select">
+          <option value="">${t().selectOpt}</option>
+          ${opts}
+        </select>
+        <div class="ob-actions">
+          <button class="ob-confirm sub-confirm" disabled>${t().confirm}</button>
+          <button class="ob-skip sub-skip">${t().skip}</button>
+        </div>
       </div>
-      <select class="ob-select" id="facilitySelect">
-        <option value="">${t().selectOpt}</option>
-        ${facOpts}
-      </select>
-      <div class="ob-label" style="margin-top:14px">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        ${t().districtQ}
+    `;
+  } else {
+    // 'buttons' type
+    html = `
+      <div class="ob-card">
+        <div class="ob-label">${esc(label)}</div>
+        <div class="ob-btns sub-btns">
+          ${q.options.map(o=>`<button type="button" class="ob-btn" data-val="${esc(o)}">${esc(o)}</button>`).join('')}
+        </div>
+        <div class="ob-actions">
+          <button class="ob-confirm sub-confirm" disabled>${t().confirm}</button>
+          <button class="ob-skip sub-skip">${t().skip}</button>
+        </div>
       </div>
-      <div class="ob-btns" id="districtBtns">
-        ${distOpts.map(d=>`<button class="ob-btn" onclick="selectDistrict(this,'${d}')">Category ${d}</button>`).join('')}
-      </div>
-      <br>
-      <button class="ob-confirm" id="facilityConfirmBtn" onclick="confirmFacility()" disabled>${t().confirm}</button>
-    </div>
-  `);
-  setTimeout(()=>{
-    const sel = document.getElementById('facilitySelect');
-    const btn = document.getElementById('facilityConfirmBtn');
-    if(sel && btn) sel.addEventListener('change', ()=>{ btn.disabled = !sel.value; });
-  },100);
+    `;
+  }
+
+  const bubble = addBotRaw(html);
+  const confirmBtn = bubble.querySelector('.sub-confirm');
+  const skipBtn = bubble.querySelector('.sub-skip');
+
+  skipBtn.addEventListener('click', () => {
+    subAnswers[q.id] = null; // left blank — required later in the calculator
+    addUser(t().skipped);
+    advanceSubQuestion();
+  });
+
+  if(q.type === 'select'){
+    const sel = bubble.querySelector('.sub-select');
+    sel.addEventListener('change', () => { confirmBtn.disabled = !sel.value; });
+    confirmBtn.addEventListener('click', () => {
+      if(!sel.value) return;
+      subAnswers[q.id] = sel.value;
+      addUser(sel.value);
+      advanceSubQuestion();
+    });
+  } else {
+    const btnsWrap = bubble.querySelector('.sub-btns');
+    let selectedVal = null;
+    btnsWrap.querySelectorAll('.ob-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        btnsWrap.querySelectorAll('.ob-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected');
+        selectedVal = b.dataset.val;
+        confirmBtn.disabled = false;
+      });
+    });
+    confirmBtn.addEventListener('click', () => {
+      if(!selectedVal) return;
+      subAnswers[q.id] = selectedVal;
+      addUser(selectedVal);
+      advanceSubQuestion();
+    });
+  }
 }
 
-function selectDistrict(el, val){
-  selectedDistrict = val;
-  document.querySelectorAll('#districtBtns .ob-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected');
-  const btn = document.getElementById('facilityConfirmBtn');
-  const sel = document.getElementById('facilitySelect');
-  if(btn && sel && sel.value) btn.disabled = false;
-}
-
-function confirmFacility(){
-  const sel = document.getElementById('facilitySelect');
-  if(!sel || !sel.value) return;
-  userFacility = sel.value;
-  const distLabel = selectedDistrict ? `Category ${selectedDistrict}` : '';
-  addUser(`${userFacility}${distLabel ? ' · '+distLabel : ''}`);
-  finishOnboarding();
+function advanceSubQuestion(){
+  subIndex++;
+  if(subIndex < subQuestions.length){
+    showSubQuestion();
+  } else {
+    finishOnboarding();
+  }
 }
 
 function finishOnboarding(){
   onboardingStep = 4;
-  const msg = t().done(userSector, userFacility, selectedDistrict);
+
+  const answeredValues = subQuestions
+    .filter(q => subAnswers[q.id])
+    .map(q => subAnswers[q.id]);
+
+  const msg = t().done(userSector, answeredValues);
   addBotRaw(`<div style="color:#15803D;font-weight:600">✅ ${esc(msg)}</div>`);
 
   // Build context prefix matching api.py's parse_context() regex:
   // [Context: Sector = X, Facility Type = Y, District Category = Z, Language = hindi]
+  // Only answered (non-skipped) subquestions are included — conditional,
+  // not glued onto every message regardless of relevance.
   const parts = [`Sector = ${userSector}`];
-  if(userFacility) parts.push(`Facility Type = ${userFacility}`);
-  if(selectedDistrict) parts.push(`District Category = ${selectedDistrict}`);
+  subQuestions.forEach(q => {
+    const val = subAnswers[q.id];
+    if(val) parts.push(`${q.context_label || q.id} = ${val}`);
+  });
   parts.push(`Language = ${userLang}`);
   contextPrefix = `[Context: ${parts.join(', ')}]\n\n`;
 
-  ctxText.innerHTML = `<span class="ctx-tag">${t().ctxLabel(userSector, userFacility, selectedDistrict)}</span>`;
+  ctxText.innerHTML = `<span class="ctx-tag">${esc(t().ctxLabel(userSector, answeredValues))}</span>`;
+
+  // Calculator icon/link — only shown when this sector has one configured.
+  ctxCalcSlot.innerHTML = '';
+  const calcCfg = policySubquestions[userSector];
+  if(calcCfg && calcCfg.calculator_slug){
+    const params = new URLSearchParams();
+    subQuestions.forEach(q => {
+      const val = subAnswers[q.id];
+      if(val) params.set(q.id, val); // skipped fields simply aren't set → blank + required on the calculator page
+    });
+    const href = `${calcCfg.calculator_slug}-calculator.html?${params.toString()}`;
+    ctxCalcSlot.innerHTML = `<a class="calc-link" href="${href}" target="_blank" rel="noopener">${t().openCalc}</a>`;
+  }
+
   ctxBadge.classList.add('visible');
   input.placeholder = userLang==='hindi' ? 'यहाँ अपना प्रश्न लिखें...' : 'Write your question here...';
 
@@ -605,7 +742,9 @@ async function ask(text){
     removeTyping();
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
-    addBotAnswer(d.answer || 'No answer received.');
+    const isClarify = d.type === 'clarify';
+    addBotAnswer(d.answer || 'No answer received.', { isClarify });
+    addSuggestionChips(d.suggestions);
   } catch(e){
     console.error('Chat request failed:', e);
     removeTyping();

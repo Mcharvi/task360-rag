@@ -4,7 +4,9 @@ load_dotenv()
 import os
 import re
 import json
+import ssl
 import cohere
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -94,13 +96,42 @@ SECTOR_MAP = {
     "MSME": ["MSME Development Policy 2025.pdf"],
 }
 
-# health sub-questions shown by the frontend onboarding
-HEALTH_SUBQUESTIONS = {
-    "facility_type": [
-        "Multi-Speciality Hospital", "Super-Speciality Hospital", "Medical College",
-        "Ayurveda / AYUSH Facility", "Diagnostic Centre", "Medical Device Manufacturing"
-    ],
-    "district_category": ["A", "B", "C"]
+# -------------------------
+# PER-POLICY SUBQUESTIONS
+# Asked right after the user picks a sector, before they start chatting.
+# Every subquestion is skippable — a skipped answer is simply omitted from
+# both the RAG context and the calculator pre-fill (left blank + required
+# there instead).
+#
+# "context_label" is the human-readable key used inside the
+# "[Context: ...]" prefix the frontend sends (parsed by parse_context()).
+# "calculator_slug" (optional) wires a sector to an entry in
+# POLICY_CALCULATORS + a "<slug>-calculator.html" page on the frontend.
+# -------------------------
+
+POLICY_SUBQUESTIONS = {
+    "Healthcare": {
+        "calculator_slug": "health",
+        "questions": [
+            {
+                "id": "facility_type",
+                "context_label": "Facility Type",
+                "type": "select",
+                "label": "What type of healthcare facility are you setting up?",
+                "label_hi": "आप किस प्रकार की स्वास्थ्य सुविधा स्थापित कर रहे हैं?",
+                # Only the two project types the official calculator actually supports.
+                "options": ["Multi-Specialty Hospital", "Super-Specialty Hospital"],
+            },
+            {
+                "id": "district_category",
+                "context_label": "District Category",
+                "type": "buttons",
+                "label": "Which district category is your project in?",
+                "label_hi": "आपकी परियोजना किस जिला श्रेणी में है?",
+                "options": ["A", "B", "C"],
+            },
+        ],
+    }
 }
 
 FALLBACK_PHRASE = "I could not find the answer in the provided documents."
@@ -110,13 +141,19 @@ FALLBACK_PHRASE = "I could not find the answer in the provided documents."
 # PARSE CONTEXT PREFIX
 # Frontend sends:
 # [Context: Sector = X, Facility Type = Y, District Category = Z, Language = hindi]\n\n<question>
+#
+# Any "Key = Value" pair other than Sector/Language is treated as a generic
+# onboarding field (facility type, district category, etc. for whichever
+# sector is active) and passed downstream as `extra_context`. Skipped
+# subquestions are never present here, since the frontend leaves them out
+# of the prefix entirely.
 # -------------------------
 
 def parse_context(raw_question: str):
     ctx_match = re.match(r"\[Context:(.*?)\]\n\n", raw_question, re.DOTALL)
 
     if not ctx_match:
-        return raw_question.strip(), None, False, ""
+        return raw_question.strip(), None, {}, False
 
     ctx = ctx_match.group(1)
     actual_question = raw_question[ctx_match.end():].strip()
@@ -126,9 +163,16 @@ def parse_context(raw_question: str):
     sector_match = re.search(r"Sector\s*=\s*([^,\]]+)", ctx)
     sector = sector_match.group(1).strip() if sector_match else None
 
-    context_summary = ctx.strip()
+    extra_context: dict[str, str] = {}
+    for field_match in re.finditer(r"([A-Za-z][A-Za-z ]*?)\s*=\s*([^,\]]+)", ctx):
+        key = field_match.group(1).strip()
+        val = field_match.group(2).strip()
+        if key in ("Sector", "Language"):
+            continue
+        if val:
+            extra_context[key] = val
 
-    return actual_question, sector, respond_in_hindi, context_summary
+    return actual_question, sector, extra_context, respond_in_hindi
 
 
 def files_for_sector(sector: str | None) -> list[str]:
@@ -152,11 +196,41 @@ def expand_with_pairs(filenames: list[str]) -> list[str]:
     return list(expanded)
 
 
+def build_onboarding_note(sector: str | None, extra_context: dict[str, str]) -> str:
+    """
+    Shared "use this onboarding context only if relevant" note, used both
+    when picking files (Layer 1) and when writing the final answer.
+    Kept deliberately soft (LLM judgement, not a hard filter) — see product
+    notes: tightening this to a deterministic rule is a follow-up, not now.
+    """
+    if not sector:
+        return ""
+
+    note = f"""
+The user has already selected the "{sector}" sector as onboarding context.
+Treat this as a strong prior: prefer documents/information related to this
+sector. However, if the question clearly needs provisions from another
+sector to be answered completely, include those too.
+"""
+    if extra_context:
+        extra_lines = "\n".join(f"- {k}: {v}" for k, v in extra_context.items())
+        note += f"""
+The user also provided these onboarding details:
+{extra_lines}
+Use these ONLY if directly relevant to answering this specific question —
+for example, use "Facility Type" if the question is about eligibility or
+incentive amounts, but don't mention or lean on it for an unrelated
+procedural question. Never force these details into an answer where they
+don't belong.
+"""
+    return note
+
+
 # -------------------------
 # LAYER 1 — LLM FILE SELECTION
 # -------------------------
 
-def select_relevant_files(question: str, sector: str | None, history: str) -> tuple[list[str], str]:
+def select_relevant_files(question: str, sector: str | None, extra_context: dict[str, str], history: str) -> tuple[list[str], str]:
     candidate_files = expand_with_pairs(ALL_FILENAMES)
 
     catalogue = "\n".join(
@@ -164,14 +238,7 @@ def select_relevant_files(question: str, sector: str | None, history: str) -> tu
         for fn in candidate_files if fn in META_BY_FILE
     )
 
-    sector_note = ""
-    if sector:
-        sector_note = f"""
-The user has already selected the "{sector}" sector as onboarding context.
-Treat this as a strong prior: prefer documents belonging to this sector.
-However, if the question clearly needs provisions from another sector to be
-answered completely, include those documents too.
-"""
+    sector_note = build_onboarding_note(sector, extra_context)
 
     prompt = f"""You are routing a question to the correct Madhya Pradesh government
 policy documents, and preparing a search query for vector retrieval.
@@ -229,7 +296,7 @@ def deep_search(question: str, filenames: list[str]):
     for fn in filenames:
         try:
             results = vectorstore.max_marginal_relevance_search(
-                question, k=18, fetch_k=40,
+                question, k=12, fetch_k=40,
                 filter={"source": f"docs\\{fn}"}
             )
             docs.extend(results)
@@ -275,7 +342,7 @@ def chat(request: Request, data: ChatRequest):
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    actual_question, sector, respond_in_hindi, context_summary = parse_context(data.question)
+    actual_question, sector, extra_context, respond_in_hindi = parse_context(data.question)
 
     history = session_histories.get(data.session_id, [])
     history_text = "\n".join(history)
@@ -284,11 +351,12 @@ def chat(request: Request, data: ChatRequest):
     print(f"SESSION:  {data.session_id}")
     print(f"QUESTION: {actual_question}")
     print(f"SECTOR:   {sector}")
+    print(f"EXTRA:    {extra_context}")
     print(f"HINDI:    {respond_in_hindi}")
     print('='*50)
 
     # LAYER 1
-    selected_files, search_query = select_relevant_files(actual_question, sector, history_text)
+    selected_files, search_query = select_relevant_files(actual_question, sector, extra_context, history_text)
 
 # LAYER 2
     layer2_docs, searched_files = deep_search(search_query, selected_files)
@@ -319,7 +387,7 @@ def chat(request: Request, data: ChatRequest):
 
     if not all_docs:
         msg = "कोई प्रासंगिक दस्तावेज़ नहीं मिला।" if respond_in_hindi else "No relevant documents found."
-        return {"answer": msg}
+        return {"type": "answer", "answer": msg, "suggestions": []}
 
     # RERANK
     try:
@@ -344,17 +412,7 @@ def chat(request: Request, data: ChatRequest):
 
     language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government context.\n" if respond_in_hindi else ""
 
-    sector_note = ""
-    if sector:
-        sector_note = f"""
-The user has already selected the "{sector}" sector during onboarding.
-Assume they expect answers primarily related to this sector unless the
-retrieved context clearly supports information from another sector that is
-directly relevant to their question (e.g. export incentives for a
-manufacturing question, EV-specific rules, logistics rules for a factory
-question). Do not pull in unrelated incentives just because they technically
-appear in the context.
-"""
+    sector_note = build_onboarding_note(sector, extra_context)
 
     prompt = f"""You are an investment advisor helping someone evaluate setting up
 or expanding a business in Madhya Pradesh, using only the government policy
@@ -401,6 +459,38 @@ Previous Conversation:
 Context:
 {context}
 
+Cross-questioning (applies to every sector, use sparingly):
+- Most questions should get a direct answer. Only ask a clarifying question
+  when the context genuinely contains DIFFERENT answers depending on a
+  detail the user hasn't given (e.g. which sector/scheme, project type,
+  district category, investment size, new vs. expansion unit) — not just
+  because more detail would be "nice to have."
+- If the question is too vague to search meaningfully at all (e.g. "tell me
+  about incentives" with no sector/topic), that also warrants a clarifying
+  question instead of guessing.
+- A clarifying question should be ONE focused question, not a list of
+  questions.
+- Never ask for clarification just to pad the conversation, and never ask
+  about something the onboarding context or previous conversation already
+  answered.
+
+Output format (non-negotiable):
+Respond with ONLY a single valid JSON object — no markdown code fences, no
+text outside the JSON — with exactly these fields:
+{{
+  "type": "answer" or "clarify",
+  "message": "the full grounded answer (markdown allowed) if type is
+    \\"answer\\", OR a single focused clarifying question if type is
+    \\"clarify\\"",
+  "suggestions": [ up to 4 short strings. If type is "clarify", these are
+    likely answer options the user can tap instead of typing (pull them from
+    the context/catalogue where possible, e.g. specific district categories,
+    project types, or investment ranges actually mentioned). If type is
+    "answer", these are short natural follow-up questions the user might
+    reasonably want to ask next, grounded in what is actually in the
+    context. Use an empty array if nothing sensible applies. ]
+}}
+
 Answer:"""
 
     try:
@@ -408,14 +498,35 @@ Answer:"""
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1000,
-            temperature=0
+            temperature=0,
+            response_format={"type": "json_object"},
         )
-        answer = response.choices[0].message.content.strip()
+        raw = response.choices[0].message.content.strip()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM call failed: {e}")
 
     print("\nGPT RAW ANSWER:")
-    print(answer)
+    print(raw)
+
+    # Parse the structured {type, message, suggestions} response. If the
+    # model ever produces something that isn't valid JSON, fall back to
+    # treating the raw text as a plain "answer" with no suggestions, rather
+    # than breaking the response entirely.
+    response_type = "answer"
+    suggestions: list[str] = []
+    answer = raw
+    try:
+        cleaned = re.sub(r"^```json|```$", "", raw, flags=re.MULTILINE).strip()
+        parsed = json.loads(cleaned)
+        if parsed.get("type") in ("answer", "clarify"):
+            response_type = parsed["type"]
+        answer = (parsed.get("message") or "").strip() or raw
+        suggestions = [
+            s.strip() for s in parsed.get("suggestions", [])
+            if isinstance(s, str) and s.strip()
+        ][:4]
+    except Exception as e:
+        print(f"Structured answer parse failed, treating raw output as a plain answer: {e}")
 
     seen_src = set()
     unique_sources = []
@@ -430,8 +541,12 @@ Answer:"""
     citation_lines = [f"[{i}] {s['file']} — Page {s['page']}" for i, s in enumerate(unique_sources, start=1)]
     citation_text = "\n".join(citation_lines)
 
-    if FALLBACK_PHRASE in answer:
+    if response_type == "clarify":
+        # A clarifying question has no document context to cite yet.
         final_answer = answer
+    elif FALLBACK_PHRASE in answer:
+        final_answer = answer
+        suggestions = []
     else:
         final_answer = f"{answer}\n\n---\n\n**References**\n{citation_text}"
 
@@ -441,7 +556,7 @@ Answer:"""
         history = history[-MAX_HISTORY:]
     session_histories[data.session_id] = history
 
-    return {"answer": final_answer}
+    return {"type": response_type, "answer": final_answer, "suggestions": suggestions}
 
 
 # -------------------------
@@ -452,7 +567,7 @@ Answer:"""
 def get_sectors():
     return {
         "sectors": list(SECTOR_MAP.keys()),
-        "health_subquestions": HEALTH_SUBQUESTIONS
+        "policy_subquestions": POLICY_SUBQUESTIONS,
     }
 
 
@@ -463,3 +578,82 @@ def get_sectors():
 @app.get("/api/v1/health")
 def health():
     return {"status": "ok", "docs_in_store": vectorstore._collection.count()}
+
+
+# -------------------------
+# UPSTREAM SSL CONTEXT
+# sws.invest.mp.gov.in's TLS stack requires legacy renegotiation, which
+# OpenSSL 3.x refuses by default (raises
+# "SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED"). This explicitly re-allows
+# it for calls to that host only — it does NOT disable certificate
+# verification, just the renegotiation restriction.
+# -------------------------
+
+def _build_legacy_ssl_context() -> ssl.SSLContext:
+    ctx = ssl.create_default_context()
+    ctx.options |= 0x4  # ssl.OP_LEGACY_SERVER_CONNECT
+    return ctx
+
+
+_UPSTREAM_SSL_CONTEXT = _build_legacy_ssl_context()
+
+
+# -------------------------
+# POLICY CALCULATOR REGISTRY
+# One entry per policy that has an official MP Invest calculator.
+# "field_map": our subquestion/form field id -> their exact API field name
+# "transform": optional per-field conversion before sending upstream
+# "requires": which of our fields must be non-empty to call their API
+# -------------------------
+
+POLICY_CALCULATORS = {
+    "health": {
+        "upstream_url": "https://sws.invest.mp.gov.in/api/api/v1/incentives/health-incentive",
+        "field_map": {
+            "facility_type": "project_type",
+            "district_category": "category",
+            "total_no_of_beds": "total_no_of_beds",
+            "investment_amount_cr": "total_amount_investment",
+        },
+        "transform": {
+            # our field is entered in ₹ Crore; their API expects plain rupees
+            "investment_amount_cr": lambda v: str(int(float(v) * 1_00_00_000)),
+        },
+        "requires": ["facility_type", "district_category", "total_no_of_beds", "investment_amount_cr"],
+    }
+}
+
+
+class CalculateRequest(BaseModel):
+    values: dict[str, str]
+
+
+@app.post("/api/v1/calculate/{policy_slug}")
+@limiter.limit("15/minute")
+def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest):
+    cfg = POLICY_CALCULATORS.get(policy_slug)
+    if not cfg:
+        raise HTTPException(status_code=404, detail=f"No calculator configured for '{policy_slug}'.")
+
+    missing = [f for f in cfg["requires"] if not data.values.get(f)]
+    if missing:
+        raise HTTPException(status_code=400, detail=f"Missing required field(s): {', '.join(missing)}")
+
+    payload = {}
+    for our_id, their_key in cfg["field_map"].items():
+        raw_val = data.values.get(our_id, "")
+        transform = cfg.get("transform", {}).get(our_id)
+        try:
+            payload[their_key] = transform(raw_val) if transform else raw_val
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail=f"Invalid value for '{our_id}'.")
+
+    try:
+        with httpx.Client(verify=_UPSTREAM_SSL_CONTEXT, timeout=15) as upstream:
+            resp = upstream.post(cfg["upstream_url"], json=payload)
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=502, detail=f"Calculator service returned an error: {e.response.text}")
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach calculator service: {e}")
