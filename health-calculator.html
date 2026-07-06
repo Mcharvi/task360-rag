@@ -62,7 +62,7 @@
 <body>
 <div class="page">
 
-  <a class="back-link" href="index.html">← Back to Subsidy Assistant</a>
+  <a class="back-link" id="backLink" href="index.html">← Close this tab and return to your chat</a>
 
   <h1>Health Sector Incentive Calculator</h1>
   <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here.</p>
@@ -134,6 +134,16 @@ const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
 const CALCULATE_URL = API_BASE + "/api/v1/calculate/health";
 
 // ── FIELD REFS ──────────────────────────────────────────────
+document.getElementById('backLink').addEventListener('click', (e) => {
+  // This page is meant to be opened in its own tab from the chat, in which
+  // case the original chat tab is still alive, untouched, in the
+  // background — closing this tab is what actually "goes back" to it.
+  // window.close() only works on tabs the browser considers script-closable;
+  // if it's blocked (e.g. someone opened this page directly), fall through
+  // to the href and open a fresh assistant instead of doing nothing.
+  window.close();
+});
+
 const fields = {
   facility_type: document.getElementById('project_type'),
   district_category: document.getElementById('district_category'),
@@ -148,12 +158,16 @@ const outLakh = document.getElementById('outLakh');
 const outCrore = document.getElementById('outCrore');
 const outStatus = document.getElementById('outStatus');
 
-// ── PRE-FILL FROM URL (subquestion answers passed from index.html) ──
-// Skipped subquestions simply have no param, so those fields stay blank
-// and remain required here, per spec.
+// ── PRE-FILL FROM URL (subquestion answers + anything the chat model
+// gathered from free-text, e.g. "55 beds" or "my TPC is 30 crore") ──
+// Fields simply absent from the URL stay blank and remain required here,
+// per spec — that covers both skipped onboarding subquestions and fields
+// the chat never had a chance to ask about yet.
 const params = new URLSearchParams(window.location.search);
 if(params.get('facility_type')) fields.facility_type.value = params.get('facility_type');
 if(params.get('district_category')) fields.district_category.value = params.get('district_category');
+if(params.get('total_no_of_beds')) fields.total_no_of_beds.value = params.get('total_no_of_beds');
+if(params.get('investment_amount_cr')) fields.investment_amount_cr.value = params.get('investment_amount_cr');
 
 // ── VALIDATION ──────────────────────────────────────────────
 function currentValues(){

@@ -450,6 +450,13 @@ function addBotRaw(html){
   const m = document.createElement('div'); m.className='msg bot';
   const b = document.createElement('div'); b.className='msg-bubble';
   b.innerHTML = html;
+  // Any link the assistant renders (e.g. the calculator link) must open in
+  // a new tab — this page keeps its entire conversation in memory only, so
+  // navigating away in the same tab would silently lose it.
+  b.querySelectorAll('a[href]').forEach(a => {
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  });
   m.appendChild(b); convoBody.appendChild(m); convoBody.scrollTop=convoBody.scrollHeight;
   return b;
 }

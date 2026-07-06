@@ -7,6 +7,7 @@ import json
 import ssl
 import cohere
 import httpx
+from urllib.parse import urlencode
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -226,6 +227,101 @@ don't belong.
     return note
 
 
+def build_calculator_link(sector: str | None, extra_context: dict[str, str]) -> str | None:
+    """
+    If this sector has a configured calculator, build a relative link to its
+    "<slug>-calculator.html" page, pre-filled with whatever onboarding
+    answers we already have (matched by context_label -> subquestion id).
+    Returns None if the sector has no calculator configured.
+    """
+    cfg = POLICY_SUBQUESTIONS.get(sector) if sector else None
+    if not cfg or not cfg.get("calculator_slug"):
+        return None
+
+    params = {}
+    for q in cfg.get("questions", []):
+        label = q.get("context_label", q["id"])
+        if extra_context.get(label):
+            params[q["id"]] = extra_context[label]
+
+    slug = cfg["calculator_slug"]
+    query = urlencode(params)
+    return f"{slug}-calculator.html" + (f"?{query}" if query else "")
+
+
+def build_calculator_note(sector: str | None, extra_context: dict[str, str]) -> str:
+    """
+    For any sector with a configured calculator, forbid the model from
+    computing or estimating a specific rupee figure itself and point it at
+    the real calculator instead. This exists because the official upstream
+    calculators apply extra rules (caps, thresholds, special packages) that
+    aren't fully captured in the policy text, and an LLM guessing a formula
+    (e.g. a linear proportion by bed count that appears nowhere in the
+    context) has produced confidently wrong numbers in testing.
+
+    The onboarding subquestions (facility type, district category) only
+    cover *some* of the calculator's required fields — things like total
+    beds or project cost usually only surface later, typed as free text in
+    chat (e.g. "my TPC is 30 crore"). The model has already parsed that from
+    the conversation, so rather than losing it, this note tells the model
+    exactly which extra query-param keys it's allowed to append to the base
+    link for any such field it's confident the user actually stated.
+    """
+    cfg = POLICY_SUBQUESTIONS.get(sector) if sector else None
+    if not cfg or not cfg.get("calculator_slug"):
+        return ""
+
+    calc_link = build_calculator_link(sector, extra_context)
+    calc_cfg = POLICY_CALCULATORS.get(cfg["calculator_slug"])
+    if not calc_link or not calc_cfg:
+        return ""
+
+    onboarding_field_ids = {q["id"] for q in cfg.get("questions", [])}
+    remaining_fields = [f for f in calc_cfg.get("requires", []) if f not in onboarding_field_ids]
+
+    extra_fields_block = ""
+    if remaining_fields:
+        remaining_desc = ", ".join(f'"{f}"' for f in remaining_fields)
+        example_extra = "&".join(f"{f}=<number>" for f in remaining_fields)
+        joiner = "&" if "?" in calc_link else "?"
+        example_link = f"{calc_link}{joiner}{example_extra}"
+        extra_fields_block = f"""
+  If the user has ALSO stated any of these remaining fields anywhere in
+  this conversation (onboarding details or something typed in chat, e.g.
+  "55 beds" or "my TPC is 30 crore") — {remaining_desc} — append them to
+  that SAME link as extra query parameters, using exactly those field names
+  as keys and plain numeric values only (no ₹ symbol, no commas, no words
+  like "crore" or "beds" in the value itself). A fully filled-in link looks
+  like: {example_link}
+  Only include a field you are confident the user actually stated — never
+  guess or invent a value just to fill a field.
+"""
+
+    return f"""
+CALCULATOR RULE (non-negotiable, overrides anything else in this prompt):
+This sector has an official government calculator that computes the exact
+incentive/subsidy amount. You must NEVER state, compute, or estimate a
+specific rupee/lakh/crore figure yourself for this sector — not even by
+scaling a number in the context using a formula the user or you invent
+(e.g. proportioning a capped amount by bed count, area, or any other
+factor) unless that exact scaling formula is explicitly written in the
+context. Estimating produces numbers that can be materially wrong, because
+the real calculator applies rules not fully captured in the policy text.
+Instead:
+- Explain qualitatively what the incentive depends on, using only what is
+  explicitly stated in the context (e.g. "it's the lower of a fixed cap or
+  a percentage of your total project cost, for facilities up to a certain
+  size").
+- Point the user to the calculator for the exact, officially computed
+  figure, as a markdown link with clear anchor text, e.g.
+  [Open the incentive calculator]({calc_link})
+{extra_fields_block}- If the calculator still needs an input nobody has given yet in this
+  conversation, ask for it as a clarifying question instead of guessing —
+  but even once you have every input, still do not do the math yourself;
+  direct them to the calculator for the final number.
+"""
+
+
 # -------------------------
 # LAYER 1 — LLM FILE SELECTION
 # -------------------------
@@ -413,15 +509,23 @@ def chat(request: Request, data: ChatRequest):
     language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government context.\n" if respond_in_hindi else ""
 
     sector_note = build_onboarding_note(sector, extra_context)
+    calculator_note = build_calculator_note(sector, extra_context)
 
     prompt = f"""You are an investment advisor helping someone evaluate setting up
 or expanding a business in Madhya Pradesh, using only the government policy
 excerpts provided below as your source of truth.
-{sector_note}{language_instruction}
+{sector_note}{calculator_note}{language_instruction}
 Grounding rules (non-negotiable):
 - Answer ONLY using information explicitly stated in the context below.
 - Do not infer, guess, or fill in eligibility, incentives, deadlines, or
   conditions that are not explicitly stated.
+- NEVER invent a calculation, scaling method, or proportion that is not
+  explicitly written in the context — for example, do not assume an amount
+  scales linearly with bed count, area, headcount, or any other factor
+  unless the context states that scaling rule in those terms. If the user
+  asks you to compute a specific figure and the context doesn't give an
+  explicit method for that exact computation, say so plainly instead of
+  producing a number.
 - If the context does not explicitly answer part of the question, say plainly
   that the policy does not specify this — do not speculate or hedge with
   phrases like "it seems" or "it appears."
@@ -465,6 +569,12 @@ Cross-questioning (applies to every sector, use sparingly):
   detail the user hasn't given (e.g. which sector/scheme, project type,
   district category, investment size, new vs. expansion unit) — not just
   because more detail would be "nice to have."
+- If the user is asking you to calculate or state a specific figure, and
+  that figure genuinely depends on a number they haven't given (e.g. total
+  project cost, investment amount, capacity) per the context's own formula
+  (such as "lower of X or a percentage of TPC"), you MUST ask for that
+  number — do not answer with a caveated guess, and do not silently assume
+  a value.
 - If the question is too vague to search meaningfully at all (e.g. "tell me
   about incentives" with no sector/topic), that also warrants a clarifying
   question instead of guessing.
