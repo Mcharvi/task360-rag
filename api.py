@@ -1088,7 +1088,7 @@ def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest
         except (TypeError, ValueError):
             raise HTTPException(status_code=400, detail=f"Invalid value for '{our_id}'.")
 
-    method = cfg.get("method", "POST").upper()
+   method = cfg.get("method", "POST").upper()
     try:
         with httpx.Client(verify=_UPSTREAM_SSL_CONTEXT, timeout=30) as upstream:
             if method == "GET":
@@ -1098,6 +1098,8 @@ def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest
         resp.raise_for_status()
         return resp.json()
     except httpx.HTTPStatusError as e:
+        print(f"\n!!! CALCULATOR UPSTREAM ERROR ({policy_slug}): {e.response.status_code} — {e.response.text}\n")
         raise HTTPException(status_code=502, detail=f"Calculator service returned an error: {e.response.text}")
     except httpx.RequestError as e:
+        print(f"\n!!! CALCULATOR REQUEST FAILED ({policy_slug}): {type(e).__name__} — {e}\n")
         raise HTTPException(status_code=502, detail=f"Could not reach calculator service: {e}")
