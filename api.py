@@ -1116,6 +1116,7 @@ def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest
             else:
                 resp = upstream.post(cfg["upstream_url"], json=payload)
         resp.raise_for_status()
+        print(f"\n!!! CALCULATOR RESPONSE ({policy_slug}): {resp.status_code} — {resp.text}\n")
         return resp.json()
     except httpx.HTTPStatusError as e:
         print(f"\n!!! CALCULATOR UPSTREAM ERROR ({policy_slug}): {e.response.status_code} — {e.response.text}\n")
