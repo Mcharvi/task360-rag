@@ -1090,7 +1090,7 @@ def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest
 
     method = cfg.get("method", "POST").upper()
     try:
-        with httpx.Client(verify=_UPSTREAM_SSL_CONTEXT, timeout=15) as upstream:
+        with httpx.Client(verify=_UPSTREAM_SSL_CONTEXT, timeout=30) as upstream:
             if method == "GET":
                 resp = upstream.get(cfg["upstream_url"], params=payload)
             else:
