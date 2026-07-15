@@ -1,0 +1,32 @@
+24 
+ 
+4. GEOGRAPHICAL MULTIPLE
+a. Geographical Multiple (GM) is a multiplier applied to Basic Investment
+Promotion Assistance (BIPA) to encourage industrial investments in 
+priority blocks.
+b. The standard value of Geographical Multiple (GM) is 1.3 for industrial
+units established in Priority Blocks.
+c. The geographical multiple shall remain 1, for the units that are
+established in non- priority blocks and cement units, irrespective of 
+the location.
+d. The list of Priority Blocks is provided in Annexure-A. 
+5. FDI MULTIPLE
+a. FDI Multiple shall be applied to Basic Investment Promotion 
+Assistance (BIPA) to encourage Foreign Direct Investment (FDI) in 
+Madhya Pradesh.
+b. The FDI Multiple varies between 1.1 and 1.2, depending on the 
+percentage of foreign equity in an industrial unit. The minimum value 
+of 1.1 applies to units with less than 26% FDI and the maximum 
+value of 1.2 applies to units with more than 50% FDI.
+c. FDI Multiple is determined using the following formula:
+FDI Multiple =IF (FDI<26, 1, IF (FDI<=51, 1.1 + (FDI-26)*(0.1/(51-
+26)), 1.2))
+d. The multiplier gradually increases as the foreign investment
+percentage rises.
+e. The FDI equity submitted at the time of date of commercial
+production, shall be considered for the calculation of FDI Multiple 
+throughout the eligibility period. However, if in any claim period, the 
+FDI equity reduces, the FDI Multiple shall be reduced proportionally 
+as per the formula above.
+f. Irrespective of New Unit or Expansion/Diversification, FDI multiple
+can be claimed only once by the unit.

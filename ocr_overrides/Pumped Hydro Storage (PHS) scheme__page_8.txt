@@ -1,0 +1,38 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+3
+2. Definitions
+2.1. 
+Affiliate shall mean, in relation to a Developer, a person who con-
+trols, is controlled by, or is under the common control of such De-
+veloper. 
+2.2. 
+Composite Tariff Model shall mean a model in which the Procur-
+er contracts for power or energy from storage-based system for a 
+specified time. The energy for storage, including losses,in conver-
+sion is arranged by the Developer.The price shall be in Rs./kWh.
+2.3. 
+Control shall mean the ownership, directly or indirectly, of more 
+than 50% (fifty percent) of the voting shares of such company.
+2.4. 
+Government Authority shall mean an Authority set up by an Act 
+of Parliament or a State Legislature.
+2.5. 
+Nodal Agency shall mean Office of Commissioner, New and Re-
+newable Energy.
+2.6. 
+State Project Development Authority (SPDA) shall mean Rewa 
+Ultra Mega Solar Limited (RUMSL).
+2.7. 
+Tolling Tariff Model shall mean a model in which the Procurer 
+contracts the storage capacity. The energy for storageis provided by 
+the Procurer and the same is offtaken by the Procurer at a differ-
+ent time after accounting for losses.The price shall be in Rs./{MW/
+KW}/{year/month}.
+3.	Title, Validity and Applicability of the Scheme
+3.1.	
+As per the power conferred to the Office of Commissioner, New and 
+Renewable Energy under Clause 1.2.6 read along with Clause 1.1.1 
+of “Guidelines for implementation of Madhya Pradesh Renewable 
+Energy Policy – 2022”, the following Scheme is hereby formulat-
+ed for implementation and development of Pumped Hydro Storage 
+Projects in Madhya Pradesh.

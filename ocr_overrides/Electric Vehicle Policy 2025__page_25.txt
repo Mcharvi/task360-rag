@@ -1,0 +1,49 @@
+Madhya Pradesh Electric Vehicle Policy 2025 
+ 
+22 
+ 
+ CHARGING INFRASTRUCTURE 
+The presence of charging infrastructure is crucial for the swift adoption of EVs. India has 
+witnessed substantial expansion in the number of public charging stations in recent years. 
+Currently, there are over 25,000 operational public charging stations in India. This policy 
+strives to sustain and enhance this progress by fostering a conducive environment for the 
+expansion of both private and public charging infrastructures in Madhya Pradesh. 
+Setting up of Public Charging Stations (PCS) shall be a de-licensed activity and any 
+individual/entity is free to set up public charging stations, provided that, such stations meet 
+the technical as well as performance standards and protocols laid down below as well as 
+norms/standards/specifications laid down by Ministry of Power, Central Electricity 
+Authority, Govt. of MP from time to time. 
+The Distribution Licensee shall provide the electricity connection as per provisions of the 
+MP Electricity Supply Code 2021 notified by MP Electricity Regulatory Commission and 
+as amended from time to time to any entity/CPO seeking to set up a Public EV Charging 
+Station/Battery Swapping Station. 
+12.1. TYPES OF CHARGING STATIONS 
+STATION TYPE 
+VEHICLE 
+CATEGORY 
+LOCATION 
+TYPE OF 
+CONNECTION 
+Small Charging 
+Stations 
+2W & 3W 
+City 
+Low Tension (LT)* 
+Medium Charging 
+Stations 
+2W, 3W, Cars & e-
+LCV 
+City & Highways 
+Low Tension (LT) 
+Large Charging 
+Stations 
+2W, 3W, Cars, e-LCV 
+& Heavy-Duty 
+Vehicles 
+City & Highways 
+High Tension 
+(HT)** 
+*According to MPERC regulation, consumers with a connected load not exceeding 150 
+HP (112 KW) will be supplied power in LT category. 
+**According to MPERC regulation, consumers having installation with a connected load 
+exceeding 150 HP (112 KW) will be given in HT category.

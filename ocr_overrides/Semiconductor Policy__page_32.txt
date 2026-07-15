@@ -1,0 +1,22 @@
+C. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. 15 crore
+S.No | Description of Goods
+Active Components:
+a. Discrete semiconductor devices including transistors, diodes, etc.
+b. Power semiconductors including FETs, MOSFETs, Thyristors, etc.
+el] Preform of Silica and Optical Fiber
+I fy] Display Assembly and Touch Panel/Cover Glass Assembly and Cover Glass Finishing
+D. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. 25 crore
+S.No | Description of Goods
+Micro/Nano-electronic components such as Micro Electromechanical Systems (MEMS)
+and Nano Electromechanical Systems (NEMS)
+Vl Assembly, Testing, Marking, and Packaging (ATMP) Units
+Engineering, R&D, Testing and Tool Prototyping for capital goods for manufacturing of
+semiconductors/displays
+E. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. Rs.75 crore
+S.No | Description of Goods
+Pi Mechanics (plastic and metal parts) for electronic applications
+F. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. 250 crore
+S.No | Description of Goods
+Compound Semiconductors such as GaN, SiC, GaAs, etc. and Silicon Photonics
+devices/Integrated Circuits, Optoelectronic components
+| ii | Solar Photovoltaic (SPV) Cells

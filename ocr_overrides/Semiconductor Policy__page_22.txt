@@ -1,0 +1,34 @@
+5.4. Centre of Excellence for Semiconductors and ESDMThe Department of Science & Technology will extend financial and infrastructural support for
+establishing Centers of Excellence (CoE) in the Semiconductor and ESDM sectors These CoEs will
+be eligible for a subsidy of 25% on capital expenditure (Capex) for buildings, plants, and machinery,
+up to Rs. 25 crore. Additionally, 25% of operational expenses, up to Rs. 5 crore per year, will be
+provided for the first five years by the Madhya Pradesh Government with the expectation that the
+CoE will become self-sustained in 5 years after the operations start. Such CoEs will serve not only
+the state of Madhya Pradesh but become leading innovation facility in Electronics and
+semiconductors for the whole Central India. For setting up CoE, institute shall collaborate with
+academia to create a discernable and conspicuous impact.The Government of Madhya Pradesh will evaluate and approve projects on a case-by-case basis
+following thorough due diligence of the project report. These Centers of Excellence (CoE) are
+expected to encompass the following principles, including (but not limited to):
+
+i. Develop ecosystem for Semiconductor chip design and Electronics Products
+
+ii. Develop engineering & makers aptitude in School & college students in these areas
+
+ili. Provide the funding, Mentorship and infrastructure support for start-ups
+
+iv. Conduct develooment programs/workshops/boot-camps for faculty and students
+
+v. Provide support for the conferences in semiconductors and VLSI Design
+
+vi. Facilitate Tape-Outs from Semiconductor product companies & Academic Institutions
+
+vil. Provides access to EDA tool grid.
+
+5.5. Talent & Skill Development
+
+The Semiconductor Industry worldwide is going through a talent crunch India alone requires over
+Rs. 1 lakh VLSI Design engineers and 5,000+ professionals in the next 5 years. It is envisaged that
+this demand will grow further in coming years.
+
+For leveraging and producing world class VLSI Design engineers & Skilled manpower the
+following support will be extended for talent and skill development.

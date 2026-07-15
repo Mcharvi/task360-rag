@@ -1,0 +1,53 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+31
+23.
+Live storage capacity (Upper/Lower 
+Reservoir) 
+MCM
+24.
+Unit Discharge 
+Cubic Meter/ 
+Second
+25.
+Length of water conductor system 
+Meter
+26.
+Centre line of unit 
+Meter
+27.
+Planned Unit spacing 
+Meter
+28.
+Planned Elevation of machine floor 
+Meter
+29.
+Generator barrel diameter 
+Meter
+30.
+Planned Size of powerhouse (L X W X H)
+MxMxM
+31.
+Planned Size of Transformer Cavern/Hall (L 
+X W X H)
+MxMxM
+32.
+Planned Switch yard Type (AIS/GIS) 
+33.
+Planned Maximum possible transportation 
+dimensions of an equipment
+MxMxM
+34.
+Planned Max possible weight of any E&M 
+equipment
+Kg 
+35.
+Planned Size of Switchyard (L X W)
+MxMxM
+36.
+Transmission Voltage
+kV 
+37.
+Proposed Nearest Pooling Station
+38.
+Proposed Location/Locations of Pumping 
+Energy sources

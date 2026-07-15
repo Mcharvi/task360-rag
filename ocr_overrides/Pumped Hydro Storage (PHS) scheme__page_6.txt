@@ -1,0 +1,39 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+1
+1.	Preamble
+1.1.	
+Solar and Wind power potential in India is 748.98 GW and 695.50 
+GW (at 120 hub height) respectively. Due to technological advance-
+ment, Solar and Wind power have achieved grid price parity, and 
+it is expected that solar and wind power technologies would play a 
+significant role in achieving sustainable economic growth while ad-
+dressing the concern around climate change and global warming.
+1.2.	
+Resource Adequacy Plan for the State of Madhya Pradesh (2024-
+25 to 2034-35) published by Central Electricity Authority (CEA), 
+estimates that,other than conventional sources of energy, Madhya 
+Pradesh would require 29,956 MW Solar and 5,293 MW of Wind by 
+2034-35 to cater state energy demand, projected to increase with 
+a CAGR of 5.36 % from 2024-25 to 2034-35.
+1.3.	
+Considering the associated issues of variability and intermittency of 
+renewable energy, energy storage systems will play an important 
+role in addressing variations in RE generation. To facilitate smooth 
+and efficient integration of renewable energy into the grid, energy 
+storage capacity would be required at a larger scale. Pumped hy-
+dro storage, being one of the most matured technologies among 
+presently available energy storage technologies, is poised to play a 
+crucial role in the future.
+1.4.	
+Recognizing the need of the hour, Ministry of Power (MoP) has taken 
+several measures to promote development of energy storage (in-
+cluding pump storage):
+1.4.1.	 vide order F.No.09/13/2021-RCM dated 22ndJuly 2022,target 
+has been prescribed for Energy Storage Obligation (ESO) as 
+4% of total energy consumed through energy storage sourc-
+es by FY 2029-30.
+1.4.2.	 Vide order no. 23/12/2016/-R&R dated 23rd November 2021 
+and order no. 12/07/2023-RCM dated 29th May 2023,waiver 
+of Inter-State Transmission Charges has been provided on 
+transmission of the electricity generated from Hydro PSPproj-
+ect where construction work is awarded prior to 30.06.2025.

@@ -1,0 +1,30 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+19
+13.4.2.	 PHSDeveloper has untied project capacity available atthe 
+allotted PSP site.
+13.5.	 Key principles of bidding shall be as per follows:
+13.5.1.	 The Bid Capacity (in MW) shall be less than or equal to 
+or more than the project capacity for which competitive 
+tariff is to be determined, in case the bidding is under 
+condition Para 13.1.2
+13.5.2.	 The bid should either be on Tolling Tariff Model or Com-
+posite Tariff Model.
+13.5.3.	 Tariff for the projects connected at CTU, both within and 
+outside the state, shall be evaluated at STU level, con-
+sidering all applicable ISTS charges and losses. Suitable 
+formula shall be provided in the bidding document for 
+normalization of the tariff.
+13.5.4.	 Technical and Financial Criteria shall not be kept in a man-
+ner that may disqualify the PHS Developer to participate 
+in the bid process, which is mandated to participate as 
+per Para 12.4 above.
+14.	Principles of bid
+14.1.	 SPDA shall conduct a bid for storage based power in the following 
+situations:
+(a)	 for the selection of PHS Project Developer for a given site un-
+der Mode III, as provided in Para 6
+(b)	 when the state is in need of Storage based power as provided 
+in Para 13, and
+(c)	 whenever MPPMCL is required to take decision regarding ex-
+ercising its Right of First Refusal under Mode – I and Mode – 
+IV as provided in Para 13.

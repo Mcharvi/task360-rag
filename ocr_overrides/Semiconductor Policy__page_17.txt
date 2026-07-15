@@ -1,0 +1,20 @@
+4.4.2. Eligibility criteria for Semiconductor & Component Manufacturing
+The following criteria will apply to units based on the approval status of their projects by the
+Government of India (Gol).
+4.4.2.1. Electronics and Semiconductor Projects approved by Gol
+Semiconductor design or manufacturing project by any company/consortia/joint venture which
+has been qualified under any of the following schemes of the Government of India shall be
+eligible under this policy:
+a) Semiconductor Fabs; any wafer size, any technology node
+b) Display Fabs; TFT-LCD (Generation 8 and above); AMOLED (Generation 6 and above)
+c) Compound Semiconductor Fabs; Silicon Photonics Fabs, ATMP/OSAT units
+d) Scheme for Promotion of Manufacturing of Electronics Components and
+Semiconductors (SPECS and SPECS 2.0)
+e) Any other such scheme related to semiconductor or component manufacturing by the
+Government of India
+f) Refer Annexure A3 for list of goods eligible
+.—_ 7 : 7 » ee ‘ j ap =
+: ~ fo
+a —_— 8
+-— ‘ i
+—

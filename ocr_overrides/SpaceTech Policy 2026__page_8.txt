@@ -1,0 +1,33 @@
+B. Midstream Segment
+Activities that bridge upstream manufacturing and downstream applications, focusing on launch
+services, mission operations, and data transmission.
+i. Launch Service Providers: Entities offering commercial launch services, including suborbital and
+orbital launches, leveraging MP's strategic location and logistics infrastructure.
+ii. Mission Operations and Control Centres: Facilities managing satellite operations, telemetry,and
+command systems, ensuring seamless communication between ground and space assets.
+iii. Data Transmission and Ground Station Networks: Providers of satellite data downlink services,
+ground station networks, and secure communication links for space missions.
+iv. Space Traffic Management: Systems for coordinating and monitoring space traffic, ensuring
+collision avoidance and orbital safety.
+v. Space Situational Awareness (SSA) and Debris Management: Developers of SSA/SDA systems,
+space robotics, refuelling missions, and quantum-enabled space solutions.
+The midstream segment under the MP SpaceTech Policy shall encompass, but not be limited to, the
+following activities:
+« Launch and mission management, including:
+° Launch vehicle integration, Mission planning and execution, Payload deployment, post launch
+support.
++ Ground station operations, including:
+° Data reception and processing, Telemetry and command services, Network coordination.
+« Space traffic and debris monitoring, including:
+° Collision avoidance systems, Orbital tracking, Debris mitigation services.
+af
+- :
+. a.
+7 - ,R See
+‘EeCo. &
+, = } J
+28 168 * O . ra
+: o.
+a 2
+ee) 6
+—— a

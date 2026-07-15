@@ -1,0 +1,34 @@
+A3: List of Goods Eligible under the Policy
+A. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. 2 crore
+S.No Description of Goods
+i Recycling facility for extraction of any or few or all of the strategic minerals
+(rareearth elements, lithium, niobium, palladium, cobalt, tantalum, indium,
+antimony, beryllium, ruthenium, etc.); any or few or all of the precious metals (gold,
+platinum, palladium, silver, etc.); and any or few or all of the base metals (copper,
+aluminum, nickel, tin, zinc, iron, cobalt, tantalum, etc.) or their compounds from
+e-waste components including PCBs (both populated and bare}, li-lion batteries,
+spent magnets, solar PV panels, catalytic convertors, and any other components
+from e-waste, and also from intermediatory products (like black mass, black
+copper, etc.) extracted from e-waste.
+B. List of Goods with Minimum Capital Expenditure Threshold Limit of Rs. 5 crore
+S.No | Description of Goods
+a SMT components including LED Chips
+Ley Chip Modules for Smart Cards, RFID Antenna & Labels, CoB/System in Package
+Passive components including resistors, capacitors, ferrites, specialty ceramics
+etc. for electronic applications
+iv Electromechanical components including transformers, inductors, coils, relays,
+switches, micro motors, BLDC Motors, Connectors, Heat Sinks, Antenna, Speakers,
+Microphones, etc. for electronics applications
+Vv Magnetrons, Wave Guides, Circulators, Couplers, Isolators, Filters, Magnets,
+RF Components for electronics applications
+vi Printed Circuit Boards (PCB), PCB Laminates, Prepegs, Photopolymer films, PCB
+Printing Inks, Printed Flexible Electronics
+Sensors, Transducers, Actuators and Crystals for electronics applications
+Camera Modules, Vibrator motor/ringer
+USB/Data Cables, HDMI Cables
+Permanent Magnet Synchronous Motors (PMSM)})
+xi Capital goods for all the goods including components and sub-assemblies for
+capital goods required for manufacturing of semiconductors/displays
+xii Specialty chemicals, high purity gases, electronic specialty gases (ESG) of
+semiconductor grade specifications used across various stages of manufacturing
+of semiconductors/displays

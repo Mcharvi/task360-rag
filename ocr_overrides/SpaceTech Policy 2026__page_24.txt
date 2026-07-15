@@ -1,0 +1,31 @@
+8.3. Skill Development
+Skill development is a foundational pillar that ensures the availability of a qualified workforce to support
+the growth of the SpaceTech sector in Madhya Pradesh. With the emergence of new technologies in
+satellite manufacturing, data analytics, and space applications, there is a pressing need to train
+engineers, technicians, and researchers in specialized domains. Institutions like IIT Indore, IISER Bhopal,
+and the Global Skills Park offer a strong base for launching academic programs and industry-aligned
+training. This pillar aims to bridge the talent gap by integrating space education into mainstream
+curricula and promoting hands-on learning through internships and lab-based modules. For Madhya
+Pradesh, investing in skill development is critical to build a self-reliant ecosystem that can support
+manufacturing, testing, and downstream services. It also ensures inclusive growth by enabling youth
+from across the state to participate in the space economy, thereby enhancing regional capabilities and
+long-term competitiveness.
+8.3.1. Academic Integration & Infrastructure
+a) Curriculum and Lab Development
+- Policy will support the undergraduate and masters' program in Space Technology domain in
+various institutes across the state by providing a one-time grant of Rs. 20 lakh per institute
+during the policy tenure.
+° Curriculum design (AICTE-approved degrees in SpaceTech, remote sensing, data
+analytics).
+° SSA-certified courses: Orbital mechanics, space law, and AI/ML for SSA at IIT
+Indore/Global Skills Park.
+° Lab equipment, simulation software, and faculty training.
+8.3.2. Industry-Academia Linkages
+i. Stipend Program: To foster industry-aligned practical experience, a stipend support program
+is established for students of Madhya Pradesh.
+« Eligible Host Organizations: Internship opportunities must be provided by eligible
+units registered with IN-SPACE, recognized vendors to ISRO/global OEMs, or
+DPIIT-recognized SpaceTech startups operating anywhere in the country.
+« Eligible Beneficiaries: Students must be domiciles of Madhya Pradesh, enrolled in
+undergraduate or postgraduate programs in_ relevant STEM fields” at
+UGC/AICTE-recognized institutions.

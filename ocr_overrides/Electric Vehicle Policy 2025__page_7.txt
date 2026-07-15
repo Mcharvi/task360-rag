@@ -1,0 +1,40 @@
+Madhya Pradesh Electric Vehicle Policy 2025 
+ 
+4 
+ 
+TERMINOLOGIES 
+Advanced Battery represents the new generation batteries such as Lithium polymer, 
+Lithium Iron phosphate, Lithium Cobalt Oxide, Lithium Titanate, Lithium Nickel 
+Manganese Cobalt, Lithium Manganese Oxide, Metal Hydride, Zinc Air, Sodium Air, 
+Nickel Zinc, Lithium Air and other similar chemistry under development or under use. 
+Battery Swapping Station: A station where any electric vehicle can get its discharged 
+battery or partially charged battery replaced by a charged battery. 
+Battery Swapping Operator: Entities that operationalize and manage a station where any 
+EV with a discharged battery or partially charged battery can avail service to detach and 
+interchange with another battery that has been electrically recharged and is readily available 
+at the premises for the purpose of replacement. 
+Battery Refurbisher: An entity engaged in the refurbishment process, which includes 
+restoring batteries with a low state of health to near their original capacity through various 
+methods, including chemical treatments and physical repairs. 
+Battery Recycler is an entity that specializes in recycling used batteries to recover high-
+purity components, ensuring the process adheres to environmental regulations and safety 
+standards. 
+Battery Electric Vehicle (BEV) refers to automobiles with only electric motor and 
+advanced batteries (to power the engine) with similar or more energy density than that of a 
+Lithium-Ion battery. 
+Charging/Battery Swapping Equipment: Equipment that is exclusively used to charge 
+the battery or swap the battery inside a BEV. 
+Charging Stations: 
+Small Charging Station: A facility equipped with multiple Electric Vehicle Supply 
+Equipment (EVSE) offering varying capacities and supporting both AC and DC 
+charging capabilities, with a total capacity not exceeding 112 kW (classified as Low 
+Tension). It is specifically designed to charge electric two-wheelers and electric 
+three-wheelers, and is connected to an electricity supply with a capacity of less than 
+112 kW, or is linked to a Low Tension line as per the regulations of the Madhya 
+Pradesh Electricity Regulatory Commission. 
+Medium Charging Station: A facility equipped with multiple Electric Vehicle 
+Supply Equipment (EVSE) offering varying capacities and supporting both AC and 
+DC charging capabilities, with a total capacity not exceeding 112 kW (classified as 
+Low Tension). It is specifically designed to charge electric two-wheelers, electric 
+three-wheelers, and, as a mandatory requirement, electric four-wheelers. The station 
+is connected to an electricity supply with a capacity of less than 112 kW, or is linked

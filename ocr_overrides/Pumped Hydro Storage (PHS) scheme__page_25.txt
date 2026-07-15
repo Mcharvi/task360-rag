@@ -1,0 +1,31 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP 
+20
+14.2.	 The following bid parameters can be specified by the SPDA in the 
+bidding document for
+14.2.1.	 Storage charge (Rs/{MW/kW}/{year/month}) under 
+Tolling Tariff Model
+14.2.2.	 Storage charge (Rs/{MW/kW}/{year/month}) with a 
+pre-specified VGF/ Annuity support under Tolling Tariff 
+Model
+14.2.3.	 Composite Tariff (Rs/kWh basis) for electricity including 
+the cost of input power and storage. In this case, input 
+power is arranged by the Developer ("Composite Tariff 
+Model")
+However, SPDA in consultation with MPPMCL and/or other public 
+organizations may use any other bidding parameter.
+14.3.	 Technical requirements in bidding documents
+14.3.1.	 The procurer shall specify the following while defining the 
+technical requirements for PSP: 
+(i)	 Power capacity in MW 
+(ii)	 Energy capacity in MWh 
+(iii)	 Charge/ Discharge duration in hours (Maximum num-
+ber of Continuous and Non-Continuous hours in a 
+day) 
+(iv)	 Usage in cycles per day/month/quarter/year/entire 
+contract period as applicable. 
+14.3.2.	 The Procurer may choose to specify additional perfor-
+mance parameters also for bid evaluation as per its re-
+quirement:  
+(i)	 Availability (%) 
+(ii)	 Switchover time between generation and pumping 
+mode and vice versa.

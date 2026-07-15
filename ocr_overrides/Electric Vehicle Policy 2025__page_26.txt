@@ -1,0 +1,33 @@
+Madhya Pradesh Electric Vehicle Policy 2025 
+ 
+23 
+ 
+The EV Tarang portal shall serve as a comprehensive platform for streamlining the 
+deployment of charging stations, encompassing application submission, approval processes 
+and status tracking. 
+12.2. MINIMUM REQUIREMENTS FOR PUBLIC CHARGING STATION 
+(i) CPOs have the flexibility to select the combination of charging stations and standards 
+based on their evaluation and preferences. 
+(ii) CPOs shall share charging station data with DISCOM and should maintain appropriate 
+protocols as prescribed by DISCOM for this purpose. MPPMCL and UDHD shall have 
+access to this database. 
+(iii) Appropriate public amenities like cafeteria, public toilets and outdoor media devices 
+etc. shall be allowed on public charging stations. 
+(iv) The layout of public charging stations should ensure accessibility for all individuals, 
+including those who are differently abled. The nodal agency shall be responsible for 
+monitoring the accessibility of these stations. Incentives under this policy will only be 
+disbursed to CPOs upon the nodal agency's confirmation that the accessibility 
+requirements have been fully met. 
+12.3   PRIVATE CHARGING POINTS (PCP) 
+(i) Madhya Pradesh will revise its current building bye-laws to align with the Model 
+Building Bye Laws of 2016 for Electric Vehicle Charging Infrastructure as issued by 
+the Ministry of Housing and Urban Affairs, Government of India. This revision will 
+ensure that all newly constructed buildings are equipped to support electric vehicle 
+charging stations, making them "EV ready." 
+(ii) The building premises shall also enable additional power load, equivalent to the power 
+required for all charging points to be operated simultaneously, with a safety factor of 
+1.25. 
+(iii) All New /Renovated residential building owners shall be encouraged to install Private 
+Charging Points (PCPs) within their premises.  
+(iv) All existing RWAs shall process the No Objection Certificates (NOC) within 7 working 
+days of application to facilitate charging infrastructure.

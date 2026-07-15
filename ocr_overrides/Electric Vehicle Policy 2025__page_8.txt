@@ -1,0 +1,40 @@
+Madhya Pradesh Electric Vehicle Policy 2025 
+ 
+5 
+ 
+to a Low Tension line as per the regulations of the Madhya Pradesh Electricity 
+Regulatory Commission. 
+Large Charging Station: A facility equipped with multiple Electric Vehicle Supply 
+Equipment (EVSE) offering varying capacities and supporting both AC and DC 
+charging capabilities, with a total capacity exceeding 112 kW (connected to a High 
+Tension (HT) line). It is mandatorily designed to charge light commercial vehicles, 
+trucks, or buses, in addition to any other vehicle segments. The station is connected 
+to an electricity supply with a capacity greater than 112 kW, in accordance with the 
+regulations of the Madhya Pradesh Electricity Regulatory Commission. 
+Charge Point Operator: Entity that operates a network of chargers for providing services 
+such as electric vehicle charging, customer support, network solution (standalone or in 
+partnership with a Network Service Provider) 
+EV Charger: An EV charger, also called Electric Vehicle Supply Equipment (EVSE) is an 
+element in EV infrastructure that supplies electric energy for recharging the electric 
+vehicles. 
+Fuel Cell Electric Vehicle: Fuel Cell Electric Vehicle (FCEV) refers to the vehicle which 
+uses a fuel cell in combination with a battery or super-capacitor, to power its on-board 
+electric motor. Fuel cell in vehicles generate electricity to power the motor, by using hydro- 
+gen as fuel. 
+Light Commercial Vehicle (LCV): These are defined as goods carriers with a Gross 
+Vehicle Weight (GVW) of up to 3,500 kilograms and are categorized as N1 type of vehicle 
+by Ministry of Road Transport and Highways (MoRTH). 
+Plug-in Hybrid Electric Vehicles (PHEV): includes range extended electric vehicle, a 
+strong hybrid electric vehicle which has a provision for off Vehicle charging of rechargeable 
+energy storage system 
+Public Charging Station means a device or station that supplies power to charge the 
+batteries of an electric vehicle outside the home premises. 
+Registered Vehicle Scrapping Facility (RVSF): Facilities that are equipped to conduct 
+scrapping of vehicles in an eco-friendly manner as per MoRTH guidelines. 
+Series Hybrid Electric Vehicle: Any vehicle which allows power to be delivered to the 
+driven wheels solely by a rechargeable energy storage system powered electric motor, but 
+which also incorporates the use of a combustion engine to provide power to the 
+rechargeable energy storage system or electric motor. 
+Series Parallel Hybrid Electric Vehicle: a parallel hybrid electric vehicle which 
+additionally incorporates a system for the combustion engine to provide power to the 
+rechargeable energy storage system or electric motor.

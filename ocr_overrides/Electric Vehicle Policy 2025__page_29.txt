@@ -1,0 +1,37 @@
+Madhya Pradesh Electric Vehicle Policy 2025 
+ 
+26 
+ 
+12.6   QUALITY AND STANDARDS 
+The state will follow the charging specifications as per the guidelines issued by Ministry of 
+Power, GOI. 
+12.7    DATABASE OF PUBLIC EV CHARGING STATIONS 
+(i)   UDHD shall create and maintain an online database of all the Public Charging Stations 
+through DISCOM. Appropriate protocols shall be notified by DISCOM for this 
+purpose which shall be mandatorily complied by the CPOs/BSOs. 
+(ii)  UDHD may leverage the database developed by the GOI and work towards enhancing 
+its robustness for the state. 
+(iii) Operators will have to provide data to this public database. The database can be used 
+free of charge by in-vehicle navigation systems and charging apps and maps. 
+(iv) Payment infrastructure and information sharing CPO/BSOs will be expected to accept 
+payments by multiple modes (e.g., cash, cards, mobile wallets, UPI); payments through 
+the common mobility card payment system will also need to be offered as an option 
+for payments. 
+ OTHER 
+INITIATIVES 
+FOR 
+DEVELOPMENT 
+OF 
+CHARGING INFRASTRUCTURE 
+(i) Existing and new government buildings or offices must install charging stations, 
+ensuring that at least 10% of all parking spots are equipped with EV chargers. 
+(ii) Inter-State Bus Terminals (ISBT), bus terminals and bus stops will have charging 
+stations. 
+(iii) Municipal Corporation’s Public parking spaces will be mandated to have charging 
+stations. 
+(iv) Government buildings will set a roadmap to setup charging or swapping stations in all 
+of its parking spaces. 
+(v) Charging infrastructure developers will be encouraged to establish at least one charging 
+station every 20 km along highways and other major roads. Additionally, a fast-
+charging station for long-range/heavy-duty EVs should be set up every 100 km on 
+highways/roads, with one station on each side. These highways could traverse major

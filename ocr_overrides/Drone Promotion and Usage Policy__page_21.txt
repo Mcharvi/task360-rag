@@ -1,0 +1,35 @@
+— |
+
+8. Drone Ecosystem
+Developing a robust drone ecosystem in Madhya Pradesh is crucial for fostering innovation,
+economic growth, and improved governance. Infrastructure ensures the availability of essential
+resources for drone operations. Having a robust ecosystem would create a supportive environment
+that attracts investments, generates employment, and enhances the state's technological
+capabilities, positioning Madhya Pradesh as a leader in the emerging drone industry. The following
+measures would be taken under this policy:
+
+8.1. Data Repositoryi. Department of Science and Technology (DST) will establish a comprehensive Madhya Pradesh
+Drone Data Repository which will be a centralized platform for government drone data and
+imagery, inspired by the PM Gati Shakti initiative. It aims to enhance data sharing and
+collaboration among various departments, utilizing GlS-based spatial planning and analytical
+tools for better visibility and monitoring. The repository will enable real-time updates and
+dynamic monitoring, ensuring efficient resource allocation and optimized infrastructure
+development. Benefits include improved coordination, informed decision-making, cost and
+time efficiency, and enhanced project tracking. The data repository created will be made publicly
+available in accordance with the Government of India's data sharing norms for the Gatishakti
+portal.ii. Department will ensure secure data management and controlled access while collaborating
+with stakeholders to maintain the repository's accuracy and completeness.
+
+iil. The state government will ensure that all drone data collected by state agencies is handled and
+stored in accordance with data protection laws and regulations as per National Geospatial Policy
+2022 or any subsequent amendments or policies.
+
+iv. The state will promote the use of secure data storage and transmission technologies to
+safeguard sensitive information.
+
+8.2. Data Directory
+
+i. The nodal agency would create a database of DSDM enterprises, DeS enterprises & certified
+drone professionals to facilitate industry networking and employment opportunities.
+
+13

@@ -1,0 +1,58 @@
+Guidelines for implementation of Madhya
+
+Pradesh Renewable Energy Policy - 2025
+
+1. General provisions of Guidelines and
+
+Interpretations
+
+1.1 General provisions1.1.1 Definitions
+“Act” means the Electricity Act, 2003, as amended;
+“Administrative Department” means the New and Renewable Energy Department,
+Government of Madhya Pradesh;
+“Appropriate Commission” means the Central Electricity Regulatory Commission referred
+to in section 76 of the Electricity Act or the State Electricity Regulatory Commission
+referred to in section 82 of the Electricity Act or the Joint Electricity Regulatory
+Commission referred to in section 83 of the of the Electricity Act, as the case may be;
+“Biofuel” means the fuels produced from renewable resources, wherein ‘Renewable
+resources’ are the biodegradable fraction of products, wastes and residues from
+agriculture, septage, forestry, tree-based oil, used cooking oil, other non-edible oils and
+related industries, as well as the biodegradable fraction of industrial and municipal
+wastes; these include lignocellulosic feedstocks (i.e. agricultural and forestry residues,
+e.g. rice & wheat straw, corn cobs & stover, bagasse, pressmud, woody biomass), non-
+food energy crops (i.e. grasses, algae), animal dung or industrial waste and residue
+streams, or any mix combination of above feedstock. Biofuels include inter alia the
+following:(a) Briquettes and Pellets from Biomass;
+
+(b) Synthesis Gas (Syngas) through Biomass Gasification;
+
+(c) Bio-CNG: Purified form of biogas whose composition & energy potential is similar
+to that of fossil based natural gas and is produced from agricultural residues,
+animal dung, food waste, pressmud, spent wash, MSW and Sewage water;
+
+(d) Biodiesel: A methyl or ethyl ester of fatty acids produced from non-edible
+vegetable oils, acid oil, used cooking oil or animal fat and bio-oil;
+
+(e) Biomass, including bagasse, based cogeneration projects;
+
+(f) Drop in fuels: Any liquid fuel produced from Biomass, agri-residues, wastes such
+as Municipal Solid Wastes (MSW), used cooking oil, used mobil oil, Plastic
+wastes, Industrial wastes, etc. which meets the Indian standards for MS, HSD
+and Jet fuel, in pure or blended form, for its subsequent utilization in vehicles
+without any modifications in the engine systems and can utilize existing
+petroleum distribution system;
+
+(g) Electricity, heating, cooling and steam for industrial purposes produced from
+renewable resources;
+
+(h) Other sources of energy, including inter alia biofuels produced from syngas,
+algae based 3G biofuels, halophytes-based biofuels, bio-methanol, Di Methyl
+Ether (DME) derived from bio-methanol, etc., produced from biomass; and
+
+(i) Any other, as declared by Central/State Government from time to time.;
+
+“Capacity” means the summation of the name plate capacities of all the units of the
+Project. In case of Solar source-based Project, Capacity shall be sum of name plate
+capacities (Nominal AC power) of the inverters of the Project;
+
+18

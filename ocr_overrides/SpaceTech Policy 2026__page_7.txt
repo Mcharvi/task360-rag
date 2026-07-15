@@ -1,0 +1,40 @@
+Il. Scope & Coverage
+
+The MP SpaceTech Policy 2026 shall extend incentives to enterprises engaged in upstream, midstream,
+and downstream space activities, including emerging and strategic domains. Eligible units must
+demonstrate active involvement in one or more of the following focus areas, aligned with Madhya
+Pradesh's industrial, academic, and governance ecosystem.
+
+A. Upstream Segment
+
+Activities related to the design, development, manufacturing, testing, launching, and monitoring of
+space systems and infrastructure.
+
+i. Satellite and Launch Vehicle Manufacturers: Entities developing propulsion systems, payloads,
+avionics, structural components, and launch infrastructure. MP's Defence Corridor (Jabalpur) and
+Pithampur Auto & Aero Cluster offer precision engineering capabilities for these.
+
+ii. Space Asset Developers: Companies working on space stations, space tourism, in-orbit servicing,
+space mining, and orbital transfer vehicles.
+
+iii. AIT Facilities and Space Manufacturing Parks: Units setting up or operating facilities for soacecraft
+component fabrication, Assembly, Integration, and Testing (AIT), and simulation. MPSEDC and IIT
+Indore's CoE will Support such initiatives.
+
+iv. Software and Simulation Providers: Firms offering spacecraft design, calibration, and mission
+simulation tools, supported by MP's Electronics Manufacturing Cluster and HPC infrastructure.The upstream segment under the MP SpaceTech Policy shall encompass, but not be limited to, the
+following activities:
++ Design, manufacturing, assembly, integration, and testing of components and sub-systems
+for launch vehicles, including:
+° Structural systems, Propulsion systems, Attitude Determination and Control Systems
+(ADCS), Avionics, Telemetry, Tracking, and Command (TT&C) systems, Power systems,
+Guidance, Navigation, and Control (GNC) systems, Thermal control systems, Separation
+and destruct mechanisms, other mission-critical subsystems.
++ Development and integration of satellite systems, including:
+° Payload systems, Satellite bus platforms, Structural and propulsion systems, Attitude and
+Orbit Control Systems (AOCS), TT&C systems, Power and thermal control systems, GNC
+systems.
++ Ground segment infrastructure, including:
+° Antenna and Radio Frequency (RF) systems, Signal processing and control systems,
+Ground-based Space Situational Awareness (SSA) and Space Domain Awareness (SDA)
+stations, Master Control Centres and Ground Stations.

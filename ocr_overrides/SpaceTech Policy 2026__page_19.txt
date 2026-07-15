@@ -1,0 +1,61 @@
+8. Key Pillars & Incentives
+
+8.1. Innovation & R&D
+
+Innovation and research form the cornerstone of Madhya Pradesh’s SpaceTech ambitions. By fostering
+
+cutting-edge research in satellite systems, propulsion, and space analytics, the state aims to build
+
+indigenous capabilities that align with national and global space missions. Institutions like IIT Indore,
+
+CSIR-AMPRI and RRCAT Indore offer a strong foundation for advanced R&D in optics, advanced materials,
+
+and Al-driven analytics. This pillar is crucial for Madhya Pradesh to transition from a consumer of space
+
+technologies to a developer of original solutions.
+
+8.1.1.Centre of Excellence (CoE) for SpaceTech
+
+The Government of Madhya Pradesh shall establish an integrated Centre of Excellence (CoE) and
+
+Incubation Network for SpaceTech, to be anchored at a national institute of importance as the
+
+central Hub. This integrated entity will combine advanced R&D with grassroots entrepreneurship,
+
+creating a seamless pipeline from innovation to commercialization.
+
+i. Structure: The Hub & Spoke Model
+
++ The Hub: The central Hub will be the nerve center, housing advanced R&D facilities, core technical
+expertise, and the primary incubation program for high-potential, deep-tech startups.+ The Spoke Network: A network of state engineering colleges and universities across Madhya Pradesh
+(e.g., in Bhopal, Gwalior, Jabalpur, Indore, Ujjain, Sagar, Rewa) will act as regional Spokes. These Spokes
+will focus on grassroots awareness, primary mentorship, prototype development, and funnelling
+top-tier talent and ideas to the central Hub.
+
+ii. Key Functions
+
+a) Advanced R&D & Prototyping
+
+- Host the SmallSat Digital Twin Lab and Space Innovation Sandbox for simulation and testing.
+
+- Conduct fundamental and applied research in satellite systems, propulsion, SSA, and space
+instrumentation.
+
+- Provide incubated startups with privileged access to high-end lab infrastructure, simulation data, and
+research mentorship.
+
+- Runa flagship incubation program offering seed funding, mentorship from insititute’s
+
+-  faculty/industry experts, and access to the CoE's labs.
+
+- Facilitate connections to venture capital and the MP SpaceTech AIF Fund.
+
+- Manage the "Spoke to Hub" pipeline, identifying and elevating the most promising teams from
+regional Spokes for intensive support at the Hub.
+
+- Offer introductory workshops, ideation challenges, and pre-incubation support.
+
+- Provide basic lab access, 3D printing, and workspace for early-stage prototyping.
+
+- Act as local nodes for the "Mission Kalpana" student engagement program, fostering a statewide
+culture of space innovation.

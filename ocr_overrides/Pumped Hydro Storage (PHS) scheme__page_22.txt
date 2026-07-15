@@ -1,0 +1,38 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+17
+considered fulfillment of its obligation to supply power to MPPMCL 
+under ROFR.
+12.5.	 Within three months of receipt of information under Para 12.2, 
+MPPMCL would have the right to convey its willingness to procure 
+the entire power provided in Para 12.1 above or part of it.Subse-
+quently, MPPMCL shall sign a PPA with the PHS developer.
+	
+Provided further, if MPPMCL fails to convey its willingness within 
+the said threemonths period, an additional period of one month 
+may be granted, provided that the SPDA has initiated the bidding 
+process as outlined in Para 12.3for the procurement of storage 
+power.
+12.6.	 In case MPPMCL does not decide to procure the entire power men-
+tioned in Para 12.1above, then PHS Project Developer will be free 
+to bid or sign PPA for the balanceproject capacity with any other 
+entity.In case MPPMCL does not convey its willingness to procure 
+power within stipulated time as mentioned in Para 12.5 above, 
+then it will be considered as deemed No-Objection of MPPMCL and 
+PHS Project Developer will be free to bid or sign PPA for entire 
+project capacity with any other entity.
+12.7.	 However, if PHS Developer, at a later stage, wishes to offer power 
+to anyone through long-term or medium-term PPA at a tariff lower 
+than the lowest tariff bid by the PHS developer under para 12.4 
+above and any subsequent bid(s), if any, conducted by SPDA, then 
+PHS Developer would have to firstly offer the power to MPPMCL, 
+up to the maximum limit of ROFR allowed under the applicable 
+Mode. In case the tariff bid under SPDA’s earlier bid(s) and that in 
+the proposed long-term or medium-term PPA are under different 
+models, viz., Tolling Tariff Model and Composite Tariff Model, then 
+the lowest tariff discovered in the last bid conducted by SPDA for 
+vanilla solar would be considered to determine the equivalence. In 
+case the PHS Developer does offer power to anyone through long-
+term or medium-term PPA at a tariff lower than the lowest tariff 
+bid under para 12.4 above and any subsequent bid(s), if any, con-
+ducted by SPDA, NRED, GoMP would take action against such PHS 
+Developer, including penalty amounting to difference between the

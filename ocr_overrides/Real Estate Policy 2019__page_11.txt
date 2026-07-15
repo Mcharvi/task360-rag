@@ -1,0 +1,38 @@
+Page 11  
+ 
+ 
+14.3  Paperless working 
+In order to bring forth transparency and ease of functioning, with due diligence to environmental and 
+sustainability concerns, the departments involved in real estate development  shall have an e-office system 
+to promote paperless methodology. 
+14.4  Open Data standards  
+This shall be done for Real Estate databases to enable data sharing and interoperability between 
+concerned departments and their portals. 
+14.5  Creation of a e-Property Id for Lineage Legacy of Land 
+Clarity of land area and land title is an issue seen at the time of project commencement. Many disputes 
+arise at the time of mutation as the revenue records do not match with the T&CP records. Creation of a 
+property ID shall help in defining lineage of property and ownership title. All the transactions/documents of 
+the property shall be digitized over a unique secured technology and Aadhaar linked e-Property Card (“my 
+land my right”) which becomes the single source of truth and fundamental asset/block to get any further e-
+documents, certificates, approvals to achieve the goal of social inclusion with digital workflow supporting 
+implementation plans like one state one registration. 
+14.6  Real Time Status Monitoring  
+The approval process will be attached to the real time system to monitor all projects and their status. There 
+shall be a unified system and approval will be considered sanctioned as ‘deemed to be permitted’ in case of 
+non-adherence to time limit by a government department.  
+14.7  One Property one payment  
+SM-RE@di shall enable single e-payment for consolidated taxes/charges on the basis of e-PropertyCard/Id 
+to remove duplication of taxes. 
+14.8  e-Project/Property Verification 
+SM-RE@di shall enable e-verification service to help individual/Institutional investors for due-diligence 
+while buying, investing in property.  
+14.9  Dedicated e-Dashboard for Affordable Housing Industry  
+SM-RE@di shall enable e-Dashboard and e-registration system for developers to see and register 
+affordable housing projects. The information on available affordable housing stock shall also be shared 
+public domain for greater accessibility to such units. 
+14.10 e-Services for Subscription/Shared/Rental real estate  
+A feasibility study of e-services for simplifying rental procedures and creating rental/shared/subscription real 
+estate guidelines for the citizens and investors and curb fraudulent market practices shall be taken up. 
+14.11 e-Rojgar dashboard for employment in Real Estate  
+SM-RE@di shall enable e-Rojgar dashboard supporting developers to train and reach out to manpower via 
+ITIs, Vocational Training centers and Local bodies over digital communications channels.

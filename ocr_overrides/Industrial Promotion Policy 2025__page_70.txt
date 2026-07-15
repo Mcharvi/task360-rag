@@ -1,0 +1,25 @@
+59
+Annexure V– FDI Multiple
+The FDI Multiple will be applied to BIPA based on the percentage of FDI equity in the unit. For FDI equity 
+between 26% and 50%, the multiple will range from 1.1 to 1.2, while units with more than 50% FDI equity will 
+UHFHLYHDÀ[HGPXOWLSOHRI
+)',0XOWLSOH ,))',,))', )',
+Sample Values are as follows:
+)',(TXLW\
+Multiple
+20
+1.000
+25
+1.000
+30
+1.116
+35
+1.136
+40
+1.156
+45
+
+50
+1.196
+51
+1.200

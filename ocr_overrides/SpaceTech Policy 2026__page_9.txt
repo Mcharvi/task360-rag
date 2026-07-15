@@ -1,0 +1,35 @@
+C. Downstream Segment
+Applications and services that utilize satellite data and infrastructure to deliver commercial, strategic, or
+governance value.
+i. Earth Observation (EO): Platforms for satellite imagery analysis, geospatial intelligence, and
+sector-specific insights (agriculture, water management, disaster resilience, urban planning). MP's
+Smart Cities Mission and Kisan Drone initiatives are key beneficiaries.
+ii. Satellite Communications (SatCom): Developers of ground segment equipment, broadband
+platforms, loT connectivity, and emergency communication systems.
+iii. Positioning, Navigation & Timing (PNT): Providers of precision timing, asset tracking, and
+integrated logistics solutions.
+iv. Data Analytics and Visualization: Enterprises using Al/ML, big data, and cloud computing to derive
+actionable insights from satellite data. Supported by IISER Bhopal and Global Skills Park.
+In addition, the Government of Madhya Pradesh shall promote a Digital Public Infrastructure(DPIl)
+approach to enable seamless access to space-derived data and services. This will include the
+development of:
+- Shared data repositories and analytics platforms.
+- Integration tools for public and private sector applications.
+- Research environments for academic and startup-led innovation.
+These initiatives will empower government departments, startups, MSMEs, and academic institutions to
+discover, consume, and build upon space-based datasets and services, fostering inclusive innovation and
+socio-economic impact across the state.
+The MP SpaceTech Policy 2026 shall extend incentives to enterprises engaged in upstream, midstream
+and downstream space activities, including emerging and strategic domains. Eligible units must
+demonstrate active involvement in one or more of the following focus areas, aligned with Madhya
+Pradesh’s industrial, academic, and governance ecosystem.
+These initiatives will empower government departments, startups, MSMEs, and academic institutions to
+discover, consume, and build upon space-based datasets and services, fostering inclusive innovation and
+socio-economic impact across the state.
+= 7 a ° an = “~ — - he = * . °
+—— * iraier . a ‘ i ~ = = ec
+A sd yO ae * 3 : ~ ee rt —_ are pd . = ; a
+a , = - ?: a m . " eS ae = * . . . . a4
+a * : . ‘ Saas. i “ yz c 2 ~ -— 4 a E . 7 -
+. - eH: “ae en i eS Te a. = ic
+é aan P f > ‘ al *% “ , : 3 ~ be

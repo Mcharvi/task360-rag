@@ -1,0 +1,31 @@
+5 
+ 
+ICD 
+Inland Container Depots 
+IPP 2025 
+Industrial Promotion Policy 2025 
+IPR 
+Intellectual Property Rights 
+IPS 2025 
+Investment Promotion Scheme 2025 
+ISO 
+International Organization for Standardization 
+MPERC 
+Madhya Pradesh Export Promotion Council 
+ONDC 
+Open Network for Digital Commerce 
+R&D 
+Research and Development 
+REACH 
+Registration, Evaluation, Authorisation, and Restriction of 
+Chemicals 
+RFID 
+Radio Frequency Identification 
+SECR 
+Streamlined Energy and Carbon Reporting 
+STP 
+Sewage Treatment Plant 
+ULIP 
+Unified Logistics Interface Platform 
+ZLD 
+Zero Liquid Discharge

@@ -1,0 +1,33 @@
+- Satellite or launch vehicle manufacturing
+- Space-grade component fabrication
+- Environmental and EMI/EMC testing infrastructure
+- High-performance computing and data analytics for space applications
+- Ground station and telemetry systems
+a) Submit a detailed project proposal including:
+- Investment and employment plan
+- Technical specifications
+- Timeline for commissioning
+- Collaboration details (if any) with ISRO, IN-SPACe, DRDO, or
+academic institutionsMadhya Pradesh shall offer a special incentive package for Mega Projects, defined as projects with a
+minimum committed investment of Rs.75 crore in eligible SpaceTech activities. These projects may apply
+for a customised incentive package through the Cabinet Committee on Investment Promotion (CCIP).
+i. Eligibility Criteria
+To qualify as a Mega Project under this policy, the applicant must:
+a) Bearegistered company, consortium, or institution in India.
+b) Commit a minimum investment of 75 crore in fixed assets (land, plant, machinery,
+infrastructure).
+c) Operate in one or more of the following domains:
+- Satellite or launch vehicle manufacturing
+- Space-grade component fabrication
+- Environmental and EMI/EMC testing infrastructurei. Incentive Calculation Example
+Policy Reference:
+- Incentive Head: SpaceTech Infrastructure Capital Subsidy Scheme (8.4.1)
+- Base Incentive: 40% of capital investment, up to 150 Crore.
+- Focus Sector Bonus: 1.5* multiplier (Testing & Simulation Services).
+Incentive Calculation for a Total Investment of 35 crore (machinery + infrastructure).
+- Base Subsidy: 40% of %5 cr = Rs.2 crore.
+- Focus Sector Boost: 22 cr x 1.5 = 3 crore.
+- Cap Check: 23 cr < 150 Crore > Eligibility of 23 crore incentive
+9. Customised Incentives for Mega Projects
+To attract anchor investments and strategic infrastructure in the SpaceTech sector, the Government of
+Madhya Pradesh shall offer a special incentive package for Mega Projects, defined as projects with a

@@ -1,0 +1,31 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+11
+10.4.	 On scrutiny of applications received, if it is found that any other 
+developer (challenger) is ahead compared to the developer whose 
+application had been submitted earlier (applicant) in the online 
+window with respect to the benchmarks listed below in the men-
+tioned priority, then the former developer (challenger) shall be 
+allotted the site:
+Priority 1:
+Submission of Scoping Clearance Application Form-1, along with 
+justification note, Pre-Feasibility Report (PFR) and other related 
+documents, to MOEF&CC under Clause 7 (i) II of EIA Notification, 
+2006
+Priority 2:
+Submission of Project Pre-feasibility Report (PFR) of the identified 
+site along with Preliminary details as per Annexure - I
+Further, in case of tie among the developerswith respect to the 
+Priorities mentioned above, then Initial Project Allotment shall be 
+granted to the developer who, directly or along with affiliate(s), is 
+ahead in the following tie-breakers in the following order:
+(a)	 Highest operating PHS capacity in MW; or
+(b)	 Highest operating power generating assets in MW; or
+(c)	 Highest Net worth.
+Otherwise, the applicant developer whose application had been 
+submitted earlier in the online window (applicant) shall be granted 
+the Initial Project Allotment. 
+PHS developer that has submitted request for allotment of any 
+PHS site to New and Renewable Energy Department or Department 
+of Industrial Policy & Promotion, prior to notification of this new 
+Scheme, shall also be required to submit their revised application 
+as per the provisions of this new Scheme to Nodal Agency. The date

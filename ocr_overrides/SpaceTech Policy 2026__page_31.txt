@@ -1,0 +1,39 @@
+‘ c., Focus Sector Segment Eligible Activities Eligible Activities & Examples
+1. | Space Systems vias Eligible Activities: SS al testing ee :
+Testing & Qualification (thermal, vacuum, vibration), EMI/EMC testing
+facilities, structural testing, propulsion test
+; stands, and related simulation software.
+Examples: SmallSat qualification centers,
+commercial testing hubs for private and ISRO
+missions, development of FEA and simulation
+tools. '
+= 2. | Advanced Materials & Upstream/Midstream| Eligible Activities: R&2D and manufacturing
+Propulsion Systems of advanced propulsion systems (electric, green),
+composite materials for launch
+vehicles/satellites, radiation-hardened
+electronics, and miniaturized payloads,
+“ Radiation-resistant fiber optics, FOGs, laser
+: | communication etc.
+‘ Examples: Electric propulsion thrusters,
+; lightweight alloy tanks, Fiber gyros, satellite bus
+structures, precision payload components.
+4. | Agricultural & Lees Eligible Activities: Develooment of AI/ML
+Environmental platforms for satellite imagery analysis, crop
+; health monitoring, yield prediction, soil moisture
+analysis, flood/drought forecasting, and urban Ad
+planning. :
+Decision Analytics Examples: Hyperspectral data analytics SaaS for
+agriculture, groundwater mapping services,
+GlS-based infrastructure planning
+tools.
+a Eligible Activities: Establishment of Telemetry,
+4. [Ground ey ete Mae Midstream Tracking & Command (TT&C) ground stations,
+SSA Infrastructure A
+5 SSA ground stations (radars/telescopes), data
+downlink centers, and manufacturing of
+related RF equipment. ,
+Examples: Commercial ground station networks,
+SSA radar installations for debris tracking,
+manufacturing of antenna systems.
+CE | } 26
+Sar en

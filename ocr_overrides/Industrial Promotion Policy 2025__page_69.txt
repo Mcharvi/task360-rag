@@ -1,0 +1,28 @@
+58
+Annexure IV – Employment multiple
+The employment multiple shall vary from 1.0 to 1.5, based on the employment generation by a unit in the 
+range of 100 employees to 2,500 employees.
+Average Employees in the Reviewed Year (AE): Average employee count of the company in the reviewed 
+year.
+1.Till 100 employees (AE), EYM will be 1
+2.From 100 to 2,500 employees (AE), the EYM will increase from 1 to 1.5, proportionately
+3.For 2,500 and above employees (AE), EYM is capped at 1.5.
+Employment No.
+Multiple
+100
+1.00
+200
+1.02
+500
+1.08
+1.13
+1000
+1.19
+1200
+1500
+2200
+2500
+1.23
+1.29
+1.44
+1.50

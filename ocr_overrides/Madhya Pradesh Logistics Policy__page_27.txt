@@ -1,0 +1,36 @@
+10.6. Tracking and Real Time Monitoring Infrastructure
+The Government of Madhya Pradesh (GoMP) shall facilitate logistics service providers in the state to adopt
+technology by providing support for technology adoption. Which will enhance/enable:
+* Cargo Tracking and Tracing
+* Information exchange and documentation for logistics processes
+* Process Improvement
+* Service Quality
+The GoMP will encourage and promote tracking and tracing of cargo movement along major
+Export-Import (EXIM) corridors in the State to enhance logistics network management, streamline the
+value chain, and improve transparency within the logistics ecosystem.
+10.7, Technology based interventions for monitoring compliances
+To enhance efficiency and effectiveness in the logistics sector, Madhya Pradesh will accelerate the
+deployment of IT-based systems and enforcement mechanisms. This includes implementing traffic
+cameras, RFID tags on freight vehicles, Automatic Number Plate Recognition (ANPR), establishing an R&D
+Cell, integrating robotics in material handling, adopting automated supply chain solutions, leveraging
+blockchain technology, and integrating government data repositories such as the Labour Management
+Information System (MIS) in collaboration with the Labour Department to ensure robust worker
+engagement in the logistics sector.
+The State Government will prioritize adopting IT-based, data-driven approaches for risk assessment and
+regulatory compliance enforcement, utilizing the Logistics Data Bank, which is an overarching solution that
+integrates information available with various agencies across the supply chain to provide detailed real
+time information on a single window platform. This initiative shall aim to enhance decision-making,
+minimize idle time on highways, and reduce logistics costs by reducing dependencies on traditional
+operational practices.
+10.8. Enabling Skill development in the logistics sector
+A skilled workforce is essential for attracting investments and fostering new businesses in the logistics
+sector. The policy focuses on skill development to create a ‘win-win’ scenario: logistics companies can
+enhance service levels and performance, while residents gain employment and livelinood opportunities, by
+developing a comprehensive Logistics Sector Skill Plan for the state in collaboration with state and
+national-level educational institutions, government agencies, and the logistics industry skill council. This
+plan aims to address skill gaps and prioritize high-demand job categories within Madhya Pradesh's
+logistics industry through tailored training and capacity-building initiatives.
+In pursuit of this goal, the government will:
+I. Collaborate with government bodies and ITI institutes to establish Skill Development Programs.
+ll. Introduce specialized courses to equip workers across various logistics sub-sectors.
+Hl. Engage the private sector in initiatives aimed at skill development and job creation.26

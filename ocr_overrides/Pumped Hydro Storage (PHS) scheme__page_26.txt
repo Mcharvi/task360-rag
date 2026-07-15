@@ -1,0 +1,37 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP
+21
+(iii)	 Losses, if applicable 
+(iv)	 Other performance parameters 
+The performance parameters will be evaluated based on 
+operational data, considering either the entire project or 
+the contracted capacity, as applicable.
+14.4.	 To ensure energy security for the state and to ensure availability 
+of charging power for the PHS project, SPDA would endeavor to 
+set up a solar project under a Solar Park sanctioned by Ministry 
+of New and Renewable Energy, Government of India. In case the 
+bid is being conducted on Composite Tariff model, the park would 
+be offered to the bidders. In case the bid is being conducted on 
+Tolling Tariff Model, the vanilla solar project would be separately 
+developed by the SPDA, on the basis of requirement communicat-
+ed by MPPMCL, to synchronize with the development of the PHS 
+project. 
+14.5.	 State Project Development Authority would be entitled to recover 
+the cost of identification of PHS site, cost of development of PFR 
+and fees or charges paid in seeking permission for allotment of 
+land or water from the successful bidder. These details have to be 
+specified in the RFP at the time of bidding.
+15.	 Dovetailing Government of India Policies and Schemes
+15.1.	 Whenever scheme for Viability Gap Funding (VGF) and/or Finan-
+cial Assistance (FA) for Pump Storage Hydro Projects is formu-
+lated, the projects shall be eligible for VGF/FA from the Central 
+Government and/or State Government, as per the Policy decisions 
+of the Government. 
+15.2.	 No VGF from State Government shall be made available to proj-
+ects set up under Mode – I, Mode – II and Mode - IV. VGF can be 
+available under Mode III if the entire power is to be supplied to 
+MPPMCL.
+15.3.	 VGF from State Government, if any, may be available and conse-
+quently VGF based bids can be conducted only when the power 
+from the PHS is to be procured by MPPMCL under Mode - III. Allo-
+cation of VGF will be in proportion to the power being purchased 
+by MPPMCL.

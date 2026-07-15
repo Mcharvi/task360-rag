@@ -1,0 +1,67 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP 
+30
+Annexure – I: Preliminary Details
+Sl.
+Parameter
+Unit
+1.
+Type of Power plant (Underground/Surface)
+2.
+Type of PSP
+3.
+Capacity of the plant 
+MW
+4.
+Duration of storage 
+Hours
+5.
+Number of Generation Cycles (per Day) 
+6.
+Number of Pumping Cycles (per Day) 
+7.
+Number of units 
+8.
+Unit Capacity (Turbine/Pump) 
+MW
+9.
+Maximum Head (Turbine) 
+Meter
+10.
+Rated Head (Turbine) 
+Meter
+11.
+Minimum Head (Turbine) 
+Meter
+12.
+Maximum Head Pump)
+Meter
+13.
+Rated Head (Pump)
+Meter
+14.
+Minimum Head (Pump) 
+Meter
+15.
+Elevation & dimensions of upper dam 
+Meter
+16.
+Elevation & dimensions of lower dam 
+Meter
+17.
+Maximum head (upper/lower)
+Meter
+18.
+Minimum head (upper/lower) 
+Meter
+19.
+Suction Head
+Meter
+20.
+Proposed Speed 
+RPM
+21.
+Upper reservoir capacity 
+MCM
+22.
+Lower reservoir capacity 
+MCM

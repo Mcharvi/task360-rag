@@ -1,0 +1,26 @@
+(iii) Format for the Technical Details of the site
+DESCRIPTION DETAILS
+_ ee
+
+2. Project Location
+i. Village (nearest)
+ii. Tehsil
+iii. District
+iv. Approach by Road
+v. Nearest Railway Station
+4. Expected Annual generation (in
+MkWh)
+Brief description of the scheme giving
+schematic layout# (useseparate shee
+as required)
+7. Land area for the proposed capacity
+to demonstrate the adequacy of
+land for the proposed capacity.
+Land Details (provide land
+details):
+a. Survey number of land as
+per revenue record.
+b. concerned village.
+c. Concerned Tehsil
+d. Concerned District:
+46

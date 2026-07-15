@@ -1,0 +1,43 @@
+2.2. Key Pillars of Semiconductor ecosystem
+Semiconductor design and manufacturing is very complex and for building a holistic ecosystem
+for self-reliant and sustainable semiconductor supply chain following are the key pillars which
+have to be built through partnership between Industry, academia and government.
+2.2.1. Semiconductor Products & IPs (Fabless)
+Semiconductor Products or Chips were earlier made by IDMs (Integrated Device Manufacturers)
+but since 1980's semiconductor products are predominantly made by the fabless companies.
+IDM's are vertically integrated where they design and manufacture their own products and sell
+them in their own brands. Their products are manufactured in their own fabs.
+Fabless companies design their own chips and sell them in their own brand names but get them
+manufactured by outside semiconductor Fabs typically know as foundries and get them
+packaged by ATMP/OSAT companies in contract manufacturing Model.
+Fabless companies are the primary drivers for innovation in chip design and new products and
+also drive the foundry/Fab business. Fabless companies are very important for Indian ecosystem
+as there is very good talent base of Fabless design of semiconductor chips. Most of the captive
+design centers of MNCs as well as semiconductor start-ups fall into the category of Fabless
+semiconductor design. Other than large IP companies there are many other small and medium
+companies and India has a good chance to play an important role in fabless manufacturing.
+2.2.2. Semiconductor Manufacturing
+Semiconductor Manufacturing refers to Fab Plants on the front-end and ATMP/OSAT plants on
+the back end. These fabs are generally characterized by type of the technology, feature size and
+wafer size.
+2.2.2.1. Semiconductor Wafer Fabs
+a) Silicon logic Fabs (Foundries)1) Technology Nodes: 180nm to 2 nm
+
+2)Wafer Sizes: 6 Inch (150 mm), 8 Inch (200 mm), 12 Inch (300 mm)
+
+3)Applications: Digital, Analog, Mixed Signal
+b) Memory Fabs
+
+1) Wafer sizes: 8 Inch (200mm), 12 Inch (300 mm)
+
+2) TApplication: DRAM, Flash, SSD
+c) Compound Semiconductor Fabs
+
+1) Wafer sizes: 8 Inch (200mm), 12 Inch (300 mm)
+
+2)Application: DRAM, Flash, SSD
+d) Sensors
+
+1) Wafer Size: 6 Inch (150 mm), 8 Inch (200 mm), 12 Inch (300 mm)
+
+2) CMOS Image sensors, Mems, Light, Finger Touch etc.

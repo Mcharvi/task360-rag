@@ -1,0 +1,131 @@
+10.1.6 Reimbursement of Stamp Duty & Registration Charges 1910.1.7 Power Tariff Rebate 1910.1.8 Non-fiscal assistance 1910.2 CAPEX Assistance for ESDM Developers 20
+11. ASSISTANCE TO DATA CENTRE UNITS AND EDGE DATA CENTRES 2311.1 CAPEX Assistance 2311.2 Power Tariff Reimbursement 2311.3 Electricity Duty Reimbursement 2311.4 Transmission and Wheeling Charges Reimbursement 2311.5 Dual Power Grid availability 2311.6 Renewable Energy under Open Access System 2411.7 Assistance for filing of Patents 2411.8 Reimbursement of Stamp Duty & Registration Charges 2411.9 Quality Certification Assistance 2411.10 Non-Fiscal Measures to Data Centres 24
+12. LAND RELATED BENEFITS 26
+12.1. Land Allotment 2612.2 Applicability of Land related benefits 2612.3 Rebate in Cost of Land 2612.4 Lease rent 2712.5 Term of lease 2712.6 Procedure for allotment of land 2712.7 Floor Area Ratio (FAR) 2712.8 Sub-lease 2712.9 Change in Purpose 2712.10 Mortgage 2712.11 General Condition for Land of Other Development Authorities 27
+13. IT INVESTMENT AREA 28
+14. MEGA PROJECTS 28
+15. EXPANSION & DIVERSIFICATION 28
+16. APPEAL 29 od
+17. GENERAL CONDITIONS 29 ; '
+18. ABBREVIATIONS 30 i r ;
+ee
+Madhya Pradesh aims to attract investments in Information Technology (IT), Information Technology
+Enabled Services (ITeS), Data Centre and Electronics System Design & Manufacturing (ESDM) and the
+emerging niche sectors within this domain, promote innovation and entrepreneurship and create
+employment opportunities in this sector.
+1. VISION
+To make the state a leading hub for IT/ITeS/ESDM industry by attracting investments in the sector
+and generating employment opportunities through a conducive ecosystem and robust
+infrastructure for IT/ITeS, ESDM and allied sectors.
+2. OBJECTIVES
+i. Toincrease the flow of investments in Madhya Pradesh in IT, ITeS & ESDM sectors.
+il. To create direct and indirect employment opportunities for the youth in IT/ITeS/ESDM sectors.
+iii. To encourage investments by creating ready to use IT/ITeS workspaces, plug & play infrastructure
+and promote the use of co-working spaces.
+iv. To encourage the development of the IT/ITeS sector in semi-urban towns and rural areas to increase
+employment opportunities in such areas.
+v. To ensure availability of land parcels at reasonable rates for the use of IT, ITeS & ESDM units.
+vi. To enable the creation of skilled IT/ITeS and ESDM manpower.
+vil. Promotion of R&D and innovation activities.
+viii. To promote Micro, Small Medium Enterprises (MSME) and Start-ups as the growth engines of the
+economy.
+3. TARGET
+The policy targets to achieve the following in next 5 years:ii. Facilitate the entities by streamlining the procedures, end-to-end investment facilitation, investor
+handholding and enhancing the overall experience of doing business in the state.iii. Facilitate industries by upskilling and providing industry ready workforce.
+iv. Promote transparent mechanism through online system for claiming assistances and benefits.
+, i. Tocreate 2 lakh new jobs in IT /ITeS/ESDM sector in MP.
+
+ii. To attract Rs.10,000 crores investment in IT /ITeS/ESDM sector.
+
+iii. Creation of 10 million Sq.Ft. State of the art IT Parks, Buildings, Plug & Play Soaces/Sheds across the
+State for IT/ITeS/ESDM sectors.
+
+4. STRATEGY
+The policy targets to achieve the following in next 5 years:
+
+i. Promote the development of IT/ITeS/ESDM parks and other supporting infrastructure for attracting
+more and more investments. Support to private developers for creating co-working spaces, Plug &
+Play Parks for establishing state-of-the-art infrastructure for IT industry.
+5. SCOPE OF THIS POLICY
+
+Information Technology (IT), Electronic System Design and Manufacturing (ESDM), Data Centres,
+
+Information Technology Enabled Services (ITeS), Business Process Outsourcing (BPO), Business
+
+Process Management (BPM), IT/ITeS and ESDM infrastructure developers etc. and investments in
+
+allied activities coming in territory of Madhya Pradesh will qualify for the benefits under this Policy.
+
+'IT/ITeS' IT includes development, production and services pertaining to software and applications.
+
+ITeS are construed as any service, which results from the use of any IT software over a system of IT
+
+products for realising the value addition service rendering through the application of IT and may
+
+include the following:
+
+a) Call centres
+
+b) Medical transcriptions
+
+c) Back-office operation/Business Process Outsourcing (BPO)
+
+d) Knowledge Process Outsourcing (KPO)
+
+e) Business Process Management (BPM)
+
+f) Web Aggregators
+
+g) Bioinformatics
+
+h) IT-enabled banking
+
+I) Depository, security registration and dematerialisation services
+
+J) GlS-enabled services
+
+k) IT support centres
+
+|) Website services
+
+m AVGC (Animation, Visual Effects, Gaming and Comic)
+
+n) Emerging Technologies, such as Cyber Security, Big Data, Artificial Intelligence, Block chain,
+Machine Learning
+
+Or
+
+Other related fields as decided by nodal agency from time to time. This does not include companies
+
+engaged in manufacturing of hardware related to IT, IOT, telecom and fields as mentioned above.
+
+‘ESDM' Industry constitutes of units engaged in following businesses-
+
+1. Manufacturing of electronic products such as telecom systems/ mobiles/ IT systems and hardware/
+consumer electronics/ medical electronics/ avionics/ industrial electronics/ defence and strategic
+electronics/ automotive electronics/ information and broadcasting equipment(s).
+
+2. Manufacturing of PCB's/ semiconductors chip components/ICs/ components/parts etc.
+
+3. Electronic Manufacturing Services (EMS)
+
+4. Scrapping of E-waste or related
+
+5. lOT/IT Hardware design, prototyping and manufacturing.
+
+6. Any other electronics vertical/ products covered by the National Policy on Electronics (NPE) or any
+other policies, issued by the Government of India from time to time.‘Data Centre’ means a facility that centralises computing and network equipment to collect, store,
+
+process and disseminate a large amount of data and applications.
+
+6. POLICY VALIDITY
+
+This Policy shall remain in force with effect from notification of the policy for a period of 5 years ortilla
+
+new policy comes into force whichever is earlier.
+
+8 | |
+7. ELIGIBILITY
+IT, ITeS, ESDM, Data Centre Units and Infrastructure Developers will register themselves with the
+nodal agency for claiming benefits/assistances under this policy. Nodal agency will issue registration
+certificate to the eligible units.8. POLICY FACILITATION

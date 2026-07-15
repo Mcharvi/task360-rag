@@ -92,6 +92,8 @@
 
   .ob-select { width: 100%; padding: 10px 14px; border: 1.5px solid #BFDBFE; border-radius: 10px; background: #EFF6FF; color: #1E293B; font-size: 13.5px; font-family: inherit; font-weight: 500; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563EB' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
   .ob-select:focus { border-color: #2563EB; }
+  .ob-number { width: 100%; padding: 10px 14px; border: 1.5px solid #BFDBFE; border-radius: 10px; background: #EFF6FF; color: #1E293B; font-size: 13.5px; font-family: inherit; font-weight: 500; outline: none; transition: border-color 0.15s; }
+  .ob-number:focus { border-color: #2563EB; }
   .ob-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
   .ob-confirm { padding: 9px 24px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font: inherit; transition: background 0.15s; }
   .ob-confirm:hover { background: #1D4ED8; }
@@ -327,7 +329,104 @@ const FALLBACK_POLICY_SUBQUESTIONS = {
         options: ["A", "B", "C"]
       }
     ]
-  }
+  },
+  "Tourism & Film": {
+    calculator_slug: "film",
+    questions: [
+      {
+        id: "category",
+        context_label: "Production Category",
+        type: "buttons",
+        label: "What are you shooting?",
+        label_hi: "आप क्या शूट कर रहे हैं?",
+        options: [
+          "Feature Film / Web Series / Documentary / Short Film",
+          "International Film / TV Serial"
+        ]
+      },
+      {
+        id: "film_type",
+        context_label: "Type of Film",
+        type: "select",
+        label: "What type of film is this?",
+        label_hi: "यह किस प्रकार की फिल्म है?",
+        options: [
+          "First Feature Film",
+          "Second Feature Film",
+          "Third Feature Film",
+          "Web Series / OTT Original Show",
+          "Documentary Film",
+          "Short Film"
+        ]
+      },
+      {
+        id: "total_shooting_days",
+        context_label: "Total Shooting Days",
+        type: "number",
+        label: "How many total shooting days is the project?",
+        label_hi: "परियोजना के लिए कुल शूटिंग दिन कितने हैं?",
+        placeholder: "e.g. 100"
+      },
+      {
+        id: "total_cost_of_film",
+        context_label: "Total Cost of the Film (in Cr)",
+        type: "number",
+        label: "What is the total cost of the film (in ₹ Crore)?",
+        label_hi: "फिल्म की कुल लागत क्या है (₹ करोड़ में)?",
+        placeholder: "e.g. 20"
+      }
+    ]
+  },
+  "MSME": {
+  calculator_slug: "msme",
+  questions: [
+    {
+      id: "investment_in_plant_machinery",
+      context_label: "Investment in P&M (in Cr)",
+      type: "number",
+      label: "What is your investment in Plant & Machinery (in ₹ Crore)?",
+      label_hi: "प्लांट और मशीनरी में आपका निवेश कितना है (₹ करोड़ में)?",
+      placeholder: "e.g. 500"
+    },
+    {
+      id: "export_percentage",
+      context_label: "Export Percentage",
+      type: "number",
+      label: "What percentage of your production do you export?",
+      label_hi: "आप अपने उत्पादन का कितना प्रतिशत निर्यात करते हैं?",
+      placeholder: "e.g. 30"
+    },
+    {
+      id: "industry_type",
+      context_label: "Type of Industry",
+      type: "select",
+      label: "What type of industry is this?",
+      label_hi: "यह किस प्रकार का उद्योग है?",
+      options: [
+        "Pharmaceutical and Medical Device Manufacturing Units",
+        "Food Processing Units",
+        "Apparel Sector",
+        "Textile Units",
+        "Powerloom Sector",
+        "Footware, Furniture, Toys and Related Value Chain Products",
+        "General"
+      ]
+    }
+  ]
+},
+"Manufacturing & Industry": {
+  calculator_slug: "dipip",
+  questions: [
+    {
+      id: "investment",
+      context_label: "Project Investment (in Cr)",
+      type: "number",
+      label: "What is your total project investment (in ₹ Crore)?",
+      label_hi: "आपका कुल परियोजना निवेश कितना है (₹ करोड़ में)?",
+      placeholder: "e.g. 500"
+    }
+  ]
+}
 };
 
 let sectorsList = FALLBACK_SECTORS;
@@ -589,6 +688,11 @@ function confirmSector(){
 // ids would collide across cards and getElementById would always grab the
 // first (stale) one. Everything below is scoped to the specific bubble
 // element addBotRaw() just created instead.
+//
+// Supported question types:
+//  - "select"  → dropdown, one option
+//  - "buttons" → pill buttons, one option
+//  - "number"  → free-text numeric entry (e.g. shooting days, project cost)
 function showSubQuestion(){
   const q = subQuestions[subIndex];
   const label = (userLang === 'hindi' && q.label_hi) ? q.label_hi : q.label;
@@ -603,6 +707,17 @@ function showSubQuestion(){
           <option value="">${t().selectOpt}</option>
           ${opts}
         </select>
+        <div class="ob-actions">
+          <button class="ob-confirm sub-confirm" disabled>${t().confirm}</button>
+          <button class="ob-skip sub-skip">${t().skip}</button>
+        </div>
+      </div>
+    `;
+  } else if(q.type === 'number'){
+    html = `
+      <div class="ob-card">
+        <div class="ob-label">${esc(label)}</div>
+        <input type="number" class="ob-number sub-number" placeholder="${esc(q.placeholder || '')}" min="0" step="any">
         <div class="ob-actions">
           <button class="ob-confirm sub-confirm" disabled>${t().confirm}</button>
           <button class="ob-skip sub-skip">${t().skip}</button>
@@ -642,6 +757,19 @@ function showSubQuestion(){
       if(!sel.value) return;
       subAnswers[q.id] = sel.value;
       addUser(sel.value);
+      advanceSubQuestion();
+    });
+  } else if(q.type === 'number'){
+    const numInput = bubble.querySelector('.sub-number');
+    numInput.addEventListener('input', () => { confirmBtn.disabled = numInput.value.trim() === ''; });
+    numInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); if(!confirmBtn.disabled) confirmBtn.click(); }
+    });
+    confirmBtn.addEventListener('click', () => {
+      const val = numInput.value.trim();
+      if(val === '') return;
+      subAnswers[q.id] = val;
+      addUser(val);
       advanceSubQuestion();
     });
   } else {

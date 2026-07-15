@@ -1,0 +1,46 @@
+i Eligible Unit/GCC: GCCs would be defined as centralized units that handle specific
+business functions for multinational corporations, such as finance, HR, procurement, and
+analytics and should be wholly owned subsidiaries of multinational corporations.
+Operational scope would include internal back-office operations, shared services, and
+Centers of excellence, R&D but would exclude typical IT and ITES services like software
+development, BPO, and call Centers for third party clients.
+
+ii. Eligible Activities: Eligible Global Capacity Centre (GCC) Activities:
+
+a. Strategic Planning: Developing and implementing long-term business strategies for
+the parent company.
+
+b. Financial Management: Handling global financial operations, including budgeting,
+forecasting, and financial analysis.
+
+C. Global Supply Chain Management: Managing and optimizing the global supply chain,
+including procurement, logistics, and inventory management.
+
+d. Advanced Analytics: Performing complex data analysis to support decision-making
+and innovation.
+
+e. Research and Development (R&D): Conducting research and developing new
+products, services, and technologies.
+
+f. Centres of Excellence: Establishing specialized units focused on innovation, process
+improvement, and best practices.
+
+g. Global Vendor Management: Overseeing relationships with global suppliers and
+service providers.
+
+h. Compliance and Risk Management: Ensuring adherence to regulatory requirements
+and managing risks across global operations
+
+i. Talent Management: Overseeing global recruitment, training, and development
+programs.
+
+j. Employee Relations: Managing employee engagement, performance management,
+and compliance with labor laws.
+
+k. Compensation and Benefits: Designing and administering global compensation and
+benefits programs.
+
+I. HR Analytics: Using data to drive HR strategies and improve workforce planning.
+
+m. Financial Planning and Analysis: Conducting budgeting, forecasting, and financial
+analysis to support strategic decision-making.

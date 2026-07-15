@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIPIP Incentive Calculator — Task360</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #EEF2FF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding: 28px 32px 60px; }
+  .page { width: 100%; max-width: 900px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 36px 44px; box-shadow: 0 4px 40px rgba(37,99,235,0.07); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748B; text-decoration: none; margin-bottom: 18px; }
+  .back-link:hover { color: #2563EB; }
+
+  h1 { font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+  .subhead { font-size: 13.5px; color: #64748B; margin-bottom: 28px; }
+  .subhead b { color: #2563EB; }
+
+  .branch-note { display: flex; align-items: center; gap: 8px; background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 22px; font-size: 12.5px; color: #1E40AF; }
+  .todo-note { display: flex; align-items: flex-start; gap: 8px; background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 10px 14px; margin-bottom: 22px; font-size: 12.5px; color: #92400E; line-height: 1.5; }
+
+  .section-label { font-size: 13px; font-weight: 700; color: #2563EB; letter-spacing: 0.04em; text-transform: uppercase; margin: 26px 0 14px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .field label .req { color: #DC2626; margin-left: 2px; }
+  .field select, .field input[type="number"] {
+    width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box;
+    padding: 10px 14px; border: 1.5px solid #CBD5E1; border-radius: 10px;
+    background: #fff; color: #1E293B; font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+  }
+  .field select { min-width: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+  .field select option { white-space: normal; }
+  .field select:focus, .field input[type="number"]:focus { border-color: #2563EB; }
+  .field select.invalid, .field input.invalid { border-color: #FCA5A5; background: #FEF2F2; }
+  .field .hint { font-size: 11.5px; color: #94A3B8; }
+
+  .radio-group { display: flex; gap: 22px; align-items: center; }
+  .radio-group label { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 500; color: #1E293B; cursor: pointer; }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 26px; }
+  .calc-btn { padding: 12px 28px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font: inherit; transition: background 0.15s; }
+  .calc-btn:hover { background: #1D4ED8; }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .missing-note { font-size: 12.5px; color: #DC2626; }
+
+  .highlight-row { display: none; gap: 14px; margin-top: 28px; }
+  .highlight-row.visible { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px) { .highlight-row.visible { grid-template-columns: 1fr; } }
+  .highlight-card { border-radius: 12px; padding: 16px 18px; color: #fff; background: linear-gradient(90deg, #1F5B9B 0%, #0F8DCB 100%); display: flex; flex-direction: column; gap: 6px; }
+  .highlight-card .label { font-size: 12.5px; opacity: 0.9; }
+  .highlight-card .value { font-size: 20px; font-weight: 800; }
+
+  .result-card { display: none; margin-top: 20px; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 22px 24px; }
+  .result-card.visible { display: block; }
+  .result-card.error { background: #FEF2F2; border-color: #FECACA; }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .label { font-size: 13px; color: #334155; font-weight: 600; }
+  .result-row .value { font-size: 18px; color: #15803D; font-weight: 800; }
+  .status-note { margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.55; background: #fff; border-radius: 10px; padding: 12px 14px; }
+  .error-text { font-size: 13.5px; color: #B91C1C; }
+
+  .loading-row { display: none; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #64748B; }
+  .loading-row.visible { display: flex; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #CBD5E1; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 28px; font-size: 12px; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" id="backLink" href="index.html">← Close this tab and return to your chat</a>
+
+  <h1>DIPIP Incentive Calculator</h1>
+  <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here.</p>
+
+
+
+  <div class="section-label">Investment Details</div>
+  <div class="grid">
+    <div class="field">
+      <label>Project Investment — in ₹ Crore<span class="req">*</span></label>
+      <input type="number" id="investment" min="0" step="0.01" placeholder="e.g. 500">
+    </div>
+    <div class="field">
+      <label>Industry Sector<span class="req">*</span></label>
+      <select id="sector_name">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- sector 9: bulk drug / API question -->
+  <div class="grid" id="bulkOrderRow" style="display:none; margin-top: 18px;">
+    <div class="field full">
+      <label>Does your company manufacture API/Bulk Drug?<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_bulk_order_company" value="true"> Yes</label>
+        <label><input type="radio" name="is_bulk_order_company" value="false" checked> No</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- sector 1: carbonated beverages question -->
+  <div class="grid" id="carbonatedRow" style="display:none; margin-top: 18px;">
+    <div class="field full">
+      <label>Does this unit manufacture aerated/carbonated beverages?<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_carbonated_industry" value="true"> Yes</label>
+        <label><input type="radio" name="is_carbonated_industry" value="false" checked> No</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Other Details</div>
+  <div class="grid">
+    <div class="field">
+      <label>Year of Production<span class="req">*</span></label>
+      <select id="yop">
+        <option value="1">First Year</option>
+      
+      </select>
+    </div>
+    <div class="field">
+      <label>No. of Employees in Current Project<span class="req">*</span></label>
+      <input type="number" id="total_employer" min="0" step="1" placeholder="e.g. 50">
+    </div>
+
+    <div class="field full">
+      <label>Export Oriented Unit<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_company_exports" value="true"> Yes</label>
+        <label><input type="radio" name="is_company_exports" value="false" checked> No</label>
+      </div>
+    </div>
+
+    <div class="field full" id="sezRow" style="display:none;">
+      <label>Is this unit located within SEZ (Special Economic Zone)?<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_sez" value="true"> Yes</label>
+        <label><input type="radio" name="is_sez" value="false" checked> No</label>
+      </div>
+    </div>
+
+    <div class="field full" id="exportPerRow" style="display:none;">
+      <label>Export % (in percentage)<span class="req">*</span></label>
+      <input type="number" id="export_per" min="0" max="100" step="0.01" placeholder="e.g. 5">
+    </div>
+
+    <div class="field full">
+      <label>FDI Unit<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_company_fdi" value="true"> Yes</label>
+        <label><input type="radio" name="is_company_fdi" value="false" checked> No</label>
+      </div>
+    </div>
+
+    <div class="field full" id="fdiPerRow" style="display:none;">
+      <label>FDI % (in percentage)<span class="req">*</span></label>
+      <input type="number" id="fdi_per" min="0" max="100" step="0.01" placeholder="e.g. 5">
+    </div>
+
+    <div class="field full">
+      <span class="hint" style="margin-bottom:2px;">Note: Geographical Multiple is not applicable to Cement plants</span>
+      <label>Does the company operate in a geographically backward area?<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_back_area_company" value="true"> Yes</label>
+        <label><input type="radio" name="is_back_area_company" value="false" checked> No</label>
+      </div>
+    </div>
+
+    <!-- sector 39: cement question, only when also geographically backward -->
+    <div class="field full" id="cementRow" style="display:none;">
+      <label>Is your company a cement manufacturer?<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_cement_company" value="true"> Yes</label>
+        <label><input type="radio" name="is_cement_company" value="false" checked> No</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="calc-btn" id="calcBtn" disabled>Calculate Incentive</button>
+    <span class="missing-note" id="missingNote"></span>
+  </div>
+
+  <div class="loading-row" id="loadingRow"><span class="spinner"></span> Calculating…</div>
+
+  <div class="highlight-row" id="highlightRow">
+    <div class="highlight-card">
+      <span class="label">Total Eligible Subsidy Amount</span>
+      <span class="value" id="outSubsidyAmount">—</span>
+    </div>
+    <div class="highlight-card">
+      <span class="label">Yearly Eligible Subsidy Amount</span>
+      <span class="value" id="outYearlySubsidyAmount">—</span>
+    </div>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-row">
+      <span class="label">BIPA (₹ Cr)</span>
+      <span class="value" id="outBipa">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Yearly BIPA (₹ Cr)</span>
+      <span class="value" id="outYbipa">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible Sector Specific Multiple</span>
+      <span class="value" id="outSectorMult">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible Employment Multiple</span>
+      <span class="value" id="outEmpMult">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible Export Multiple</span>
+      <span class="value" id="outExportMult">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible Geographical Multiple</span>
+      <span class="value" id="outGeoMult">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Eligible FDI Multiple</span>
+      <span class="value" id="outFdiMult">—</span>
+    </div>
+    <div class="status-note" id="outStatus"></div>
+  </div>
+
+  <div class="footer-note">Your inputs are sent securely and are not stored.</div>
+</div>
+
+<script>
+// ── API CONFIG (matches api.py / index.html) ───────────────
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
+const CALCULATE_URL = API_BASE + "/api/v1/calculate/dipip";
+
+document.getElementById('backLink').addEventListener('click', () => {
+  window.close();
+});
+
+// ── SECTOR LIST ──────────────────────────────────────────
+// Only `id: 1` (Agri, Dairy, and Food Processing) and `id: 9`
+// (Pharmaceuticals) are confirmed — those are the two that provably
+// trigger the carbonated-beverage and bulk-drug conditional questions
+// respectively. Every other id below is `null` on purpose: guessing a
+// wrong numeric id for a live government calculator would silently
+// return a confidently-wrong incentive figure, so those options render
+// disabled ("ID needed") until you fill in the real ids (mirrors
+// useIncentiveCalSector({ request_type: "incentive-calc" }) in the React app).
+const SECTORS = [
+  { id: 1,    name: "Agri, Dairy, and Food Processing" },
+  { id: null, name: "Textile" },
+  { id: null, name: "Garment & Apparel, Footwear, Toys & Accessories" },
+  { id: 9,    name: "Pharmaceuticals" },
+  { id: null, name: "Medical Device" },
+  { id: null, name: "Electric Vehicle Manufacturing" },
+  { id: null, name: "Bio Technology" },
+  { id: null, name: "High-Value Add Manufacturing" },
+  { id: null, name: "Renewable Energy Equipment Manufacturing" },
+  { id: null, name: "Aerospace and Defence Production" },
+  { id: null, name: "General / Other" },
+];
+
+const sectorSelect = document.getElementById('sector_name');
+SECTORS.forEach(s => {
+  const opt = document.createElement('option');
+  if (s.id === null) {
+    opt.value = '';
+    opt.disabled = true;
+    opt.textContent = `${s.name} (ID needed)`;
+  } else {
+    opt.value = s.id;
+    opt.textContent = s.name;
+  }
+  sectorSelect.appendChild(opt);
+});
+
+// ── PRE-FILL FROM URL (e.g. investment passed from onboarding chat) ────
+const params = new URLSearchParams(window.location.search);
+if (params.get('investment')) document.getElementById('investment').value = params.get('investment');
+
+// ── FIELD REFS ──────────────────────────────────────────────
+const investmentEl = document.getElementById('investment');
+const yopEl = document.getElementById('yop');
+const totalEmployerEl = document.getElementById('total_employer');
+const exportPerEl = document.getElementById('export_per');
+const fdiPerEl = document.getElementById('fdi_per');
+
+const bulkOrderRow = document.getElementById('bulkOrderRow');
+const carbonatedRow = document.getElementById('carbonatedRow');
+const sezRow = document.getElementById('sezRow');
+const exportPerRow = document.getElementById('exportPerRow');
+const fdiPerRow = document.getElementById('fdiPerRow');
+const cementRow = document.getElementById('cementRow');
+
+const calcBtn = document.getElementById('calcBtn');
+const missingNote = document.getElementById('missingNote');
+const loadingRow = document.getElementById('loadingRow');
+const resultCard = document.getElementById('resultCard');
+const highlightRow = document.getElementById('highlightRow');
+
+function radioVal(name){
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+function setRadioListeners(){
+  document.querySelectorAll('input[type="radio"]').forEach(r => {
+    r.addEventListener('change', updateConditionalRows);
+  });
+}
+
+// ── CONDITIONAL FIELD VISIBILITY ────────────────────────────
+function updateConditionalRows(){
+  const sector = sectorSelect.value ? parseInt(sectorSelect.value, 10) : null;
+  const exportsYes = radioVal('is_company_exports') === 'true';
+  const sezYes = radioVal('is_sez') === 'true';
+  const backAreaYes = radioVal('is_back_area_company') === 'true';
+
+  bulkOrderRow.style.display = sector === 9 ? 'block' : 'none';
+  carbonatedRow.style.display = sector === 1 ? 'block' : 'none';
+  sezRow.style.display = exportsYes ? 'block' : 'none';
+  exportPerRow.style.display = (exportsYes && !sezYes) ? 'block' : 'none';
+  cementRow.style.display = (sector === 39 && backAreaYes) ? 'block' : 'none';
+
+  const fdiYes = radioVal('is_company_fdi') === 'true';
+  fdiPerRow.style.display = fdiYes ? 'block' : 'none';
+
+  validate();
+}
+sectorSelect.addEventListener('change', updateConditionalRows);
+
+// ── VALIDATION ──────────────────────────────────────────────
+function currentValues(){
+  const sector = sectorSelect.value ? parseInt(sectorSelect.value, 10) : null;
+  const exportsYes = radioVal('is_company_exports') === 'true';
+  const sezYes = radioVal('is_sez') === 'true';
+  const fdiYes = radioVal('is_company_fdi') === 'true';
+  const backAreaYes = radioVal('is_back_area_company') === 'true';
+
+  return {
+    investment: investmentEl.value.trim(),
+    sector_name: sectorSelect.value,
+    is_bulk_order_company: sector === 9 ? (radioVal('is_bulk_order_company') || 'false') : 'false',
+    yop: yopEl.value,
+    total_employer: totalEmployerEl.value.trim(),
+    is_company_exports: radioVal('is_company_exports') || 'false',
+    is_company_fdi: radioVal('is_company_fdi') || 'false',
+    export_per: (exportsYes && !sezYes) ? exportPerEl.value.trim() : '',
+    fdi_per: fdiYes ? fdiPerEl.value.trim() : '',
+    is_back_area_company: radioVal('is_back_area_company') || 'false',
+    is_cement_company: (sector === 39 && backAreaYes) ? (radioVal('is_cement_company') || 'false') : 'false',
+    is_sez: exportsYes ? (radioVal('is_sez') || 'false') : 'false',
+    is_carbonated_industry: sector === 1 ? (radioVal('is_carbonated_industry') || 'false') : 'false',
+  };
+}
+
+function validate(){
+  const v = currentValues();
+  const required = ['investment', 'sector_name', 'yop', 'total_employer', 'is_company_exports', 'is_company_fdi', 'is_back_area_company'];
+  const missing = required.filter(k => !v[k]);
+
+  [investmentEl, sectorSelect, totalEmployerEl].forEach(el => {
+    el.classList.toggle('invalid', missing.includes(el.id) && el.dataset.touched === '1');
+  });
+
+  calcBtn.disabled = missing.length > 0;
+  missingNote.textContent = missing.length ? `${missing.length} required field${missing.length > 1 ? 's' : ''} remaining` : '';
+  return missing.length === 0;
+}
+
+[investmentEl, yopEl, totalEmployerEl, exportPerEl, fdiPerEl].forEach(el => {
+  el.addEventListener('input', () => { el.dataset.touched = '1'; validate(); });
+  el.addEventListener('change', () => { el.dataset.touched = '1'; validate(); });
+});
+
+setRadioListeners();
+updateConditionalRows();
+
+// ── CALCULATE ────────────────────────────────────────────────
+calcBtn.addEventListener('click', async () => {
+  if (!validate()) return;
+  const values = currentValues();
+
+  resultCard.classList.remove('visible', 'error');
+  highlightRow.classList.remove('visible');
+  loadingRow.classList.add('visible');
+  calcBtn.disabled = true;
+
+  try {
+    const r = await fetch(CALCULATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values })
+    });
+    const d = await r.json();
+    loadingRow.classList.remove('visible');
+
+    if (!r.ok || d.success === false) {
+      resultCard.classList.add('visible', 'error');
+      document.getElementById('outStatus').innerHTML =
+        `<span class="error-text">${(d && (d.detail || d.message)) || 'Something went wrong while calculating. Please try again.'}</span>`;
+      ['outBipa','outYbipa','outSectorMult','outEmpMult','outExportMult','outGeoMult','outFdiMult']
+        .forEach(id => document.getElementById(id).textContent = '—');
+      return;
+    }
+
+    // Response shape (from the guest-incentive-calculator endpoint):
+    // { success, message, data: { bipa, ybipa, gsm_multiplier, sector_multiplier,
+    //   employee_multiple, export_multiple, geo_multiple, fdi_multiple,
+    //   subsidy_amount, yearly_subsidy_amount } }
+    const data = d.data || {};
+    const fmtCr = (v) => (typeof v === 'number') ? `₹ ${v.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr` : '—';
+    const fmtRatio = (v) => (typeof v === 'number') ? v.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+
+    document.getElementById('outBipa').textContent = fmtCr(data.bipa);
+    document.getElementById('outYbipa').textContent = fmtCr(data.ybipa);
+    document.getElementById('outSectorMult').textContent = fmtRatio(data.sector_multiplier);
+    document.getElementById('outEmpMult').textContent = fmtRatio(data.employee_multiple);
+    document.getElementById('outExportMult').textContent = fmtRatio(data.export_multiple);
+    document.getElementById('outGeoMult').textContent = fmtRatio(data.geo_multiple);
+    document.getElementById('outFdiMult').textContent = fmtRatio(data.fdi_multiple);
+
+    document.getElementById('outSubsidyAmount').textContent = `Approx ~ ${fmtRatio(data.subsidy_amount)} Cr.`;
+    document.getElementById('outYearlySubsidyAmount').textContent = `Approx ~ ${fmtRatio(data.yearly_subsidy_amount)} Cr.`;
+    highlightRow.classList.add('visible');
+
+    document.getElementById('outStatus').textContent = d.message ||
+      'The estimated value is based on current inputs. The final value will be determined at the time of the actual incentive claim process.';
+    resultCard.classList.add('visible');
+  } catch (e) {
+    console.error('Calculate request failed:', e);
+    loadingRow.classList.remove('visible');
+    resultCard.classList.add('visible', 'error');
+    document.getElementById('outStatus').innerHTML =
+      `<span class="error-text">Could not reach the calculator service. Make sure the backend (api.py) is running at ${API_BASE}.</span>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

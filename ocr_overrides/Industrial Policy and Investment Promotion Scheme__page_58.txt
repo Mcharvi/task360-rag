@@ -1,0 +1,121 @@
+58 
+ 
+12 
+Category 
+ 
+Sector 
+ 
+Type 
+ 
+Scale of Industry 
+ 
+ 
+D 
+Investment Details  
+(In case of a New or Expansion/Diversification/Technical Upgradation Unit) 
+*Amount in ₹ Lakh(s) 
+** 
+Note: In case the project is to be executed in a phase-wise manner, then bifurcate the column below 
+into number of phases and provide investment details thereof. 
+1 
+Land 
+(For Rented premises, capitalized value of 
+the same be indicated) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+2 
+Building 
+ 
+3 
+Plant & Machinery 
+ 
+4 
+Infrastructure Development 
+ 
+Road 
+ 
+Water 
+ 
+Power 
+ 
+Any Other (please specify) 
+ 
+5 
+Other Fixed Assets 
+ 
+6 
+Green Industrialization Measures 
+(ETP/STP/ZLD etc.) 
+ 
+7 
+Captive Power Plant (Coal/Solar/Any other)  
+(if any, Please specify) 
+ 
+8 
+R&D, Quality Certification, Patents, IPR etc. 
+ 
+9 
+Investment in any other head(s)  
+(Please specify) 
+ 
+10 
+Pre-operative Expenses 
+ 
+11 
+Working Capital 
+ 
+12 
+Total Eligible Investment {Sum: D2 to D3} 
+ 
+13 
+Total Fixed Capital Investment {Sum: D1 to D7} 
+ 
+14 
+Grand Total {Sum: D1 to D11} 
+ 
+** 
+Note: For Unit falling under Expansion/Diversification/Technical Upgradation Category, also 
+provide details as per Annexure III appended with this application. 
+ 
+E 
+Means of Finance (In ₹) 
+1 
+Share capital/Own funds 
+ 
+ 
+2 
+Term Loan Details 
+Term Loan 
+for Plant & 
+Machinery 
+Term Loan 
+for Building 
+Working 
+Capital 
+Any 
+other 
+Total 
+Term 
+Loan

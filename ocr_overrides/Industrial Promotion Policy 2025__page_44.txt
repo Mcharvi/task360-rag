@@ -1,0 +1,41 @@
+9.5.1 Definitions
+
+1. Active Pharmaceutical Ingredient/ Bulk Drugs Biologics: Any substance or mixture of substances
+intended to be used in the manufacture of a drug (medicinal) product and that, when used in the produc-
+tion of a drug, becomes an active ingredient of the drug product. Such substances are intended to furnish
+pharmacological activity or other direct effect in the diagnosis, cure, mitigation, treatment, or prevention
+of disease or to affect the structure or function of the body. The licensed product in bulk form is referred
+to as Bulk Drugs.
+
+2. Biologic: A biologic drug, or biologic, is a drug made from proteins or pieces of proteins (either natural
+or artificial). Unlike other drugs, biologic drugs must be made in a living system, such as yeast, bacteria,
+or animal cells.3. Bioinformatics: The application of computational tools to organize, analyse, understand, visualize, and
+store information associated with biological macromolecules. It is a research field in which computer
+scientists, biologists, physicians, mathematicians, and chemists combine their expertise to collaborate
+on diverse tasks, from the discovery of new facts on complex biological systems to the rationalization of
+organization of health systems.
+
+4. Biosimilar: A biosimilar drug, or biosimilar, is a medicine that is very close in structure and function to a
+biologic drug.
+
+5. Bio service: Aids and services rendered to improve the research and clinical trials in biotech industries.
+The bio-services market comprises contract and clinical research organizations (CROs), as well as con-
+tract manufacturers (CMOs) to help the biotechnology industry.
+
+6. Biopharmaceuticals: Biopharmaceuticals refers to pharmaceuticals produced in biotechnological pro-
+cesses using molecular biology methods.
+
+7. Generic: A generic drug is a medication created to be the same as an existing approved brand-name
+drug in dosage form, safety, strength, route of administration, quality, and performance characteristics.8. Life Sciences: Life Sciences is a broad, multi-faceted industry that, in the most general sense, deals with
+the investigation of living things. It includes a range of more specific scientific fields, like microbiology,
+zoology, biochemistry, cell biology, evolutionary biology, anatomy, biophysics, epidemiology, marine biolo-
+gy, genetics, botany, ecology and more. In a life sciences laboratory, researchers study the structure and
+funtion of living organisms at both macro and micro scales-for example, entire ecosystems at the macro
+scale and individual cells at the micro scale.9. Nutraceuticals: Nutraceuticals are food-based substances that have physiological benefits or provide
+protection against chronic diseases. Nutraceuticals may be used to improve health, delay the aging
+process, prevent chronic diseases, increase life expectancy, or support the structure or function of the
+body. In India, nutraceuticals have been defined under Clause 22 of the Food Safety and Standards Act
+(FSSA), 2006. In the context of this policy, the scope of nutraceuticals shall be limited to food supple-
+ments for patients.
+
+33

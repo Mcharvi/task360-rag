@@ -1,0 +1,19 @@
+Abbreviations
+i. AIM: Atal Innovation Mission
+ii. BVLOS: Beyond Visual Line of Sight
+iii, CAPEX: Capital Expenditure
+iv. CCIP: Cabinet Committee for Investment Promotion
+Vv. DGCA: Directorate General of Civil Aviation
+vi. DSDM: Drone System Design and Manufacturing
+vii. DeS: Drone Enabled Services
+viii. ESC: Electronic Speed Controller
+ix. FPOs: Farmer Producer Organizations
+x. LIDAR: Light Detection and Ranging
+xi. LIPO Battery: Lithium-lon Polymer battery
+xii. MMSKY: Mukhyamantri Seekho Kamao Yojana
+xiii, MPSEDC: Madhya Pradesh State Electronics Development Corporation
+xiv. R&D: Research and Development
+xv. UAV: Unmanned Aerial Vehicle
+xvi. UTM: Unmanned Aircraft System Traffic Management
+
+01

@@ -1,0 +1,41 @@
+9.4. R&D Grant
+Up to INR 2 crore for undertaking an R&D Project in the areas identified by the state or proposals
+received by the government under the R&D support program of Department of Science &
+Technology or as per Start-up policy. The R&D projects should focus on developing new
+cutting-edge technologies for Drones like (but not limited to):
+e Advancements in Al and machine learning for autonomous flight, obstacle avoidance, and data
+analysis.
+@ Research into advanced sensor technologies such as LIDAR and synthetic aperture radar Is
+crucial for enhancing data collection capabilities.
+e Developing robust and secure communication systems for drone-to-drone and
+drone-to-ground communication
+e Exploring novel propulsion systems and energy storage solutions like advanced batteries and
+fuel cells will extend flight times and increase payload capacity, expanding the operational
+envelope of drones etc.
+® Drone imaging research focusing on applications like precision agriculture, infrastructure
+inspection, environmental monitoring, disaster response, 3D mapping, and integrating Al/ML for
+improved image analysis.
+9.5. Incentives to develop the talent pool
+Government will provide stipend reimbursement of Rs. 8000 per month (up to 6 months) under
+Mukhyamantri Sikho Kamao Yojana (MMSKY) to interns in key areas such as drone assembly,
+software integration, flignt operations, maintenance, drone image analysis, and the application of Al
+and ML in the drone ecosystem etc. undertaking internship programs in DSDM and DeS units
+registered with GoMP.
+9.6. Marketing Assistance
+All eligible units shall be entitled to receive 50% subsidy on expenses incurred for participating in
+designated National/International Exhibitions/Events etc. subject to a maximum limit of = 2 Lakh
+for international and = 1 Lakh for national events.
+This incentive shall be available to units once in a financial year for 3 years from the date of start of
+commercial operations.
+9.7. Assistance for Patent Filing
+To promote Research and Development activities in the state, assistance for acquiring patents,
+subject to a limit of = 5.00 lakhs per patent for domestic patents and = 10.00 lakhs for international
+patents, or actual cost incurred whichever is lower, shall be reimbursed for obtaining each patent
+filed by the unit in M.P.
+9.8. Assistance for Testing, Calibration & Certifications
+The Government of India has been working to establish a world - leading drone eco system in India
+to support safe, efficient and secure access to the Indian airspace by millions of drones. The release
+of Drone Rules 2021 has made it possible to establish a global certification and accreditation
+framework for drones. Government of Madhya Pradesh would further support Drone units by
+providing assistance up to 25 lakh per year, with a capping of 20 lakh during policy period.
+17

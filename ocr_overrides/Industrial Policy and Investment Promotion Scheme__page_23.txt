@@ -1,0 +1,32 @@
+23 
+ 
+c. Export Multiple is calculated on the basis of the following formula: 
+Export Multiple (EM)=IF (Export Percentage<25%,1, IF (Export 
+Percentage<75%,1+0.3*(Export Percentage-25%)/50%,1.3)) 
+d. The multiplier increases progressively as the export percentage 
+increases. 
+e. For units established in SEZ areas, the Export Multiple is fixed at 1.0, 
+regardless of their export percentage. 
+f. Only direct exports shall qualify for calculation of export multiple. 
+Deemed exports (sales within India that are treated as exports) will not 
+be eligible. 
+3. EMPLOYMENT MULTIPLE 
+a. Employment Multiple (EYM) is a multiplier applied to Basic 
+Investment Promotion Assistance (BIPA) to incentivize job creation by 
+industrial units. 
+b. Employment Multiple varies between 1.0 and 1.5, based on the 
+annual average number of employees in an industrial unit. The 
+minimum 1.0 applies to units employing 100 or less employees and 
+the maximum 1.5 applies to units employing 2,500 or more 
+employees. 
+c. Employment Multiple is calculated on the basis of the following 
+formula: 
+Employment Multiple (EYM) = MAX [1,MIN{1.5,(1+(AE-100)*((1.5-
+1)/(2500-100))}] 
+Average Employees in the Reviewed Year (AE): 
+AE = Σ (Employee count at the month end for each month of the 
+financial year)/12 
+d. The multiplier increases progressively as the number of employees 
+rises. 
+e. In case of expansion/ diversification, the employment multiple shall 
+remain 1.

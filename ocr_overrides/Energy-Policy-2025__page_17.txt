@@ -1,0 +1,35 @@
+|
+Annexure — I: RE source-based projects
+1. Single RE source based grid connected/ off-grid power projects:
+a. Solar PV based power projects
+i. Ground mounted
+ii. Floating solar
+iii. Canal top or water body (like canal, pond, lake, river) bank
+b. Solar thermal based power projects;
+c. Wind based power projects including repowering of existing projects
+d. Hydro based power projects with capacity less than or equal to twenty-five (25) MW with minimum
+allowable capacity of 1 kW;
+e. Bio-energy based power projects
+i. using biomass/ non-conventional feedstock to generate electricity/ produce bio-CNG;
+ii. Co-generation power projects using biomass;
+iii. using waste to energy sources;2. RE Source based Power Project with Energy Storage: This shall include pumped hydro based storage, battery
+based storage, hydrogen based storage or any other form of commercially viable energy storage technology.
+Minimum energy storage capacity should be ‘X/10” MWh, where X is the capacity of RE power project;
+
+3. RE hybrid power project: This shall be RE project having combination of RE technology/ source based project
+with storage or more than one RE technologies/ sources with/ without storage having single point of injection
+or maximum two points of injections into the grid ;
+
+4. RE source based park/ RE hybrid park (Plug and play facility);
+
+5. Projects registered under renewable energy certificate (REC) scheme;
+
+6. Bundling of RE source based/ RE hybrid energy projects with conventional energy projects;
+
+7. RE power projects interconnected with MP DISCOMs’ grid (for e.g., component A of KUSUM scheme) with
+minimum capacity of 1 kW under Central/ State Government scheme;
+
+8. Project using RE source(s) / technology(ies) as recognized by MNRE, Gol producing any form of energy,
+other than power such as steaming, heating, cooling and biofuels
+
+16

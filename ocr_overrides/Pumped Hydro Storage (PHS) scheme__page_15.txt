@@ -1,0 +1,34 @@
+Scheme for Implementation of Pumped Hydro Storage (PHS) Project in MP 
+10
+10. Mode – IV: Allotment of Self-Identified off-stream Pumped Stor-
+age Project
+10.1.	 Developers may self-identify potential off-stream sites, as defined 
+in Para 5.2.3, where PHS project can be constructed. The site should 
+not be identified for development of a Mode I or Mode II or Mode III 
+PSP. PHS Project Developer shall have to obtain all statutory clear-
+ances from State and Central agencies before starting construction. 
+10.2.	 Initial Project Allotment under Mode - IV: A Self-Identified PHS 
+project will be provisionally allotted by Office of Commissioner to 
+PHS Project Developer if it fulfills the following conditions:
+10.2.1.	submission of Project Pre-feasibility Report (PFR) of the iden-
+tified site along with Preliminary details as per Annexure - I;
+10.2.2.	submission of application to relevant authorities for allot-
+ment of land;
+10.2.3.	submission of application to relevant authorities for allotment 
+of water on non-consumptive basis, i.e., only for one-time 
+usage and subsequently only for recouping on evaporation 
+loss; and
+10.3.	 Nodal Agency shall open an online window for receiving applica-
+tions for allotment of PHS site under this Mode. The Nodal Agency 
+shall select the application received the earliest for each site and 
+thereon shall:
+10.3.1.	publish a notification at its official website and in at least 
+one national and one local newspaper, calling for informa-
+tion from other PHS developers, including those that have 
+submitted their application in the online window, who have 
+undertaken project development activities for the same site.
+10.3.2.	period of 60 days shall be provided from the date of publica-
+tion of notification in newspaper/website for any PHS devel-
+oper to apply for such notified PHS site, in case PHS devel-
+oper has already undertaken project development activities 
+for the same site.

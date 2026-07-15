@@ -1,0 +1,30 @@
+CENTRES
+Data Center Units: Assistance will be available to data centers established in the state of Madhya
+Pradesh in Category A districts with more than 5MW capacity in a centralized location. Data Centre
+must propose to bring in active IT components of data centre and co-hosting; merely cooling and
+providing other data centres facilities etc. does not qualify for claiming assistance.
+Edge Data Centers: Benefits will also be applicable on edge data centers with a minimum 50 KW anda
+maximum 1 MW capacity established at edge locations, provided minimum 50 edge data centers are
+proposed to be set up in Madhya Pradesh ina single proposal.
+11.1 CAPEX Assistance DTi. The first five (5) anchor data centres (other than edge data centres) with a Minimum GFCI of = 500
+Crores starting their operations in Madhya Pradesh will be eligible for CAPEX assistance @ 25%
+on Gross Fixed Capital Investment (GFCI). The maximum amount of = 125 Crores can be
+reimbursed to each anchor data centre.ii. The edge data centre and data centre units coming after the first five (5) data centres will be
+entitled to CAPEX Assistance of 15% on Gross Fixed Capital Investment (GFCI). The maximum
+amount of = 50 Crores can be reimbursed to each data centre.
+
+iii. GFCI for data centres may include Building, IT/Non-IT components excluding investment made in
+land.
+
+iv. This assistance will be disbursed in 5 (five) equal yearly instalments.11.2 Power TariffReimbursement Hy
+Power Tariff reimbursement of = 2 per unit for the first five (5) data centres (with Min 5 MW
+capacity) and #1per unit for others, for 5 years.11.3 ElectricityDutyReimbursement BT)
+Units having new High Tension (HT) connection in the State shall be reimbursed 100% electricity
+duty as below:
+i. 33KV connection for 3 years
+ii. 132 KV connection for 5 years
+iil. 220KV connection for 7 years11.4 Transmission and Wheeling Charges Reimbursement HD
+50% reimbursement on intra state sale of power shall be provided for a period of 5 years from the
+date of start of commercial operations of the data centre transmission and wheeling charges to
+data centre units for 5 years.11.5 Dual Power Grid availability El
+Dual-grid lines power supply shall be made available on demand at applicable charges.

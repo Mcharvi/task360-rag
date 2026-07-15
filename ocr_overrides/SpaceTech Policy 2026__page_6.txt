@@ -1,0 +1,26 @@
+List of Abbreviations
+i. AMPRI - Advanced Materials and Processes Research Institute
+ii. BEL - Bharat Electronics Limited
+iii, CCIP - Cabinet Committee on Investment Promotion
+iv. CETP -Common Effluent Treatment Plant
+Vv. CSIR - Council of Scientific and Industrial Research
+vi. DLI - Design Linked Incentive
+vii. FEA - Finite Element Analysis
+viii. FOG - Fiber Optic Gyroscope
+ix. GNC - Guidance, Navigation, and Control
+x. ISR - Intelligence, Surveillance, Reconnaissance
+xi. MMSkY - Mukhya Mantri Seekho Kamao Yojana
+xii. MPCST- Madhya Pradesh Council of Science & Technology
+xiii. .MPSEDC - Madhya Pradesh State Electronics Development Corporation
+xiv. .MPSSDEGB - Madhya Pradesh State Skill Development and Employment Generation Board
+xv. NGP- Norms, Guidelines, and Procedures
+xvi. OEM - Original Equipment Manufacturer
+xvii. PNT - Positioning, Navigation & Timing
+xviii. RF - Radio Frequency
+xix. SatCom - Satellite Communications
+xx. SCVT - State Council for Vocational Training
+xxi. SI - System Integrator
+xxii. TDF - Technology Development Fund
+xxiii. TT&C - Telemetry, Tracking, and Command
+xxiv. UAS - Unmanned Aerial Systems
+xxv. UAV - Unmanned Aerial Vehicle1

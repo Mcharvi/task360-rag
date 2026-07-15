@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSME Incentive Calculator — Task360</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #EEF2FF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding: 28px 32px 60px; }
+  .page { width: 100%; max-width: 900px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 36px 44px; box-shadow: 0 4px 40px rgba(37,99,235,0.07); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748B; text-decoration: none; margin-bottom: 18px; }
+  .back-link:hover { color: #2563EB; }
+
+  h1 { font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+  .subhead { font-size: 13.5px; color: #64748B; margin-bottom: 28px; }
+  .subhead b { color: #2563EB; }
+
+  .branch-note { display: flex; align-items: center; gap: 8px; background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 22px; font-size: 12.5px; color: #1E40AF; }
+
+  .section-label { font-size: 13px; font-weight: 700; color: #2563EB; letter-spacing: 0.04em; text-transform: uppercase; margin: 26px 0 14px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* minmax(0,1fr), not 1fr — a <select>'s intrinsic min-content width is
+     based on its longest option text regardless of CSS width/overflow, so
+     plain "1fr" tracks would still grow to fit "Footware, Furniture, Toys
+     and Related Value Chain Products" and blow out the grid. */
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .field label .req { color: #DC2626; margin-left: 2px; }
+  .field select, .field input[type="number"] {
+    width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box;
+    padding: 10px 14px; border: 1.5px solid #CBD5E1; border-radius: 10px;
+    background: #fff; color: #1E293B; font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+  }
+  .field select {
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .field select option { white-space: normal; }
+  .field select:focus, .field input[type="number"]:focus { border-color: #2563EB; }
+  .field select.invalid, .field input.invalid { border-color: #FCA5A5; background: #FEF2F2; }
+  .field .hint { font-size: 11.5px; color: #94A3B8; }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 26px; }
+  .calc-btn { padding: 12px 28px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font: inherit; transition: background 0.15s; }
+  .calc-btn:hover { background: #1D4ED8; }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .missing-note { font-size: 12.5px; color: #DC2626; }
+
+  .result-card { display: none; margin-top: 28px; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 22px 24px; }
+  .result-card.visible { display: block; }
+  .result-card.error { background: #FEF2F2; border-color: #FECACA; }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .label { font-size: 13px; color: #334155; font-weight: 600; }
+  .result-row .value { font-size: 18px; color: #15803D; font-weight: 800; }
+  .status-note { margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.55; background: #fff; border-radius: 10px; padding: 12px 14px; }
+  .error-text { font-size: 13.5px; color: #B91C1C; }
+
+  .loading-row { display: none; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #64748B; }
+  .loading-row.visible { display: flex; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #CBD5E1; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 28px; font-size: 12px; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" id="backLink" href="index.html">← Close this tab and return to your chat</a>
+
+  <h1>MSME Incentive Calculator</h1>
+  <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here.</p>
+
+  <div class="branch-note" id="branchNote">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <span id="branchNoteText">Enter your investment in Plant &amp; Machinery below — the remaining fields depend on whether it's above or at/below ₹10 Cr.</span>
+  </div>
+
+  <div class="section-label">Investment &amp; Industry</div>
+  <div class="grid">
+    <div class="field">
+      <label>Investment in P&amp;M — in ₹ Crore<span class="req">*</span></label>
+      <input type="number" id="investment_in_plant_machinery" min="0" step="0.01" placeholder="e.g. 500">
+      <span class="hint">Whether this is above or at/below ₹10 Cr determines which fields appear below.</span>
+    </div>
+    <div class="field">
+      <label>Type of Industry<span class="req">*</span></label>
+      <select id="industry_type">
+        <option value="">-- Select --</option>
+        <option value="Pharmaceutical and Medical Device Manufacturing Units">Pharmaceutical and Medical Device Manufacturing Units</option>
+        <option value="Food Processing Units">Food Processing Units</option>
+        <option value="Apparel Sector">Apparel Sector</option>
+        <option value="Textile Units">Textile Units</option>
+        <option value="Powerloom Sector">Powerloom Sector</option>
+        <option value="Footware, Furniture, Toys and Related Value Chain Products">Footware, Furniture, Toys and Related Value Chain Products</option>
+        <option value="General">General</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label>Export % (as a ratio, e.g. 30 for 30%)<span class="req">*</span></label>
+      <input type="number" id="export_percentage" min="0" max="100" step="0.01" placeholder="e.g. 30">
+    </div>
+  </div>
+
+  <!-- >10 Cr branch -->
+  <div id="branchOver10">
+    <div class="section-label">Production, Employment &amp; FDI (for investment above ₹10 Cr)</div>
+    <div class="grid">
+      <div class="field">
+        <label>Yearly Production Capacity — in ₹ Crore<span class="req">*</span></label>
+        <input type="number" id="yearly_production_capacity" min="0" step="0.01" placeholder="e.g. 500">
+      </div>
+      <div class="field">
+        <label>Current Year Production — in ₹ Crore<span class="req">*</span></label>
+        <input type="number" id="current_year_production" min="0" step="0.01" placeholder="e.g. 500">
+      </div>
+      <div class="field">
+        <label>Current Year Employment (number)<span class="req">*</span></label>
+        <input type="number" id="current_year_employment" min="0" step="1" placeholder="e.g. 100">
+      </div>
+      <div class="field">
+        <label>FDI Percentage (%)<span class="req">*</span></label>
+        <input type="number" id="fdi_percentage" min="0" max="100" step="0.01" placeholder="e.g. 25">
+      </div>
+    </div>
+  </div>
+
+  <!-- <=10 Cr branch -->
+  <div id="branchUnder10">
+    <div class="section-label">Entrepreneur Category (for investment at or below ₹10 Cr)</div>
+    <div class="grid">
+      <div class="field full">
+        <label>Category of Entrepreneur<span class="req">*</span></label>
+        <select id="category_of_entrepreneur">
+          <option value="">-- Select --</option>
+          <option value="Women">Women</option>
+          <option value="SC/ST">SC/ST</option>
+          <option value="Women and SC/ST">Women and SC/ST</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="calc-btn" id="calcBtn" disabled>Calculate Incentive</button>
+    <span class="missing-note" id="missingNote"></span>
+  </div>
+
+  <div class="loading-row" id="loadingRow"><span class="spinner"></span> Calculating…</div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-row">
+      <span class="label">Basic Investment Promotion Assistance (₹ Cr)</span>
+      <span class="value" id="outBipa">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Yearly BIPA (₹ Cr)</span>
+      <span class="value" id="outYbipa">—</span>
+    </div>
+
+    <!-- shown only for the >10 Cr branch's response -->
+    <div id="outRowsOver10">
+      <div class="result-row">
+        <span class="label">Gross Supply Value Multiple</span>
+        <span class="value" id="outGsm">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Export Multiple</span>
+        <span class="value" id="outExportMult">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Employment Multiple</span>
+        <span class="value" id="outEmpMult">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">FDI Multiple</span>
+        <span class="value" id="outFdiMult">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Annual Yearly Investment Assistance (₹ Cr)</span>
+        <span class="value" id="outAnnualAssist">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Total BIPA (₹ Cr)</span>
+        <span class="value" id="outTotalBipa">—</span>
+      </div>
+    </div>
+
+    <!-- shown only for the <=10 Cr branch's response -->
+    <div id="outRowsUnder10">
+      <div class="result-row">
+        <span class="label">Addl. Industrial Development Subsidy (₹ Cr)</span>
+        <span class="value" id="outAddlSubsidy">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Industrial Development Subsidy (₹ Cr)</span>
+        <span class="value" id="outIndSubsidy">—</span>
+      </div>
+      <div class="result-row">
+        <span class="label">Total Assistance Yearly (₹ Cr)</span>
+        <span class="value" id="outTotalYearly">—</span>
+      </div>
+    </div>
+
+    <div class="status-note" id="outStatus"></div>
+  </div>
+
+  <div class="footer-note">Your inputs are sent securely and are not stored.</div>
+</div>
+
+<script>
+// ── API CONFIG (matches api.py / index.html) ───────────────
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
+const CALCULATE_URL = API_BASE + "/api/v1/calculate/msme";
+
+document.getElementById('backLink').addEventListener('click', () => {
+  // Same rationale as film-calculator.html: this tab is opened alongside a
+  // live chat tab, so closing (not navigating) is the correct "back".
+  window.close();
+});
+
+// ── FIELD REFS ──────────────────────────────────────────────
+const baseFields = {
+  investment_in_plant_machinery: document.getElementById('investment_in_plant_machinery'),
+  industry_type: document.getElementById('industry_type'),
+  export_percentage: document.getElementById('export_percentage'),
+};
+const over10Fields = {
+  yearly_production_capacity: document.getElementById('yearly_production_capacity'),
+  current_year_production: document.getElementById('current_year_production'),
+  current_year_employment: document.getElementById('current_year_employment'),
+  fdi_percentage: document.getElementById('fdi_percentage'),
+};
+const under10Fields = {
+  category_of_entrepreneur: document.getElementById('category_of_entrepreneur'),
+};
+
+const branchOver10El = document.getElementById('branchOver10');
+const branchUnder10El = document.getElementById('branchUnder10');
+const branchNoteText = document.getElementById('branchNoteText');
+
+const calcBtn = document.getElementById('calcBtn');
+const missingNote = document.getElementById('missingNote');
+const loadingRow = document.getElementById('loadingRow');
+const resultCard = document.getElementById('resultCard');
+
+const outBipa = document.getElementById('outBipa');
+const outYbipa = document.getElementById('outYbipa');
+const outRowsOver10 = document.getElementById('outRowsOver10');
+const outRowsUnder10 = document.getElementById('outRowsUnder10');
+const outGsm = document.getElementById('outGsm');
+const outExportMult = document.getElementById('outExportMult');
+const outEmpMult = document.getElementById('outEmpMult');
+const outFdiMult = document.getElementById('outFdiMult');
+const outAnnualAssist = document.getElementById('outAnnualAssist');
+const outTotalBipa = document.getElementById('outTotalBipa');
+const outAddlSubsidy = document.getElementById('outAddlSubsidy');
+const outIndSubsidy = document.getElementById('outIndSubsidy');
+const outTotalYearly = document.getElementById('outTotalYearly');
+const outStatus = document.getElementById('outStatus');
+
+// ── PRE-FILL FROM URL (subquestion answers gathered during onboarding) ──
+const params = new URLSearchParams(window.location.search);
+if(params.get('investment_in_plant_machinery')) baseFields.investment_in_plant_machinery.value = params.get('investment_in_plant_machinery');
+if(params.get('export_percentage')) baseFields.export_percentage.value = params.get('export_percentage');
+if(params.get('industry_type')) baseFields.industry_type.value = params.get('industry_type');
+
+// ── BRANCH SWITCHING (mirrors InputMsme.jsx: investment > 10 vs <= 10) ──
+function currentBranch(){
+  const v = parseFloat(baseFields.investment_in_plant_machinery.value);
+  if(isNaN(v) || baseFields.investment_in_plant_machinery.value.trim() === '') return null;
+  return v > 10 ? 'over10' : 'under10';
+}
+
+function updateBranchVisibility(){
+  const branch = currentBranch();
+  branchOver10El.style.display = branch === 'over10' ? 'block' : 'none';
+  branchUnder10El.style.display = branch === 'under10' ? 'block' : 'none';
+
+  if(branch === 'over10'){
+    branchNoteText.textContent = 'Investment is above ₹10 Cr — fill in production, employment and FDI details below.';
+  } else if(branch === 'under10'){
+    branchNoteText.textContent = 'Investment is at or below ₹10 Cr — select your entrepreneur category below.';
+  } else {
+    branchNoteText.textContent = "Enter your investment in Plant & Machinery below — the remaining fields depend on whether it's above or at/below ₹10 Cr.";
+  }
+  validate();
+}
+
+// ── VALIDATION ──────────────────────────────────────────────
+function currentValues(){
+  const branch = currentBranch();
+  const values = {
+    investment_in_plant_machinery: baseFields.investment_in_plant_machinery.value.trim(),
+    industry_type: baseFields.industry_type.value.trim(),
+    export_percentage: baseFields.export_percentage.value.trim(),
+  };
+  if(branch === 'over10'){
+    values.yearly_production_capacity = over10Fields.yearly_production_capacity.value.trim();
+    values.current_year_production = over10Fields.current_year_production.value.trim();
+    values.current_year_employment = over10Fields.current_year_employment.value.trim();
+    values.fdi_percentage = over10Fields.fdi_percentage.value.trim();
+  } else if(branch === 'under10'){
+    values.category_of_entrepreneur = under10Fields.category_of_entrepreneur.value.trim();
+  }
+  return { branch, values };
+}
+
+function validate(){
+  const { branch, values } = currentValues();
+  let missing = Object.entries(values).filter(([,v]) => !v).map(([k]) => k);
+  // No branch chosen yet (investment not entered) → definitely incomplete.
+  if(!branch) missing = ['investment_in_plant_machinery'];
+
+  [...Object.values(baseFields), ...Object.values(over10Fields), ...Object.values(under10Fields)].forEach(el => {
+    el.classList.toggle('invalid', missing.includes(el.id) && el.dataset.touched === '1');
+  });
+
+  calcBtn.disabled = missing.length > 0;
+  missingNote.textContent = missing.length ? `${missing.length} required field${missing.length>1?'s':''} remaining` : '';
+  return missing.length === 0;
+}
+
+[...Object.values(baseFields), ...Object.values(over10Fields), ...Object.values(under10Fields)].forEach(el => {
+  el.addEventListener('input', () => { el.dataset.touched = '1'; if(el === baseFields.investment_in_plant_machinery) updateBranchVisibility(); else validate(); });
+  el.addEventListener('change', () => { el.dataset.touched = '1'; if(el === baseFields.investment_in_plant_machinery) updateBranchVisibility(); else validate(); });
+});
+updateBranchVisibility();
+
+// ── CALCULATE ────────────────────────────────────────────────
+calcBtn.addEventListener('click', async () => {
+  if(!validate()) return;
+  const { values } = currentValues();
+
+  resultCard.classList.remove('visible', 'error');
+  loadingRow.classList.add('visible');
+  calcBtn.disabled = true;
+
+  try{
+    const r = await fetch(CALCULATE_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ values })
+    });
+    const d = await r.json();
+    loadingRow.classList.remove('visible');
+
+    if(!r.ok){
+      resultCard.classList.add('visible', 'error');
+      outStatus.innerHTML = `<span class="error-text">${(d && d.detail) ? d.detail : 'Something went wrong while calculating. Please try again.'}</span>`;
+      [outBipa, outYbipa, outGsm, outExportMult, outEmpMult, outFdiMult, outAnnualAssist, outTotalBipa, outAddlSubsidy, outIndSubsidy, outTotalYearly].forEach(el => el.textContent = '—');
+      return;
+    }
+
+    // Response shape (see captured request), e.g.:
+    // { success, message, data: { bipa, ybipa, gsm_multiple, export_multiple,
+    //   employment_multiple, fdi_multiple, annual_yearly_investment_assistance,
+    //   total_bipa } }  — that set only appears for the >10 Cr branch.
+    // The <=10 Cr branch instead returns:
+    // { ..., data: { bipa, ybipa, additional_industrial_development_subsidy,
+    //   industrial_development_subsidy, total_assistance_yearly } }
+    const data = d?.data || {};
+    const fmtCr = (v) => (typeof v === 'number') ? `₹ ${v.toLocaleString('en-IN', {maximumFractionDigits: 2})} Cr` : '—';
+    const fmtRatio = (v) => (typeof v === 'number') ? v.toLocaleString('en-IN', {maximumFractionDigits: 2}) : '—';
+
+    outBipa.textContent = fmtCr(data.bipa);
+    outYbipa.textContent = fmtCr(data.ybipa);
+
+    const isOver10Response = 'gsm_multiple' in data || 'total_bipa' in data;
+    outRowsOver10.style.display = isOver10Response ? 'block' : 'none';
+    outRowsUnder10.style.display = isOver10Response ? 'none' : 'block';
+
+    if(isOver10Response){
+      outGsm.textContent = fmtRatio(data.gsm_multiple);
+      outExportMult.textContent = fmtRatio(data.export_multiple);
+      outEmpMult.textContent = fmtRatio(data.employment_multiple);
+      outFdiMult.textContent = fmtRatio(data.fdi_multiple);
+      outAnnualAssist.textContent = fmtCr(data.annual_yearly_investment_assistance);
+      outTotalBipa.textContent = fmtCr(data.total_bipa);
+    } else {
+      outAddlSubsidy.textContent = fmtCr(data.additional_industrial_development_subsidy);
+      outIndSubsidy.textContent = fmtCr(data.industrial_development_subsidy);
+      outTotalYearly.textContent = fmtCr(data.total_assistance_yearly);
+    }
+
+    outStatus.textContent = d.message || '';
+    resultCard.classList.add('visible');
+  } catch(e){
+    console.error('Calculate request failed:', e);
+    loadingRow.classList.remove('visible');
+    resultCard.classList.add('visible', 'error');
+    outStatus.innerHTML = `<span class="error-text">Could not reach the calculator service. Make sure the backend (api.py) is running at ${API_BASE}.</span>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

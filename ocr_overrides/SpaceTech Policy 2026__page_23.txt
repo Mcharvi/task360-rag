@@ -1,0 +1,17 @@
+8.2.5. Design Linked Incentive (DLI) for SoaceTech Applications
+To support startups, MSMEs, and enterprises engaged in the design and development of new
+products, systems, and applications in the SpaceTech sector, including satellite systems, payloads,
+ground segment software, SSA/SDA tools like Al-driven collision alerts, debris removal prototypes, orbital
+simulation software, and space robotics.
+i. Incentive Structure
+- Milestone-linked reimbursement of up to 50% of eligible expenditure
++ Ceiling: 50 Lakhs per application
+- Disbursed in tranches based on the following milestones:
+i. Completion of design and simulation: 10%
+ii. Prototype development and validation: 10%
+iii. Demonstration in operational environment: 10%
+iv. Readiness for volume production or deployment: 20%
+a ; ; ‘ K ¥
+‘ . . ne , 2
+” b E rs . ’ dj
+F % 18

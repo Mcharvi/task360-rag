@@ -1,0 +1,34 @@
+21 
+ 
+Testing Facility (only for Pharmaceuticals, Biotechnology and Medical 
+Devices) and Cost of Transfer of International Technology shall be 
+approved, sanctioned and disbursed by MD MPIDC. 
+However, these claims shall be processed only after the determination 
+of eligibility for other incentives by SLEC. 
+5. 
+The sanctioned assistance amount shall be disbursed to the unit via 
+e-payment.  
+6. 
+After the sanction of assistance amount, no interest will be payable in 
+case of delay in disbursement.  
+6. FINANCIAL INCENTIVES 
+6.1. INVESTMENT PROMOTION ASSISTANCE  
+i. Basic Investment Promotion Assistance (BIPA): Basic Investment 
+Promotion Assistance for large units shall vary between 40% to 10% 
+based on the below formula: 
+BIPA=IF (EFCI>=2000, 200, IF (EFCI<=50, 0.4*EFCI, MIN (15 + 
+0.08*(EFCI-50) + (EFCI/12) * ((1/(1+EXP (-5.9*(1 - EFCI/2490))))*(1 - 
+EFCI/2490)) + 9.3*(1 - EFCI/2500), 0.4*EFCI, 200))) 
+ii. BIPA shall be limited to maximum ₹200 Crore. 
+iii. BIPA shall be provided in 7 equal annual instalments defined as Yearly 
+BIPA. 
+iv. The First claim year shall be the year of commencing production. The 
+units starting production after 30th September shall have an option to 
+choose the next financial year as the First claim year. 
+In view of the time taken by pharmaceutical units in getting regulatory 
+permissions, quality certifications and international compliances, 
+pharmaceutical units shall be eligible to avail a slack period of up to two 
+(2) years from the date of commercial production in the unit for claiming 
+incentives, i.e. irrespective of the date of commercial production, 
+pharmaceutical units can choose the 2nd or 3rd year after start of 
+commencement of commercial production as first claim year. However, it

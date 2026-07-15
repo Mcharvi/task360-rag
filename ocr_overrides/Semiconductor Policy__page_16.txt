@@ -1,0 +1,54 @@
+4. Policy Implementation, Coverage and Eligibility
+
+4.1. Policy Validity
+
+The policy shall remain in effect from the date of its notification for a period of five years, unless
+
+otherwise specified by the Department of Science and Technology or superseded by a subsequent
+
+policy.
+
+4.2. Nodal Agency
+
+Madhya Pradesh State Electronics Development Corporation Ltd. (MPSEDC) under the
+
+Department of Science and Technology (DST), Government of Madhya Pradesh (GoMP) will act as
+
+a nodal agency for implementation of the policy.
+
+4.3. Appeal
+
+Additional Chief Secretary/ Principal Secretary/ Secretary, in-charge of Department of Science and
+
+Technology (DST), Government of Madhya Pradesh (GoMP) will be the appellate authority in all
+
+matters related to this policy.
+
+4.4. Eligibility
+
+Eligibility of electronics and semiconductor projects/units which would come under the purview
+
+of this policy is indicated below. However, eligibility to avail specific incentives would be given in
+
+detail in the operational guidelines of the policy.
+
+a) All new units established in Madhya Pradesh and falling under “Semiconductor & Component
+Manufacturing and Fabless Design” are entitled for benefits under this policy.b) Existing companies or units undertaking expansion during the policy period shall qualify for
+eligible incentives on additional investments, provided that the expansion constitutes at least
+25% of their Fixed Capital Investment on or after the date of this policy's notification.
+
+c) New units should be registered with Nodal Agency
+
+4.4.1. Eligibility criteria for Semiconductor Product/IP Companies (Fabless)
+
+Type of Semiconductor Product/IP companies regardless of qualifying under the Government of
+
+India’s Design Linked Incentive (DLI) Program or any other such scheme of the Government of
+
+India which come under this category are as below:
+
+a) Semiconductor Product Companies/Fabless Companies which have chip as a Product
+
+b) Semiconductor IP Companies which have Soft or Hard IP as a Product
+
+c) Semiconductor design and Design services companies

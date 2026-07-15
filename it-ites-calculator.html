@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT / ITeS / ESDM Incentive Calculator — task360</title>
+<style>
+  :root {
+    --bg: #0a0d14;
+    --bg-elevated: #10141d;
+    --card: #12161f;
+    --card-alt: #161b26;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text-primary: #f1f3f6;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #5b8def;
+    --accent-hover: #4576db;
+    --accent-soft: rgba(91,141,239,0.14);
+    --danger: #f87171;
+    --danger-soft: rgba(248,113,113,0.1);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(circle at 15% 0%, rgba(91,141,239,0.08), transparent 45%);
+    font-family: var(--font);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,13,20,0.7);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: conic-gradient(from 200deg, #34d399, #5b8def, #a78bfa, #34d399);
+    flex-shrink: 0;
+  }
+  .brand-name { font-size: 18px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.01em; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    text-decoration: none; padding: 8px 14px; border-radius: 100px;
+    border: 1px solid var(--border); transition: border-color 0.15s, background 0.15s;
+    background: none; cursor: pointer; font-family: inherit;
+  }
+  .back-link:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 0; }
+
+  .page {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px 44px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .subhead { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+  .subhead b { color: var(--accent); font-weight: 600; }
+
+  /* PROJECT TYPE SWITCHER */
+  .switcher-row { margin-bottom: 30px; }
+  .switcher-row label { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .switcher-row select {
+    width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--text-primary); font-size: 14.5px; font-weight: 600; font-family: inherit;
+    outline: none; cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b8def' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 16px center;
+  }
+  .switcher-row select option { background: var(--bg-elevated); color: var(--text-primary); }
+
+  .section-label {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin: 28px 0 14px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .field label .req { color: var(--danger); margin-left: 2px; }
+  .field select, .field input[type="number"] {
+    padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg-elevated); color: var(--text-primary); font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field select:focus, .field input[type="number"]:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .field select.invalid, .field input.invalid { border-color: var(--danger); background: var(--danger-soft); }
+  .field .hint { font-size: 11.5px; color: var(--text-muted); }
+  .field select option { background: var(--bg-elevated); color: var(--text-primary); }
+
+  .btn-row { display: flex; gap: 14px; align-items: center; margin-top: 30px; }
+  .calc-btn {
+    padding: 13px 30px; border-radius: 100px; background: var(--accent); color: #fff;
+    border: none; font-size: 14px; font-weight: 700; cursor: pointer; font: inherit;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .calc-btn:hover:not(:disabled) { background: var(--accent-hover); }
+  .calc-btn:active:not(:disabled) { transform: scale(0.98); }
+  .calc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .missing-note { font-size: 12.5px; color: var(--danger); }
+
+  .result-card {
+    display: none; margin-top: 30px; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 28px;
+    position: relative;
+  }
+  .result-card.visible { display: block; }
+  .result-card.error { border-color: rgba(248,113,113,0.35); background: var(--danger-soft); }
+  .result-card::before {
+    content: ''; position: absolute; top: 22px; right: 24px; width: 30px; height: 30px;
+    border-radius: 50%; background: var(--accent-soft);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b8def' stroke-width='2.2'%3E%3Cpath d='M3 17l6-6 4 4 8-8M21 7v6h-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center;
+  }
+  .result-card.error::before { display: none; }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .result-row .value { font-size: 16px; color: var(--text-primary); font-weight: 700; }
+  .status-note {
+    margin-top: 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 15px;
+  }
+  .error-text { font-size: 13.5px; color: var(--danger); }
+
+  .loading-row { display: none; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+  .loading-row.visible { display: flex; }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-note {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 24px; font-size: 12px; color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span class="brand-name">Your Company</span>
+  </div>
+  <button class="back-link" id="backLink">← Back to chat</button>
+</header>
+
+<div class="wrap">
+<div class="page">
+
+  <h1>IT / ITeS / ESDM Incentive Calculator</h1>
+  <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here.</p>
+
+  <div class="switcher-row">
+    <label>Project Type</label>
+    <select id="calcSwitcher">
+      <option value="itites">IT / ITeS Project</option>
+      <option value="esdm">ESDM Project</option>
+      <option value="datacenter">Data Center</option>
+      <option value="developer">Developer</option>
+    </select>
+  </div>
+
+  <div id="formArea"></div>
+
+  <div class="btn-row">
+    <button class="calc-btn" id="calcBtn" disabled>Calculate Incentive</button>
+    <span class="missing-note" id="missingNote"></span>
+  </div>
+
+  <div class="loading-row" id="loadingRow"><span class="spinner"></span> Calculating…</div>
+
+  <div class="result-card" id="resultCard"></div>
+
+  <div class="footer-note">Your inputs are sent securely and are not stored.</div>
+</div>
+</div>
+
+<script>
+// ── API CONFIG (matches api.py / index.html) ───────────────
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
+
+document.getElementById('backLink').addEventListener('click', () => {
+  window.close();
+});
+
+const params = new URLSearchParams(window.location.search);
+
+// ── FIELD DEFINITIONS PER SUB-CALCULATOR ─────────────────────
+// Confirmed from live network capture (POST bodies), NOT guessed.
+// "type_of_premises" has at least Rented/Constructed confirmed; if the
+// upstream site has a third option (e.g. "Under Construction") it isn't
+// captured here yet — add it to the <select> below if you find it.
+const CALC_CONFIGS = {
+  itites: {
+    endpoint: "itites",
+    title: "Input for ITeS",
+    fields: [
+      { id: "type_of_premises", label: "Type of Premises", type: "select", options: ["Rented", "Constructed"] },
+      { id: "is_coworking", label: "Is it a Co-working Space?", type: "bool" },
+      { id: "is_premises_owned_or_bought", label: "Unit has bought pre-constructed premises or operates in own building?", type: "bool" },
+      { id: "district_category", label: "District Category", type: "select", options: ["A", "B", "C"] },
+      { id: "gross_fixed_capital_investment", label: "GFCI (in Rs. Crores)", type: "number" },
+      { id: "term_loan", label: "Term Loan (in Rs. Crores)", type: "number" },
+      { id: "women_entrepreneur", label: "Women Entrepreneur", type: "bool" },
+      { id: "carpet_area", label: "Carpet Area (in Sq.Ft.)", type: "number" },
+      { id: "no_of_employees", label: "No. of Employees", type: "number" },
+    ],
+    outputs: [
+      { key: "capex_assistance", label: "Capex Assistance" },
+      { key: "capex_assistance_crore", label: "Capex Assistance (in Cr)" },
+      { key: "interest_assistance", label: "Interest Assistance" },
+      { key: "interest_assistance_crore", label: "Interest Assistance (in Cr)" },
+      { key: "rental_assistance", label: "Rental Assistance" },
+      { key: "rental_assistance_crore", label: "Rental Assistance (in Cr)" },
+      { key: "employment_generation_assistance", label: "Employment Generation Assistance" },
+      { key: "employment_generation_assistance_crore", label: "Employment Generation Assistance (in Cr)" },
+    ],
+  },
+  esdm: {
+    endpoint: "esdm",
+    title: "Input for ESDM",
+    fields: [
+      { id: "gross_fixed_capital_investment", label: "GFCI (in Rs. Crores)", type: "number" },
+      { id: "term_loan", label: "Term Loan (in Rs. Crores)", type: "number" },
+      { id: "women_entrepreneur", label: "Women Entrepreneur", type: "bool" },
+    ],
+    outputs: [
+      { key: "capex_assistance", label: "Capex Assistance" },
+      { key: "capex_assistance_crore", label: "Capex Assistance (in Cr)" },
+      { key: "interest_assistance", label: "Interest Assistance" },
+      { key: "interest_assistance_crore", label: "Interest Assistance (in Cr)" },
+    ],
+  },
+  datacenter: {
+    endpoint: "datacenter",
+    title: "Input for Data Center",
+    fields: [
+      { id: "unit_type", label: "Unit Type", type: "select", options: ["Data Centre", "Anchor Data Centre"] },
+      { id: "gross_fixed_capital_investment", label: "GFCI (in Rs. Crores)", type: "number" },
+      { id: "term_loan", label: "Term Loan (in Rs. Crores)", type: "number" },
+      { id: "women_entrepreneur", label: "Women Entrepreneur", type: "bool" },
+    ],
+    outputs: [
+      { key: "capex_assistance", label: "Capex Assistance" },
+      { key: "capex_assistance_crore", label: "Capex Assistance (in Cr)" },
+    ],
+  },
+  developer: {
+    endpoint: "developer",
+    title: "Input for Developer",
+    // unit_type drives a conditional field (ites_category vs esdm_category) —
+    // handled specially in renderForm(), not as a plain field list.
+    fields: [
+      { id: "unit_type", label: "Unit Type", type: "select", options: ["IT/ITeS", "ESDM"] },
+      { id: "gross_fixed_capital_investment", label: "GFCI (in Rs. Crores)", type: "number" },
+      { id: "term_loan", label: "Term Loan (in Rs. Crores)", type: "number" },
+    ],
+    outputs: [
+      { key: "capex_assistance", label: "Capex Assistance" },
+      // NOTE: developer-calculator's response uses "capex_assistance_cr"
+      // (no "e") — confirmed twice live, different from the other three
+      // endpoints which use "capex_assistance_crore". Not a typo to fix.
+      { key: "capex_assistance_cr", label: "Capex Assistance (in Cr)" },
+    ],
+  },
+};
+
+const switcher = document.getElementById('calcSwitcher');
+const formArea = document.getElementById('formArea');
+const calcBtn = document.getElementById('calcBtn');
+const missingNote = document.getElementById('missingNote');
+const loadingRow = document.getElementById('loadingRow');
+const resultCard = document.getElementById('resultCard');
+
+let currentFields = {}; // id -> DOM element, for the active sub-calculator
+
+function fieldHtml(f) {
+  if (f.type === 'select') {
+    const opts = f.options.map(o => `<option value="${o}">${o}</option>`).join('');
+    return `<div class="field"><label>${f.label}<span class="req">*</span></label>
+      <select id="f_${f.id}"><option value="">-- Select --</option>${opts}</select></div>`;
+  }
+  if (f.type === 'bool') {
+    return `<div class="field"><label>${f.label}<span class="req">*</span></label>
+      <select id="f_${f.id}"><option value="">-- Select --</option>
+      <option value="true">Yes</option><option value="false">No</option></select></div>`;
+  }
+  // number
+  return `<div class="field"><label>${f.label}<span class="req">*</span></label>
+    <input type="number" id="f_${f.id}" min="0" step="0.01" placeholder="e.g. 500"></div>`;
+}
+
+function renderForm() {
+  const calc = switcher.value;
+  const cfg = CALC_CONFIGS[calc];
+  resultCard.classList.remove('visible', 'error');
+  resultCard.innerHTML = '';
+
+  let html = `<div class="section-label">${cfg.title}</div><div class="grid" id="staticGrid">`;
+  cfg.fields.forEach(f => { html += fieldHtml(f); });
+  html += `</div>`;
+
+  // Developer: conditional category field, rendered in its own grid so it
+  // can be swapped without wiping the static fields above it.
+  if (calc === 'developer') {
+    html += `<div class="grid" id="devDynamicGrid" style="margin-top:18px;"></div>`;
+  }
+
+  formArea.innerHTML = html;
+  bindFields(calc, cfg);
+
+  if (calc === 'developer') {
+    renderDeveloperCategoryField();
+    document.getElementById('f_unit_type').addEventListener('change', () => {
+      renderDeveloperCategoryField();
+      validate();
+    });
+  }
+
+  prefillFromParams(calc, cfg);
+  validate();
+}
+
+function renderDeveloperCategoryField() {
+  const unitType = document.getElementById('f_unit_type').value;
+  const grid = document.getElementById('devDynamicGrid');
+  if (unitType === 'IT/ITeS') {
+    grid.innerHTML = fieldHtml({ id: 'ites_category', label: 'ITeS Category', type: 'select', options: ['First Five', 'Non-First Five'] });
+  } else if (unitType === 'ESDM') {
+    grid.innerHTML = fieldHtml({ id: 'esdm_category', label: 'ESDM Category', type: 'select', options: ['CFC', 'W/O CFC'] });
+  } else {
+    grid.innerHTML = '';
+  }
+  bindDynamicField(grid);
+}
+
+function bindFields(calc, cfg) {
+  currentFields = {};
+  cfg.fields.forEach(f => {
+    const el = document.getElementById(`f_${f.id}`);
+    currentFields[f.id] = el;
+    el.addEventListener('input', () => { el.dataset.touched = '1'; validate(); });
+    el.addEventListener('change', () => { el.dataset.touched = '1'; validate(); });
+  });
+}
+
+function bindDynamicField(grid) {
+  grid.querySelectorAll('select, input').forEach(el => {
+    currentFields[el.id.replace('f_', '')] = el;
+    el.addEventListener('input', () => { el.dataset.touched = '1'; validate(); });
+    el.addEventListener('change', () => { el.dataset.touched = '1'; validate(); });
+  });
+}
+
+// ── PRE-FILL FROM URL (chat onboarding + free-text the model gathered) ──
+function prefillFromParams(calc, cfg) {
+  if (params.get('calc') && params.get('calc') !== calc) return; // only prefill the matching sub-calc
+  Object.keys(currentFields).forEach(id => {
+    const val = params.get(id);
+    if (val !== null && currentFields[id]) currentFields[id].value = val;
+  });
+  if (calc === 'developer') validate();
+}
+
+// ── VALIDATION ──────────────────────────────────────────────
+function requiredIdsFor(calc) {
+  if (calc === 'developer') {
+    const unitType = currentFields.unit_type ? currentFields.unit_type.value : '';
+    const base = ['unit_type', 'gross_fixed_capital_investment', 'term_loan'];
+    if (unitType === 'IT/ITeS') return [...base, 'ites_category'];
+    if (unitType === 'ESDM') return [...base, 'esdm_category'];
+    return base;
+  }
+  return Object.keys(currentFields);
+}
+
+function validate() {
+  const calc = switcher.value;
+  const required = requiredIdsFor(calc);
+  const missing = required.filter(id => !currentFields[id] || !currentFields[id].value.trim());
+
+  required.forEach(id => {
+    const el = currentFields[id];
+    if (el) el.classList.toggle('invalid', missing.includes(id) && el.dataset.touched === '1');
+  });
+
+  calcBtn.disabled = missing.length > 0;
+  missingNote.textContent = missing.length ? `${missing.length} required field${missing.length > 1 ? 's' : ''} remaining` : '';
+  return missing.length === 0;
+}
+
+function currentValues() {
+  const calc = switcher.value;
+  const required = requiredIdsFor(calc);
+  const values = {};
+  required.forEach(id => {
+    if (currentFields[id]) values[id] = currentFields[id].value.trim();
+  });
+  return values;
+}
+
+function renderOutputs(calc, data) {
+  const cfg = CALC_CONFIGS[calc];
+  let html = '';
+  cfg.outputs.forEach(o => {
+    const v = (data && data[o.key] !== undefined && data[o.key] !== null) ? data[o.key] : '—';
+    html += `<div class="result-row"><span class="label">${o.label}</span><span class="value">${v}</span></div>`;
+  });
+  return html;
+}
+
+// ── CALCULATE ────────────────────────────────────────────────
+calcBtn.addEventListener('click', async () => {
+  if (!validate()) return;
+  const calc = switcher.value;
+  const cfg = CALC_CONFIGS[calc];
+  const values = currentValues();
+  const CALCULATE_URL = `${API_BASE}/api/v1/calculate/${cfg.endpoint}`;
+
+  resultCard.classList.remove('visible', 'error');
+  loadingRow.classList.add('visible');
+  calcBtn.disabled = true;
+
+  try {
+    const r = await fetch(CALCULATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values }),
+    });
+    const d = await r.json();
+    loadingRow.classList.remove('visible');
+
+    if (!r.ok) {
+      resultCard.classList.add('visible', 'error');
+      resultCard.innerHTML = `<div class="status-note"><span class="error-text">${(d && d.detail) ? d.detail : 'Something went wrong while calculating. Please try again.'}</span></div>`;
+      return;
+    }
+
+    const result = d?.data || {};
+    resultCard.innerHTML = renderOutputs(calc, result) +
+      `<div class="status-note">${d?.message || 'Calculation completed.'}</div>`;
+    resultCard.classList.add('visible');
+  } catch (e) {
+    console.error('Calculate request failed:', e);
+    loadingRow.classList.remove('visible');
+    resultCard.classList.add('visible', 'error');
+    resultCard.innerHTML = `<div class="status-note"><span class="error-text">Could not reach the calculator service. Make sure the backend (api.py) is running at ${API_BASE}.</span></div>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+});
+
+switcher.addEventListener('change', renderForm);
+
+// ── INITIAL SETUP ────────────────────────────────────────────
+// If the chat passed a specific sub-calculator via ?calc=, preselect it.
+const initialCalc = params.get('calc');
+if (initialCalc && CALC_CONFIGS[initialCalc]) {
+  switcher.value = initialCalc;
+}
+renderForm();
+</script>
+</body>
+</html>

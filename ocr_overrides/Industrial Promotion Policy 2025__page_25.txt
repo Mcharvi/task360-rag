@@ -1,0 +1,38 @@
+e e | e
+Financial Incentives
+8.1 Investment Promotion Assistance
+Basic Investment Promotion Assistance (BIPA):
+Basic Investment Promotion Assistance for large units shall vary between 40% to
+10% based on the below formula:
+BIPA=IF(EFCI>2000, 200,IF(EFCI<=50, 0.4*EFCI,MIN(15 + 0.08*(EFCI-50)
++ (EFCI/12) * ((1/((1+EXP(-5.9*(1 - EFCI/2490))))(1 - EFCI/2490)) + 9.3(1 -
+EFCI/2500),0.4*EFCI,200)))
+A. BIPA shall be limited to maximum %200 Crore.
+B. BIPA shall be provided in 7 equal annual instalments defined as Yearly BIPA.
+Incentive Multipliers
+# MULTIPLIER DESCRIPTION
+1 Gross Supply Multiple For 1° year, GSM shall be 1, provided
+(GSM) utilization of the total installed capacity is
+40%.
+For 2™ year onwards, GSM shall be 1
+provided the production is 75% of previous
+peak year or 50% of installed capacity,
+whichever is more.
+In case the above conditions are not fulfilled,
+GSM shall be reduced proportionately.
+2 Export Multiple (EM) 1.0 to 1.3 for exports ranging from 25% to
+75% as per Annexure III.
+The Export Multiple shall be ‘1’ for units
+coming in SEZ areas.
+3 Employment Multiple 1.0 to 1.5 for employment over 100
+employees to 2,500 employees as per
+Annexure IV.
+4 Geographical Multiple Multiple of 1.3 for setting up units in Priority
+Blocks.
+However, this geographical multiple shall be
+‘1’ for cement units.
+8.2. Power Related Assistance
+Power Tariff Rebate: New units in the State purchasing power from the DISCOMS/
+GRID shall be provided the tariff rebate, if any, as per the annual tariff plan
+orders issued by Madhya Pradesh Electricity Regulatory Commission (MPERC).
+14

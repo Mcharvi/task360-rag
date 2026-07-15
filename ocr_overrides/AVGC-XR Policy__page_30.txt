@@ -1,0 +1,43 @@
+Annexure 2:
+
+Mobile and Non-Mobile Platform Definition
+
+Mobile Platforms
+
+"Mobile Platforms" in the context of video game development and platforms refer to devices and
+operating systems designed for portability and used on the go. This includes:
+
+- Smartphones: Devices running on iOS (e.g., iPhone) and Android operating syste
+
+- Tablets: Larger portable devices also running on iOS, Android, or other mobile operating
+systems, offering similar functionalities to smartphones but with larger screens.
+
+- Wearable Devices: Smartwatches and other wearable tech that can run games or gaming
+applications, although these are less common as primary gaming platforms.2. Non-Mobile Platforms
+"Non-Mobile Platforms" in the context of video game development and platforms refer to devices
+and systems that are generally stationary and not designed for portability. This includes:
+
+- Handheld Gaming Consoles: Portable gaming devices such as the Nintendo Switch (in
+handheld mode), PlayStation Vita, Steam Deck and similar devices that are designed primarily
+for gaming but are portable.
+
+- Consoles: Home gaming consoles such as PlayStation, Xbox, and the Nintendo Switch (in
+docked mode), which are typically connected to a TV or monitor and are designed to remain in
+one location.- PCs: Desktop and laptop computers running on operating systems such as Windows, macOS,
+or Linux. While laptops can be portable, they are generally considered non-mobile in this
+context due to their usage scenarios and development considerations.
+
+- Arcade Machines: Dedicated gaming machines found in arcades or entertainment centers,
+which are stationary and not designed to be moved.
+
+- Virtual Reality (VR) Systems: VR setups that include headsets and sensors, which are typically
+used in a fixed location due to the need for external tracking hardware and space
+requirements.- Browser-Based Games: Games that run directly in a web browser (e.g., Chrome, Firefox, Safari)
+using technologies like HTML5, JavaScript, and WebGL. These games do not require
+downloading and can be played on any device with a compatible browser.
+
+- Cloud Gaming Services: Platforms that allow streaming of games through a web browser,
+such as NVIDIA GeForce Now, and Microsoft xCloud. These services run games on remote
+servers and stream the video output to the player's device.
+
+9

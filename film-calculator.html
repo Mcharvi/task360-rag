@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Film Tourism Incentive Calculator — Task360</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #EEF2FF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; padding: 28px 32px 60px; }
+  .page { width: 100%; max-width: 900px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 36px 44px; box-shadow: 0 4px 40px rgba(37,99,235,0.07); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748B; text-decoration: none; margin-bottom: 18px; }
+  .back-link:hover { color: #2563EB; }
+
+  h1 { font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+  .subhead { font-size: 13.5px; color: #64748B; margin-bottom: 28px; }
+  .subhead b { color: #2563EB; }
+
+  .category-note { display: none; align-items: center; gap: 8px; background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 10px 14px; margin-bottom: 22px; font-size: 12.5px; color: #92400E; }
+  .category-note.visible { display: flex; }
+
+  .section-label { font-size: 13px; font-weight: 700; color: #2563EB; letter-spacing: 0.04em; text-transform: uppercase; margin: 26px 0 14px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .field label .req { color: #DC2626; margin-left: 2px; }
+.field select, .field input[type="number"] {
+  width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box;
+  padding: 10px 14px; border: 1.5px solid #CBD5E1; border-radius: 10px;
+  background: #fff; color: #1E293B; font-size: 14px; font-family: inherit;
+  outline: none; transition: border-color 0.15s;
+}
+.field select { min-width: 0; } 
+  /* Long option text (e.g. the "Additional Grant" values) must not force
+     the closed <select> box itself wider than its grid column — clip the
+     displayed value instead. The dropdown's open option list is unaffected
+     and can still show full text, wrapping if the browser supports it. */
+  .field select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .field select option {
+    white-space: normal;
+  }
+  .field select:focus, .field input[type="number"]:focus { border-color: #2563EB; }
+  .field select.invalid, .field input.invalid { border-color: #FCA5A5; background: #FEF2F2; }
+  .field input[disabled] { background: #F1F5F9; color: #64748B; }
+  .field .hint { font-size: 11.5px; color: #94A3B8; }
+
+  .btn-row { margin: 0px 0; display: flex; gap: 10px; align-items: center; margin-top: 26px; }
+  .calc-btn { padding: 12px 28px; border-radius: 100px; background: #2563EB; color: #fff; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font: inherit; transition: background 0.15s; }
+  .calc-btn:hover { background: #1D4ED8; }
+  .calc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .missing-note { font-size: 12.5px; color: #DC2626; }
+
+  .result-card { display: none; margin-top: 28px; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 22px 24px; }
+  .result-card.visible { display: block; }
+  .result-card.error { background: #FEF2F2; border-color: #FECACA; }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row .label { font-size: 13px; color: #334155; font-weight: 600; }
+  .result-row .value { font-size: 18px; color: #15803D; font-weight: 800; }
+  .result-row .value.not-eligible { color: #B91C1C; font-size: 15px; }
+  .status-note { margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.55; background: #fff; border-radius: 10px; padding: 12px 14px; }
+  .error-text { font-size: 13.5px; color: #B91C1C; }
+
+  .loading-row { display: none; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #64748B; }
+  .loading-row.visible { display: flex; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #CBD5E1; border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 28px; font-size: 12px; color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" id="backLink" href="index.html">← Close this tab and return to your chat</a>
+
+  <h1>Film Tourism Incentive Calculator</h1>
+  <p class="subhead">Powered by the official <b>MP Invest</b> incentive calculator. Figures are computed live by their system, not estimated here. Covers feature films, web series/OTT originals, documentaries and short films.</p>
+
+  <div class="category-note" id="categoryNote">
+    ⚠️ You told the assistant you're shooting an <b>International Film / TV Serial</b>. This calculator is currently wired only for the Feature Film / Web Series / Documentary / Short Film incentive. Figures below won't apply to an international production.
+  </div>
+
+  <div class="section-label">Film Details</div>
+  <div class="grid">
+    <div class="field">
+      <label>Type of Film<span class="req">*</span></label>
+      <select id="film_type">
+        <option value="">-- Select --</option>
+        <option value="First Feature Film">First Feature Film</option>
+        <option value="Second Feature Film">Second Feature Film</option>
+        <option value="Third Feature Film">Third Feature Film</option>
+        <option value="Web Series / OTT Original Show">Web Series / OTT Original Show</option>
+        <option value="Documentary Film">Documentary Film</option>
+        <option value="Short Film">Short Film</option>
+      </select>
+      <span class="hint">Options shown are inferred from public policy summaries — confirm against your constants file if they don't match.</span>
+    </div>
+    <div class="field">
+      <label>Additional Grant for Feature Film<span class="req">*</span></label>
+      <select id="additional_grant_type">
+        <option value="">-- Select --</option>
+        <option value="Not Applicable">Not Applicable</option>
+        <option value="MP is prominently featured and tourism of the state gets direct benefit, decided by Film Facilitation Cell">MP is prominently featured and tourism of the state gets direct benefit, decided by Film Facilitation Cell</option>
+        <option value="Film promotes regional language and culture of Madhya Pradesh">Film promotes regional language and culture of Madhya Pradesh</option>
+        <option value="Film is shot at a state-recognized heritage site">Film is shot at a state-recognized heritage site</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-label">Shooting Days</div>
+  <div class="grid">
+    <div class="field">
+      <label>Total Shooting Days<span class="req">*</span></label>
+      <input type="number" id="total_shooting_days" min="0" placeholder="e.g. 100">
+    </div>
+    <div class="field">
+      <label>Shooting Days in MP<span class="req">*</span></label>
+      <input type="number" id="shooting_days_in_mp" min="0" placeholder="e.g. 60">
+    </div>
+  </div>
+
+  <div class="section-label">Cost & Expenditure</div>
+  <div class="grid">
+    <div class="field">
+      <label>Total Cost of the Film — in ₹ Crore<span class="req">*</span></label>
+      <input type="number" id="total_cost_of_film" min="0" step="0.01" placeholder="e.g. 20">
+    </div>
+    <div class="field">
+      <label>Expenditure Incurred in MP — in ₹ Crore<span class="req">*</span></label>
+      <input type="number" id="expenditure_in_mp" min="0" step="0.01" placeholder="e.g. 8">
+    </div>
+    <div class="field full">
+      <label>Shooting Permission Fees — in ₹ Crore<span class="req">*</span></label>
+      <input type="number" id="shooting_permission_fees" min="0" step="0.01" placeholder="e.g. 0.5">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="calc-btn" id="calcBtn" disabled>Calculate Incentive</button>
+    <span class="missing-note" id="missingNote"></span>
+  </div>
+
+  <div class="loading-row" id="loadingRow"><span class="spinner"></span> Calculating…</div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-row">
+      <span class="label">Upper Limit of the Subsidy (₹ Cr)</span>
+      <span class="value" id="outUpperLimit">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Threshold for Cost of Film (%)</span>
+      <span class="value" id="outThresholdCost">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Threshold for Expenditure in MP (%)</span>
+      <span class="value" id="outThresholdExp">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Criteria of Shooting Days in MP (%)</span>
+      <span class="value" id="outShootingCriteria">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Subsidy</span>
+      <span class="value" id="outSubsidy">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Additional Grant (₹ Cr)</span>
+      <span class="value" id="outAdditionalGrant">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Total Subsidy on Cost of Production (₹ Cr)</span>
+      <span class="value" id="outSubsidyCop">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Reimbursement of Shooting Fees (₹ Cr)</span>
+      <span class="value" id="outReimbursement">—</span>
+    </div>
+    <div class="result-row">
+      <span class="label">Total Subsidy (₹ Cr)</span>
+      <span class="value" id="outTotalSubsidy">—</span>
+    </div>
+    <div class="status-note" id="outStatus"></div>
+  </div>
+
+  <div class="footer-note">Your inputs are sent securely and are not stored.</div>
+</div>
+
+<script>
+// ── API CONFIG (matches api.py / index.html) ───────────────
+const PRODUCTION_API_BASE = "https://your-backend-domain.com"; // ← fill this in when you have it
+
+const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname)
+  || window.location.protocol === "file:";
+
+const API_BASE = isLocal ? "http://localhost:8000" : PRODUCTION_API_BASE;
+const CALCULATE_URL = API_BASE + "/api/v1/calculate/film";
+
+// ── FIELD REFS ──────────────────────────────────────────────
+document.getElementById('backLink').addEventListener('click', (e) => {
+  // This page is meant to be opened in its own tab from the chat, in which
+  // case the original chat tab is still alive, untouched, in the
+  // background — closing this tab is what actually "goes back" to it.
+  // window.close() only works on tabs the browser considers script-closable;
+  // if it's blocked (e.g. someone opened this page directly), fall through
+  // to the href and open a fresh assistant instead of doing nothing.
+  window.close();
+});
+
+const fields = {
+  film_type: document.getElementById('film_type'),
+  total_shooting_days: document.getElementById('total_shooting_days'),
+  shooting_days_in_mp: document.getElementById('shooting_days_in_mp'),
+  total_cost_of_film: document.getElementById('total_cost_of_film'),
+  expenditure_in_mp: document.getElementById('expenditure_in_mp'),
+  additional_grant_type: document.getElementById('additional_grant_type'),
+  shooting_permission_fees: document.getElementById('shooting_permission_fees'),
+};
+const calcBtn = document.getElementById('calcBtn');
+const missingNote = document.getElementById('missingNote');
+const loadingRow = document.getElementById('loadingRow');
+const resultCard = document.getElementById('resultCard');
+const categoryNote = document.getElementById('categoryNote');
+
+const outUpperLimit = document.getElementById('outUpperLimit');
+const outThresholdCost = document.getElementById('outThresholdCost');
+const outThresholdExp = document.getElementById('outThresholdExp');
+const outShootingCriteria = document.getElementById('outShootingCriteria');
+const outSubsidy = document.getElementById('outSubsidy');
+const outAdditionalGrant = document.getElementById('outAdditionalGrant');
+const outSubsidyCop = document.getElementById('outSubsidyCop');
+const outReimbursement = document.getElementById('outReimbursement');
+const outTotalSubsidy = document.getElementById('outTotalSubsidy');
+const outStatus = document.getElementById('outStatus');
+
+// ── PRE-FILL FROM URL (subquestion answers gathered during onboarding) ──
+// Fields simply absent from the URL stay blank and remain required here,
+// per spec — that covers both skipped onboarding subquestions and the
+// fields onboarding never asked about (shooting_days_in_mp,
+// expenditure_in_mp, additional_grant_type, shooting_permission_fees).
+const params = new URLSearchParams(window.location.search);
+if(params.get('film_type')) fields.film_type.value = params.get('film_type');
+if(params.get('total_shooting_days')) fields.total_shooting_days.value = params.get('total_shooting_days');
+if(params.get('total_cost_of_film')) fields.total_cost_of_film.value = params.get('total_cost_of_film');
+
+// "category" rides along as an extra query param (it's onboarding context,
+// not a calculator field) — surface a heads-up if it says "international",
+// since this particular calculator/endpoint is the Feature Film one.
+const category = params.get('category') || '';
+if(category.toLowerCase().includes('international')){
+  categoryNote.classList.add('visible');
+}
+
+// ── VALIDATION ──────────────────────────────────────────────
+function currentValues(){
+  return {
+    film_type: fields.film_type.value.trim(),
+    total_shooting_days: fields.total_shooting_days.value.trim(),
+    shooting_days_in_mp: fields.shooting_days_in_mp.value.trim(),
+    total_cost_of_film: fields.total_cost_of_film.value.trim(),
+    expenditure_in_mp: fields.expenditure_in_mp.value.trim(),
+    additional_grant_type: fields.additional_grant_type.value.trim(),
+    shooting_permission_fees: fields.shooting_permission_fees.value.trim(),
+  };
+}
+
+function validate(){
+  const values = currentValues();
+  const missing = Object.entries(values).filter(([,v]) => !v).map(([k]) => k);
+
+  Object.entries(fields).forEach(([id, el]) => {
+    el.classList.toggle('invalid', missing.includes(id) && el.dataset.touched === '1');
+  });
+
+  calcBtn.disabled = missing.length > 0;
+  missingNote.textContent = missing.length ? `${missing.length} required field${missing.length>1?'s':''} remaining` : '';
+  return missing.length === 0;
+}
+
+Object.values(fields).forEach(el => {
+  el.addEventListener('input', () => { el.dataset.touched = '1'; validate(); });
+  el.addEventListener('change', () => { el.dataset.touched = '1'; validate(); });
+});
+validate();
+
+// ── CALCULATE ────────────────────────────────────────────────
+calcBtn.addEventListener('click', async () => {
+  if(!validate()) return;
+  const values = currentValues();
+
+  resultCard.classList.remove('visible', 'error');
+  loadingRow.classList.add('visible');
+  calcBtn.disabled = true;
+
+  try{
+    const r = await fetch(CALCULATE_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ values })
+    });
+    const d = await r.json();
+    loadingRow.classList.remove('visible');
+
+    if(!r.ok){
+      resultCard.classList.add('visible', 'error');
+      outStatus.innerHTML = `<span class="error-text">${(d && d.detail) ? d.detail : 'Something went wrong while calculating. Please try again.'}</span>`;
+      [outUpperLimit, outThresholdCost, outThresholdExp, outShootingCriteria, outSubsidy, outAdditionalGrant, outSubsidyCop, outReimbursement, outTotalSubsidy].forEach(el => el.textContent = '—');
+      return;
+    }
+
+    // Response shape from the official MP Invest API (see captured request):
+    // { success, message, data: { upper_limit_subsidy, threshold_for_cost_film,
+    //   threshold_for_expenditure_mp, criteria_of_days_shooting_mp, subsidy,
+    //   additional_grant, total_subsidy_cop, reimbursement_sfp, total_subsidy } }
+    const data = d?.data || {};
+    const fmtCr = (v) => (typeof v === 'number') ? `₹ ${v.toLocaleString('en-IN', {maximumFractionDigits: 2})} Cr` : '—';
+    const fmtPct = (v) => (typeof v === 'number') ? `${(v * 100).toLocaleString('en-IN', {maximumFractionDigits: 0})}%` : '—';
+
+    outUpperLimit.textContent = fmtCr(data.upper_limit_subsidy);
+    outThresholdCost.textContent = fmtPct(data.threshold_for_cost_film);
+    outThresholdExp.textContent = fmtPct(data.threshold_for_expenditure_mp);
+    outShootingCriteria.textContent = fmtPct(data.criteria_of_days_shooting_mp);
+
+    const notEligible = data.subsidy === 'Not Eligible';
+    outSubsidy.textContent = typeof data.subsidy === 'number' ? fmtCr(data.subsidy) : (data.subsidy || '—');
+    outSubsidy.classList.toggle('not-eligible', notEligible);
+
+    outAdditionalGrant.textContent = fmtCr(data.additional_grant);
+    outSubsidyCop.textContent = fmtCr(data.total_subsidy_cop);
+    outReimbursement.textContent = fmtCr(data.reimbursement_sfp);
+    outTotalSubsidy.textContent = fmtCr(data.total_subsidy);
+
+    outStatus.textContent = d.message || '';
+    resultCard.classList.add('visible');
+  } catch(e){
+    console.error('Calculate request failed:', e);
+    loadingRow.classList.remove('visible');
+    resultCard.classList.add('visible', 'error');
+    outStatus.innerHTML = `<span class="error-text">Could not reach the calculator service. Make sure the backend (api.py) is running at ${API_BASE}.</span>`;
+  } finally {
+    calcBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

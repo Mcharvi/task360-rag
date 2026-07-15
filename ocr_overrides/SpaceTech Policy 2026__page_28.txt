@@ -1,0 +1,36 @@
+8.4.3. SpaceTech Testing Infrastructure Support Scheme
+To reduce dependency on external testing facilities and accelerate product validation, the Government
+shall support the establishment of environmental, EMI/EMC, and performance testing labs.
+
+- Upto 15 crore per facility as capital grant for equipment and setup.
+
++ 30% reimbursement of operational testing costs for startups and MSMEs using these facilities.
+8.4.4. High-Performance Computing (HPC) and Data Infrastructure Grant
+To support satellite data analytics, simulation, and Al-driven modelling, the Government shall fund the
+establishment of HPC centers and satellite data repositories.
+
+- Upto 10 crore per centre for infrastructure, software, and data acquisition.
+
+- Free access to MP-based startups and academic researchers for the first year.8.5 SpaceTech Awareness, Education, and Scientific Infrastructure
+Space technology is rapidly transforming global industries, and Madhya Pradesh aims to cultivate a
+future ready workforce by embedding space science into education and public engagement. This
+section of the policy focuses on inspiring students and communities through structured outreach,
+immersive learning environments, and flagship infrastructure. These initiatives will ensure inclusive
+access to space education and position MP as a cradle of space innovation.
+Madhya Pradesh Council of Science & Technology (MPCST) will be responsible for undertaking the
+implementation of awareness, education, and scientific infrastructure. On behalf of the Department of
+Science & Technology, MPCST will drive programs to inspire students and the public, integrate space
+science into educational curricula, and develop flagship projects such as the Space Exploration Park,
+‘Antariksh Vihar".
+8.5.1. Establishment of Soace Exploration Park: Antariksh Vihar
+To inspire scientific curiosity and innovation among students and the public, the Government of Madhya
+Pradesh shall establish a world-class Space Exploration Park ‘Antariksh Vihar’ as part of MPCST’s
+flagship Science City initiative. This gallery will serve as a dynamic, immersive space for learning and
+exploration of soace technologies.
+i. Components
+- SpaceTech Pavilion with satellite models, launch simulations, and VR
+experiences.- Planetarium with real-time data feeds from ISRO missions.
+
+- Innovation labs for school and college students.
+
+- Auditorium for lectures, exhibitions, and national science festivals.
