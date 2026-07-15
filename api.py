@@ -38,7 +38,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:5500,http://127.0.0.1:5500"  # dev defaults
+    "http://localhost:5500,http://127.0.0.1:5500" 
+    "https://task360-rag.onrender.com" # dev defaults
 ).split(",")
 
 app.add_middleware(
@@ -226,7 +227,23 @@ POLICY_SUBQUESTIONS = {
             },
         ],
     },
+
+
+    "Manufacturing & Industry": {
+        "calculator_slug": "dipip",
+        "questions": [
+            {
+                "id": "investment",
+                "context_label": "Project Investment (in Cr)",
+                "type": "number",
+                "label": "What is your total project investment (in ₹ Crore)?",
+                "label_hi": "आपका कुल परियोजना निवेश कितना है (₹ करोड़ में)?",
+                "placeholder": "e.g. 500",
+            },
+        ],
+    },
 }
+
 
 FALLBACK_PHRASE = "I could not find the answer in the provided documents."
 
