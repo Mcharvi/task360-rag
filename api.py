@@ -1068,25 +1068,7 @@ class CalculateRequest(BaseModel):
     values: dict[str, str]
 
 
-@app.post("/api/v1/calculate/{policy_slug}")
-@limiter.limit("15/minute")
-def calculate_subsidy(request: Request, policy_slug: str, data: CalculateRequest):
-    cfg = POLICY_CALCULATORS.get(policy_slug)
-    if not cfg:
-        raise HTTPException(status_code=404, detail=f"No calculator configured for '{policy_slug}'.")
 
-    missing = [f for f in cfg["requires"] if not data.values.get(f)]
-    if missing:
-        raise HTTPException(status_code=400, detail=f"Missing required field(s): {', '.join(missing)}")
-
-    payload = {}
-    for our_id, their_key in cfg["field_map"].items():
-        raw_val = data.values.get(our_id, "")
-        transform = cfg.get("transform", {}).get(our_id)
-        try:
-            payload[their_key] = transform(raw_val) if transform else raw_val
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=400, detail=f"Invalid value for '{our_id}'.")
 
 @app.post("/api/v1/calculate/{policy_slug}")
 @limiter.limit("15/minute")
