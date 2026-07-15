@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+slowapi
+httpx
+cohere
+openai
+langchain-openai
+langchain-chroma
+chromadb
