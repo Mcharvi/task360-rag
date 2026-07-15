@@ -724,7 +724,7 @@ def chat(request: Request, data: ChatRequest):
 
     # RERANK — wider window when Layer 1 detected a multi-entity comparison,
     # so a 2nd/3rd compared entity doesn't get squeezed out of a fixed top_n.
-    rerank_top_n = 10 if len(sub_queries) > 1 else 8
+    rerank_top_n = 8 if len(sub_queries) > 1 else 6
     try:
         rerank_response = co.rerank(
             model="rerank-v3.5",
@@ -872,7 +872,7 @@ Answer:"""
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1000,
             temperature=0,
