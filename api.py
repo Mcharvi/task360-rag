@@ -545,8 +545,14 @@ Return ONLY a JSON object with two fields:
   fewer. If the user has an onboarding sector selected, that sector's own
   policy file must always be included even if you also include others.
 - "sub_queries": array of 1 to 4 rewritten, self-contained, keyword-rich
-  search queries suitable for semantic vector search. Resolve vague
-  references ("this", "that", "expansion") using the conversation history.
+  search queries suitable for semantic vector search.Resolve vague references ("this", "that", "expansion") using the conversation history.
+  Pay special attention to short reactive follow-ups with no topic words of their own
+  (e.g. "so i wont get it?", "why not?", "what about that one?") — these carry ZERO
+  retrievable meaning on their own. For these, the rewritten sub_query must restate the
+  full scenario from the conversation history in self-contained terms, e.g. "so i wont
+  get it?" following a solar-subsidy conversation becomes something like "Does the policy
+  specify whether a second/additional solar plant by an existing owner is eligible for
+  subsidy?" — not a rewrite of the two-word follow-up itself.
   Use policy terminology. Do not answer the question — only rewrite it.
   IMPORTANT: if the question names or compares 2 or more distinct entities
   (e.g. "Healthcare vs MSME", "Facility A, B, and C"), return ONE separate,
@@ -728,7 +734,7 @@ def chat(request: Request, data: ChatRequest):
     try:
         rerank_response = co.rerank(
             model="rerank-v3.5",
-            query=actual_question,
+            query=rerank_query,
             documents=[doc.page_content for doc in all_docs][:100],
             top_n=rerank_top_n
         )
@@ -789,6 +795,18 @@ Grounding rules (non-negotiable):
 - If the context does not explicitly answer part of the question, say plainly
   that the policy does not specify this — do not speculate or hedge with
   phrases like "it seems" or "it appears."
+- Do not advise the user to contact authorities, visit a website, apply elsewhere, or
+  consult another source, UNLESS the retrieved context itself explicitly states that
+  instruction. Directing users elsewhere when the context doesn't say so is not grounded.
+- Do not use a provision about a related-but-different scenario (e.g. policy
+  transition/grandfathering rules, general registration requirements) as if it answers
+  the user's specific scenario. If the retrieved passages only discuss the topic
+  generally and don't address the user's exact situation, say plainly that the specific
+  scenario isn't addressed in the policy — do not stretch a nearby passage into an answer.
+- Do not conclude the user IS or WILL BE eligible for something just because the context
+  states that "projects" or "developers" in general receive an incentive. Only state
+  eligibility if the context explicitly addresses the user's specific situation (e.g. an
+  existing plant owner adding a second plant, as opposed to incentives for projects generally).
 - Only if no relevant provisions exist at all for the question, reply with
   exactly this sentence and nothing else: {FALLBACK_PHRASE}
 
