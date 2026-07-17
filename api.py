@@ -38,8 +38,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:5500,http://127.0.0.1:5500" 
-    "https://task360-rag.onrender.com" # dev defaults
+    "http://localhost:5500,http://127.0.0.1:5500,"
+    "https://task360-rag.onrender.com"
 ).split(",")
 
 app.add_middleware(
@@ -799,6 +799,12 @@ Grounding rules (non-negotiable):
 - Do not advise the user to contact authorities, visit a website, apply elsewhere, or
   consult another source, UNLESS the retrieved context itself explicitly states that
   instruction. Directing users elsewhere when the context doesn't say so is not grounded.
+- Do not mention, suggest, or link to an "incentive calculator" or any calculator tool
+  UNLESS a "CALCULATOR RULE" section explicitly appears above in THIS SAME prompt for
+  THIS SPECIFIC request. If no such section appears above, there is no calculator for
+  this sector/question — do not invent one, and do not reuse calculator language from
+  earlier turns in the Previous Conversation even if it appeared there for a different
+  sector or question.
 - Do not use a provision about a related-but-different scenario (e.g. policy
   transition/grandfathering rules, general registration requirements) as if it answers
   the user's specific scenario. If the retrieved passages only discuss the topic
@@ -849,27 +855,37 @@ Previous Conversation:
 Context:
 {context}
 
-Cross-questioning (applies to every sector, use sparingly):
-- Most questions should get a direct answer. Only ask a clarifying question
-  when the context genuinely contains DIFFERENT answers depending on a
-  detail the user hasn't given — not just because more detail would be
-  "nice to have."
-- Before asking for ANY field, check three places, in this exact order, and
-  stop checking as soon as you find it: (1) the onboarding context above,
-  (2) the Previous Conversation below, (3) the current Question text
-  itself — including anything the user stated in free text, in any
-  phrasing. If the value appears in ANY of these three places, use it
-  directly and do NOT ask for it — even if it was phrased differently than
-  you'd expect, and even if this is the first turn.
-- If the user is asking you to calculate or state a specific figure, and
-  that figure genuinely depends on a number they haven't given anywhere
-  (per the three checks above) per the context's own formula, you MUST ask
-  for that number — do not answer with a caveated guess.
-- If the question is too vague to search meaningfully at all, that also
-  warrants a clarifying question instead of guessing.
-- A clarifying question should be ONE focused question, not a list.
-- Never ask about something the onboarding context, previous conversation,
-  or the question itself already answered.
+Cross-questioning (applies to every sector, use proactively for personalized questions):
+- Distinguish between two kinds of questions:
+  (a) FACTUAL/DEFINITIONAL — "what is TPC", "what does the policy say about X",
+      "is GST refund covered" — these should be answered directly from context,
+      no clarifying question needed.
+  (b) PERSONALIZED/ELIGIBILITY — anything where the user is describing their own
+      situation, asking what THEY are eligible for, or what benefits THEY would get
+      (e.g. "I already have land", "I'm planning a hospital", "will I get subsidy") —
+      for these, before answering, check whether you already know the key details that
+      determine the answer for this sector (district category, facility/project type,
+      investment size, bed count, or whatever this sector's onboarding fields cover).
+- Before asking for ANY field, check three places, in this exact order, and stop
+  checking as soon as you find it: (1) the onboarding context above, (2) the Previous
+  Conversation below, (3) the current Question text itself. If the value appears in ANY
+  of these, use it and do NOT ask again.
+- For a PERSONALIZED question, if 1 or more determinative fields are still genuinely
+  unknown after that three-way check, ask for the single most important missing one
+  first — do not answer with a generic, un-personalized list of "possible" incentives
+  as a substitute for asking. One focused clarifying question, not a list of questions.
+- Once you DO have enough details to answer, synthesize across ALL relevant angles the
+  context supports for that situation (e.g. land-related benefits, capital subsidy,
+  fiscal incentives, non-fiscal incentives, required approvals) rather than answering
+  only the narrowest interpretation of what was asked.
+- If the user is asking you to calculate or state a specific figure, and that figure
+  genuinely depends on a number they haven't given anywhere (per the three checks
+  above) per the context's own formula, you MUST ask for that number — do not answer
+  with a caveated guess.
+- If the question is too vague to search meaningfully at all, that also warrants a
+  clarifying question instead of guessing.
+- Never ask about something the onboarding context, previous conversation, or the
+  question itself already answered.
 
 Output format (non-negotiable):
 Respond with ONLY a single valid JSON object — no markdown code fences, no
