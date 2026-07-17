@@ -731,6 +731,7 @@ def chat(request: Request, data: ChatRequest):
     # RERANK — wider window when Layer 1 detected a multi-entity comparison,
     # so a 2nd/3rd compared entity doesn't get squeezed out of a fixed top_n.
     rerank_top_n = 8 if len(sub_queries) > 1 else 6
+    rerank_query = " ".join(sub_queries) if sub_queries else actual_question
     try:
         rerank_response = co.rerank(
             model="rerank-v3.5",
