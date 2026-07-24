@@ -62,6 +62,7 @@ vectorstore = Chroma(
 
 session_histories: dict[str, list[str]] = {}
 MAX_HISTORY = 20
+session_last_clarify: dict[str, str] = {}  # session_id -> pending clarifying question text
 
 # -------------------------
 # LOAD POLICY METADATA
@@ -244,7 +245,7 @@ POLICY_SUBQUESTIONS = {
     },
 }
 
-
+_SKIP_SECTOR_VALUES = {"all sectors", "not sure", "skip", "search all policies", "haven't decided", "not decided"}
 FALLBACK_PHRASE = "I could not find the answer in the provided documents."
 
 
@@ -309,7 +310,7 @@ def parse_context(raw_question: str):
             if val.lower() == "hindi":
                 respond_in_hindi = True
         elif key == "Sector":
-            sector = val
+            sector = None if val.strip().lower() in _SKIP_SECTOR_VALUES else val
         else:
             extra_context[key] = val
 
@@ -332,6 +333,29 @@ _EXPORT_PATTERNS = [
     re.compile(r"(\d{1,3})\s*%\s*export", re.IGNORECASE),
     re.compile(r"export\s*percentage\s*is\s*(\d{1,3})\s*%?", re.IGNORECASE),
 ]
+
+_DECLINE_PATTERNS = [
+    "not sure", "unsure", "don't know", "dont know", "no idea", "no clue",
+    "not decided", "haven't decided", "havent decided", "not yet decided",
+    "skip", "can't say", "cant say", "just tell me", "in general", "generally",
+    "not applicable", "n/a", "na",
+]
+
+
+def is_decline_response(text: str) -> bool:
+    """
+    Deterministic check for whether a short reply is declining to answer a
+    just-asked clarifying question, rather than relying on the LLM to infer
+    this from conversation history across turns. That inference was
+    unreliable at temperature 0 with gpt-4o-mini and caused the same
+    clarifying question to be re-asked indefinitely. Restricted to short
+    replies (<60 chars) so a longer sentence that happens to contain one of
+    these phrases isn't misclassified as a decline.
+    """
+    t = text.strip().lower()
+    if len(t) > 60:
+        return False
+    return any(p in t for p in _DECLINE_PATTERNS)
 
 
 def extract_explicit_fields(question: str) -> dict[str, str]:
@@ -545,7 +569,8 @@ Return ONLY a JSON object with two fields:
   fewer. If the user has an onboarding sector selected, that sector's own
   policy file must always be included even if you also include others.
 - "sub_queries": array of 1 to 4 rewritten, self-contained, keyword-rich
-  search queries suitable for semantic vector search.Resolve vague references ("this", "that", "expansion") using the conversation history.
+  search queries suitable for semantic vector search. Resolve vague references
+  ("this", "that", "expansion") using the conversation history.
   Pay special attention to short reactive follow-ups with no topic words of their own
   (e.g. "so i wont get it?", "why not?", "what about that one?") — these carry ZERO
   retrievable meaning on their own. For these, the rewritten sub_query must restate the
@@ -553,12 +578,28 @@ Return ONLY a JSON object with two fields:
   get it?" following a solar-subsidy conversation becomes something like "Does the policy
   specify whether a second/additional solar plant by an existing owner is eligible for
   subsidy?" — not a rewrite of the two-word follow-up itself.
+  If the question asks whether the user's situation QUALIFIES AS or FALLS
+  UNDER a category (an MSME, a particular unit type, a particular scheme),
+  as opposed to just asking what the incentive amount is, generate one
+  sub_query specifically for the classification/definition criteria for
+  that category, separate from any sub_query about the incentive amount.
+  That classification sub_query must target the SPECIFIC structural or
+  configurational detail creating the ambiguity (e.g. part of the building
+  self-used and part leased to third parties, one unit performing multiple
+  distinct activities, shared premises between two different project types)
+  — not just the general category name on its own. Classification and
+  incentive-amount language usually live in different parts of the source
+  documents and both are needed to answer eligibility.
   Use policy terminology. Do not answer the question — only rewrite it.
-  IMPORTANT: if the question names or compares 2 or more distinct entities
-  (e.g. "Healthcare vs MSME", "Facility A, B, and C"), return ONE separate,
-  self-contained query PER entity (each naming that entity explicitly), so
-  each gets its own retrieval instead of being blended into one averaged
-  query. Otherwise return a single-item array with one query.
+  IMPORTANT: identify every DISTINCT thing the question is actually asking about
+    or describing — this includes named entities being compared, but also distinct  
+    activities, use-cases, or components within a single scenario (e.g. one part of
+    a project for self-use, another part being leased out; one benefit being asked  
+    about alongside a second, different benefit). For EACH distinct thing you
+    identify, return ONE separate, self-contained sub_query in policy terminology,
+    so each gets its own retrieval instead of being blended into one averaged
+    query that only captures the most salient part. If the question genuinely
+    describes only one thing, return a single-item array with one query.
 
 Example (comparison question):
 {{"files": ["Health Sector Investment Promotion policy.pdf", "MSME Development Policy 2025.pdf"], "sub_queries": ["Healthcare sector capital subsidy eligibility", "MSME capital subsidy eligibility"]}}
@@ -625,6 +666,46 @@ def deep_search(sub_queries: list[str], filenames: list[str]):
 
 
 # -------------------------
+# ELIGIBILITY GATE CHECK
+# Runs BEFORE the answer prompt, after retrieval/context is built. Single
+# job: does the context establish that the user's described configuration
+# qualifies for the category the question is asking about? Kept as its own
+# focused LLM call rather than folded into the (already crowded) answer
+# prompt, so this judgment doesn't compete with tone/formatting/numeric-
+# fidelity rules for the model's attention in one big call.
+# -------------------------
+
+def check_eligibility_gate(question: str, context: str) -> dict:
+    prompt = f"""Question: {question}
+
+Context excerpts:
+{context}
+
+Does the context explicitly establish whether the user's described
+configuration/scenario qualifies under the relevant policy category, or
+does it only contain the incentive amount without confirming eligibility
+for this specific configuration?
+
+Return ONLY JSON:
+{{
+  "gap_exists": true/false,
+  "unresolved_detail": "the specific structural detail in question, or empty string"
+}}"""
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=150,
+            temperature=0,
+            response_format={"type": "json_object"},
+        )
+        return json.loads(response.choices[0].message.content)
+    except Exception as e:
+        print(f"Eligibility gate check failed, defaulting to no gap: {e}")
+        return {"gap_exists": False, "unresolved_detail": ""}
+
+
+# -------------------------
 # LAYER 3 — LIGHT SEARCH ACROSS REMAINING DOCS
 # Adds a relevance-score floor so Layer 3 doesn't drag in loosely-related
 # noise from unrelated policies, and only fires when Layer 2 came up short
@@ -635,22 +716,27 @@ def deep_search(sub_queries: list[str], filenames: list[str]):
 LAYER3_MIN_DOCS = 4
 LAYER3_SCORE_FLOOR = 0.35  # tune against your embedding scale
 
-def light_search_remaining(question: str, already_searched: list[str], score_floor: float = LAYER3_SCORE_FLOOR):
-    try:
-        results = vectorstore.similarity_search_with_relevance_scores(question, k=8)
-    except Exception as e:
-        print(f"Layer 3 light search failed: {e}")
-        return []
+def light_search_remaining(questions: list[str], already_searched: list[str], score_floor: float = LAYER3_SCORE_FLOOR):
     remaining = []
-    for doc, score in results:
-        source = doc.metadata.get("source", "")
-        if any(fn in source for fn in already_searched):
+    seen = set()
+    for question in questions:
+        try:
+            results = vectorstore.similarity_search_with_relevance_scores(question, k=8)
+        except Exception as e:
+            print(f"Layer 3 light search failed for '{question}': {e}")
             continue
-        if score < score_floor:
-            continue
-        remaining.append(doc)
-    return remaining[:3]
-
+        for doc, score in results:
+            source = doc.metadata.get("source", "")
+            if any(fn in source for fn in already_searched):
+                continue
+            if score < score_floor:
+                continue
+            h = hash(doc.page_content[:200])
+            if h in seen:
+                continue
+            seen.add(h)
+            remaining.append(doc)
+    return remaining[:6]
 
 # -------------------------
 # REQUEST MODEL
@@ -679,12 +765,16 @@ def chat(request: Request, data: ChatRequest):
     history = session_histories.get(data.session_id, [])
     history_text = "\n".join(history)
 
+    pending_clarify = session_last_clarify.get(data.session_id)
+    user_declined = bool(pending_clarify) and is_decline_response(actual_question)
+
     print(f"\n{'='*50}")
     print(f"SESSION:  {data.session_id}")
     print(f"QUESTION: {actual_question}")
     print(f"SECTOR:   {sector}")
     print(f"EXTRA:    {extra_context}")
     print(f"HINDI:    {respond_in_hindi}")
+    print(f"DECLINED: {user_declined}")
     print('='*50)
 
     # LAYER 1
@@ -711,7 +801,7 @@ def chat(request: Request, data: ChatRequest):
     if sector and len(layer2_docs) >= LAYER3_MIN_DOCS:
         layer3_docs = []
     else:
-        layer3_docs = light_search_remaining(sub_queries[0], searched_files)
+        layer3_docs = light_search_remaining(sub_queries, searched_files)
 
     # MERGE + DEDUPE
     all_docs = []
@@ -762,60 +852,65 @@ def chat(request: Request, data: ChatRequest):
             context_parts.append(f"SOURCE: {source} | PAGE {page}\n\n{doc.page_content}")
     context = "\n\n".join(context_parts)
 
+    # ELIGIBILITY GATE — runs once context is assembled, before the answer
+    # prompt is built. See function docstring above for why this is a
+    # separate call rather than another rule stuffed into the answer prompt.
+    gate = check_eligibility_gate(actual_question, context)
+    gate_note = ""
+    if gate.get("gap_exists"):
+        gate_note = f"""
+NOTE: eligibility for "{gate.get('unresolved_detail', '')}" is not
+established in the context. Say this plainly as part of your answer — but
+still give the full answer otherwise: explain qualitatively what incentives
+would apply IF the configuration qualifies, still follow the Style
+guidelines below (structure, next steps), and still provide suggestions.
+Do not ask for a numeric field until this gap is addressed, and do not
+state a specific rupee/percentage figure as if it definitely applies — but
+do not cut the answer short either.
+"""
+
     language_instruction = "\nRespond entirely in Hindi. Use formal Hindi suitable for a government context.\n" if respond_in_hindi else ""
 
     sector_note = build_onboarding_note(sector, extra_context)
     calculator_note = build_calculator_note(sector, extra_context)
 
+    decline_note = ""
+    if user_declined:
+        decline_note = f"""
+IMPORTANT: the user was just asked this clarifying question:
+"{pending_clarify}"
+and their reply indicates they cannot or do not want to provide it. Do NOT
+ask this or any other clarifying question in this response. Set "type" to
+"answer": explain what the context supports without that value, and state
+plainly which exact figure or determination cannot be made without it.
+"""
+
     prompt = f"""You are an investment advisor helping someone evaluate setting up
 or expanding a business in Madhya Pradesh, using only the government policy
 excerpts provided below as your source of truth.
-{sector_note}{calculator_note}{language_instruction}
+{sector_note}{calculator_note}{decline_note}{language_instruction}{gate_note}
 Grounding rules (non-negotiable):
-- Answer ONLY using information explicitly stated in the context below.
-- Do not infer, guess, or fill in eligibility, incentives, deadlines, or
-  conditions that are not explicitly stated.
-- NEVER invent a calculation, scaling method, or proportion that is not
-  explicitly written in the context. If the user asks you to compute a
-  specific figure and the context doesn't give an explicit method for that
-  exact computation, say so plainly instead of producing a number.
-- When the context explicitly states a numeric cap, limit, percentage, or
-  other figure, copy that figure EXACTLY as written, digit for digit — do
-  not re-type it from memory of having read it, round it, or rescale it.
-  If the same figure appears more than once and looks inconsistent, prefer
-  the version embedded in a complete sentence over one that looks
-  truncated, and if you're not confident which is correct, say the context
-  gives a cap in this range/section without stating the exact digits,
-  rather than picking one.
-- If two or more excerpts describe what looks like the same kind of
-  incentive but use DIFFERENTLY STRUCTURED mechanisms, do NOT merge them
-  into a single answer — identify which SOURCE each mechanism comes from
-  and use the one that matches the user's onboarding sector / the policy
-  the question is actually about. Only mention a mechanism from a
-  different policy if you clearly attribute it by name.
-- If the context does not explicitly answer part of the question, say plainly
-  that the policy does not specify this — do not speculate or hedge with
-  phrases like "it seems" or "it appears."
-- Do not advise the user to contact authorities, visit a website, apply elsewhere, or
-  consult another source, UNLESS the retrieved context itself explicitly states that
-  instruction. Directing users elsewhere when the context doesn't say so is not grounded.
-- Do not mention, suggest, or link to an "incentive calculator" or any calculator tool
-  UNLESS a "CALCULATOR RULE" section explicitly appears above in THIS SAME prompt for
-  THIS SPECIFIC request. If no such section appears above, there is no calculator for
-  this sector/question — do not invent one, and do not reuse calculator language from
-  earlier turns in the Previous Conversation even if it appeared there for a different
-  sector or question.
-- Do not use a provision about a related-but-different scenario (e.g. policy
-  transition/grandfathering rules, general registration requirements) as if it answers
-  the user's specific scenario. If the retrieved passages only discuss the topic
-  generally and don't address the user's exact situation, say plainly that the specific
-  scenario isn't addressed in the policy — do not stretch a nearby passage into an answer.
-- Do not conclude the user IS or WILL BE eligible for something just because the context
-  states that "projects" or "developers" in general receive an incentive. Only state
-  eligibility if the context explicitly addresses the user's specific situation (e.g. an
-  existing plant owner adding a second plant, as opposed to incentives for projects generally).
-- Only if no relevant provisions exist at all for the question, reply with
+- Answer ONLY using what's explicitly stated in the context below. Never extend it —
+  no inferring unstated eligibility/incentives/deadlines, no inventing a calculation
+  or scaling method the context doesn't spell out, no using a general or adjacent
+  provision (e.g. "projects" broadly, transition/grandfathering rules, a similar-sounding
+  scenario) to answer a more specific situation it doesn't explicitly address. If a
+  computation or eligibility call depends on something the context doesn't state, say
+  so plainly instead of guessing.
+- Copy numeric figures (caps, limits, percentages) EXACTLY as written, digit for digit
+  — never round, rescale, or retype from memory. If the same figure appears
+  inconsistently across excerpts, prefer the one embedded in a complete sentence; if
+  still unsure, say the context gives a cap in this range without stating exact digits.
+- If two excerpts describe similarly-named incentives with DIFFERENTLY STRUCTURED
+  mechanisms, don't merge them — attribute each to its source, and use the one matching
+  the user's onboarding sector / the policy the question is actually about.
+- If part or all of the question isn't addressed in the context, say so plainly, no
+  hedging ("it seems", "it appears"). If NOTHING relevant exists at all, reply with
   exactly this sentence and nothing else: {FALLBACK_PHRASE}
+- Don't direct the user elsewhere (authorities, websites, other sources, a calculator)
+  unless the context explicitly says to, or a CALCULATOR RULE section appears above in
+  THIS SAME prompt for THIS request. Don't reuse calculator language from earlier turns
+  if no CALCULATOR RULE appears here now.
 
 Style guidelines:
 - Write like an investment advisor talking to a business owner, not like you
@@ -855,37 +950,24 @@ Previous Conversation:
 Context:
 {context}
 
-Cross-questioning (applies to every sector, use proactively for personalized questions):
-- Distinguish between two kinds of questions:
-  (a) FACTUAL/DEFINITIONAL — "what is TPC", "what does the policy say about X",
-      "is GST refund covered" — these should be answered directly from context,
-      no clarifying question needed.
-  (b) PERSONALIZED/ELIGIBILITY — anything where the user is describing their own
-      situation, asking what THEY are eligible for, or what benefits THEY would get
-      (e.g. "I already have land", "I'm planning a hospital", "will I get subsidy") —
-      for these, before answering, check whether you already know the key details that
-      determine the answer for this sector (district category, facility/project type,
-      investment size, bed count, or whatever this sector's onboarding fields cover).
-- Before asking for ANY field, check three places, in this exact order, and stop
-  checking as soon as you find it: (1) the onboarding context above, (2) the Previous
-  Conversation below, (3) the current Question text itself. If the value appears in ANY
-  of these, use it and do NOT ask again.
-- For a PERSONALIZED question, if 1 or more determinative fields are still genuinely
-  unknown after that three-way check, ask for the single most important missing one
-  first — do not answer with a generic, un-personalized list of "possible" incentives
-  as a substitute for asking. One focused clarifying question, not a list of questions.
-- Once you DO have enough details to answer, synthesize across ALL relevant angles the
-  context supports for that situation (e.g. land-related benefits, capital subsidy,
-  fiscal incentives, non-fiscal incentives, required approvals) rather than answering
-  only the narrowest interpretation of what was asked.
-- If the user is asking you to calculate or state a specific figure, and that figure
-  genuinely depends on a number they haven't given anywhere (per the three checks
-  above) per the context's own formula, you MUST ask for that number — do not answer
-  with a caveated guess.
-- If the question is too vague to search meaningfully at all, that also warrants a
-  clarifying question instead of guessing.
-- Never ask about something the onboarding context, previous conversation, or the
-  question itself already answered.
+Cross-questioning (applies to every sector):
+- Classify the question: FACTUAL/DEFINITIONAL ("what is TPC", "does the policy cover X")
+  → answer directly from context, never ask for details. PERSONALIZED/ELIGIBILITY
+  (user describing their own situation, asking what THEY are eligible for, or a figure
+  that genuinely depends on their inputs) → before answering, check whether you already
+  know the fields that determine the answer for this sector. A question too vague to
+  search meaningfully at all also falls here.
+- For a personalized question, check three places in order — onboarding context,
+  previous conversation, the current question itself — stopping as soon as a field is
+  found there; never re-ask a field found in any of these. If fields are still
+  genuinely missing after that check, ask for just the single most important one.
+- If the user has already declined, expressed uncertainty, or been asked this same
+  field before in this session, do NOT ask it again. Switch to type "answer": explain
+  which provisions/mechanisms in the context could apply, state plainly which exact
+  figure or determination can't be made without that value, and stop there.
+- Once you have enough to answer, synthesize across every relevant angle the context
+  supports for that situation (land, capital subsidy, fiscal/non-fiscal incentives,
+  approvals) rather than the narrowest literal reading of the question.
 
 Output format (non-negotiable):
 Respond with ONLY a single valid JSON object — no markdown code fences, no
@@ -939,6 +1021,11 @@ Answer:"""
         ][:4]
     except Exception as e:
         print(f"Structured answer parse failed, treating raw output as a plain answer: {e}")
+
+    if response_type == "clarify":
+        session_last_clarify[data.session_id] = answer
+    else:
+        session_last_clarify.pop(data.session_id, None)
 
     seen_src = set()
     unique_sources = []

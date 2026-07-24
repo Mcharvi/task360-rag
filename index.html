@@ -426,6 +426,7 @@ const FALLBACK_POLICY_SUBQUESTIONS = {
 }
 };
 
+const SKIP_SECTOR = '__SKIP__';
 let sectorsList = FALLBACK_SECTORS;
 let policySubquestions = FALLBACK_POLICY_SUBQUESTIONS;
 
@@ -455,22 +456,16 @@ const T = {
   en: {
     sectorQ:  'Which sector would you like to ask about?',
     done:     (s, extras) => `Great! I'll answer your questions about ${s}${extras.length ? ', ' + extras.join(', ') : ''}. You can now ask your question below.`,
+    doneNoSector: `Got it — I'll search across all policies to answer your question. You can now ask your question below.`,
+    skipOption: 'Not sure — search all policies',
     selectOpt:'-- Select --',
-    confirm:  'Confirm',
-    skip:     'Skip',
-    skipped:  'Skipped',
-    openCalc: '🧮 Open Calculator',
-    ctxLabel: (s, extras) => [s, ...extras].join(' › '),
   },
   hi: {
     sectorQ:  'आप किस क्षेत्र के बारे में जानना चाहते हैं?',
     done:     (s, extras) => `बहुत अच्छा! मैं ${s}${extras.length ? ', ' + extras.join(', ') : ''} के बारे में आपके प्रश्नों का उत्तर दूंगा। नीचे अपना प्रश्न पूछें।`,
+    doneNoSector: `ठीक है — मैं सभी नीतियों में खोज करूंगा। नीचे अपना प्रश्न पूछें।`,
+    skipOption: 'पक्का नहीं — सभी नीतियों में खोजें',
     selectOpt:'-- चुनें --',
-    confirm:  'पुष्टि करें',
-    skip:     'छोड़ें',
-    skipped:  'छोड़ा गया',
-    openCalc: '🧮 कैलकुलेटर खोलें',
-    ctxLabel: (s, extras) => [s, ...extras].join(' › '),
   }
 };
 function t(){ return userLang === 'hindi' ? T.hi : T.en; }
@@ -648,6 +643,7 @@ function showSectorStep(){
       </div>
       <select class="ob-select" id="sectorSelect">
         <option value="">${t().selectOpt}</option>
+        <option value="${SKIP_SECTOR}">${esc(t().skipOption)}</option>
         ${opts}
       </select>
       <br>
@@ -664,12 +660,22 @@ function showSectorStep(){
 function confirmSector(){
   const sel = document.getElementById('sectorSelect');
   if(!sel || !sel.value) return;
-  userSector = sel.value;
-  addUser(userSector);
-  onboardingStep = 3;
 
   subAnswers = {};
   subIndex = 0;
+
+  if(sel.value === SKIP_SECTOR){
+    userSector = null;
+    addUser(t().skipOption);
+    onboardingStep = 3;
+    subQuestions = [];
+    finishOnboarding();
+    return;
+  }
+
+  userSector = sel.value;
+  addUser(userSector);
+  onboardingStep = 3;
   subQuestions = (policySubquestions[userSector] && policySubquestions[userSector].questions) || [];
 
   if(subQuestions.length){
@@ -805,14 +811,17 @@ function finishOnboarding(){
     .filter(q => subAnswers[q.id])
     .map(q => subAnswers[q.id]);
 
-  const msg = t().done(userSector, answeredValues);
+  const msg = userSector ? t().done(userSector, answeredValues) : t().doneNoSector;
   addBotRaw(`<div style="color:#15803D;font-weight:600">✅ ${esc(msg)}</div>`);
 
   // Build context prefix matching api.py's parse_context() regex:
   // [Context: Sector = X, Facility Type = Y, District Category = Z, Language = hindi]
   // Only answered (non-skipped) subquestions are included — conditional,
-  // not glued onto every message regardless of relevance.
-  const parts = [`Sector = ${userSector}`];
+  // not glued onto every message regardless of relevance. Sector is omitted
+  // entirely when skipped, so the backend treats it as sector=None (search
+  // all policies) — matches api.py's parse_context() behavior.
+  const parts = [];
+  if(userSector) parts.push(`Sector = ${userSector}`);
   subQuestions.forEach(q => {
     const val = subAnswers[q.id];
     if(val) parts.push(`${q.context_label || q.id} = ${val}`);
@@ -820,11 +829,13 @@ function finishOnboarding(){
   parts.push(`Language = ${userLang}`);
   contextPrefix = `[Context: ${parts.join(', ')}]\n\n`;
 
-  ctxText.innerHTML = `<span class="ctx-tag">${esc(t().ctxLabel(userSector, answeredValues))}</span>`;
+  ctxText.innerHTML = userSector
+    ? `<span class="ctx-tag">${esc(t().ctxLabel(userSector, answeredValues))}</span>`
+    : `<span class="ctx-tag">${esc(t().skipOption)}</span>`;
 
   // Calculator icon/link — only shown when this sector has one configured.
   ctxCalcSlot.innerHTML = '';
-  const calcCfg = policySubquestions[userSector];
+  const calcCfg = userSector ? policySubquestions[userSector] : null;
   if(calcCfg && calcCfg.calculator_slug){
     const params = new URLSearchParams();
     subQuestions.forEach(q => {
